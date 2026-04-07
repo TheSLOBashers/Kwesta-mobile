@@ -14,14 +14,16 @@ interface Props {
   onSelectComment: (comment: any) => void;
   commentIsOpen: boolean;
   setCommentIsOpen: (v: boolean) => void;
+  setQuestIsOpen: (v: boolean) => void;
+  setEventIsOpen: (v: boolean) => void;
 }
 
-function Comments({ comments, setComments, onPointsChanged, onSelectComment, commentIsOpen, setCommentIsOpen }: Props) {
+function Comments({ comments, setComments, onPointsChanged, onSelectComment, commentIsOpen, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
 
   return (
     <>
       <OpenButton
-        onClick={() => setCommentIsOpen(!commentIsOpen)}
+        onClick={() => {setCommentIsOpen(!commentIsOpen); setQuestIsOpen(false); setEventIsOpen(false);}}
         text={"Comments"}
         position="10%"
       />
@@ -33,7 +35,7 @@ function Comments({ comments, setComments, onPointsChanged, onSelectComment, com
           setComments={setComments}
           onPointsChanged={onPointsChanged}
           open={commentIsOpen}
-          close={() => {setCommentIsOpen(false), console.log("breakpoint 2")}}
+          close={() => {setCommentIsOpen(false)}}
           onSelectComment={onSelectComment}
         />
       ) : null}

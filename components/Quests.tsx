@@ -4,40 +4,41 @@ import { useState, useEffect } from "react";
 
 import CommentOverlay from './CommentOverlay'
 import EventOverlay from "./EventOverlay";
+import QuestOverlay from "./QuestOverlay";
 import OpenButton from "./OpenButton";
 
 import { View, StyleSheet, Pressable } from "react-native";
 
 interface Props {
-  events: any;
-  setEvents: (events: any) => void;
+  quests: any;
+  setQuests: (events: any) => void;
   onPointsChanged: () => void;
-  onSelectEvent: (events: any) => void;
-  eventIsOpen: boolean;
+  onSelectQuest: (events: any) => void;
+  questIsOpen: boolean;
   setCommentIsOpen: (v: boolean) => void;
   setQuestIsOpen: (v: boolean) => void;
   setEventIsOpen: (v: boolean) => void;
 }
 
-function Events({ events, setEvents, onPointsChanged, onSelectEvent, eventIsOpen, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
+function Quests({ quests, setQuests, onPointsChanged, onSelectQuest, questIsOpen, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
 
   return (
     <>
       <OpenButton
-        onClick={() => {setEventIsOpen(!eventIsOpen); setQuestIsOpen(false); setCommentIsOpen(false);}}
-        text={"Events"}
-        position="70%"
+        onClick={() => {setQuestIsOpen(!questIsOpen); setCommentIsOpen(false); setEventIsOpen(false);}}
+        text={"Quests"}
+        position="40%"
       />
 
-      {eventIsOpen ? (
-        <EventOverlay
-          key={events.length}
-          events={events}
-          setEvents={setEvents}
+      {questIsOpen ? (
+        <QuestOverlay
+          key={quests.length}
+          quests={quests}
+          setQuests={setQuests}
           onPointsChanged={onPointsChanged}
-          open={eventIsOpen}
-          close={() => {setEventIsOpen(false); console.log("breakpoint 1")}}
-          onSelectEvent={onSelectEvent}
+          open={questIsOpen}
+          close={() => {setQuestIsOpen(false);}}
+          onSelectQuest={onSelectQuest}
         />
       ) : null}
     </>
@@ -53,4 +54,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Events;
+export default Quests;

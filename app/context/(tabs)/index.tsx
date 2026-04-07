@@ -10,6 +10,7 @@ import AddButtonOverlay from "./AddButtonOverlay";
 import MapSection from "@/components/MapSection";
 import Comments from "@/components/Comments";
 import Events from "@/components/Events";
+import Quests from "@/components/Quests";
 import AddButtonOverlay from "@/components/AddButtonOverlay";
 import PointsOverlay from "@/components/PointsOverlay";
 
@@ -46,6 +47,7 @@ function UserFeed() {
   // open
   const [commentIsOpen, setCommentIsOpen] = useState(false);
   const [eventIsOpen, setEventIsOpen] = useState(false);
+  const [questIsOpen, setQuestIsOpen] = useState(false)
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
@@ -204,6 +206,8 @@ function UserFeed() {
         onSelectComment={(comment: any) => setSelectedCommentId(comment?.id ?? null)}
         commentIsOpen={commentIsOpen} 
         setCommentIsOpen={setCommentIsOpen}
+        setEventIsOpen={setEventIsOpen}
+        setQuestIsOpen={setQuestIsOpen}
       />
       <Events
         events={events}
@@ -211,8 +215,19 @@ function UserFeed() {
         onPointsChanged={refreshUserPoints}
         onSelectEvent={(event: any) => setsselectedEventId(event?.id ?? null)}
         eventIsOpen={eventIsOpen} 
+        setCommentIsOpen={setCommentIsOpen}
         setEventIsOpen={setEventIsOpen}
+        setQuestIsOpen={setQuestIsOpen}
       />
+      <Quests
+        quests={quests}
+        setQuests={setQuests}
+        onPointsChanged={refreshUserPoints}
+        onSelectQuest={(event: any) => setselectedQuestId(event?.id ?? null)}
+        questIsOpen={questIsOpen} 
+        setCommentIsOpen={setCommentIsOpen}
+        setEventIsOpen={setEventIsOpen}
+        setQuestIsOpen={setQuestIsOpen}      />
       <AddButtonOverlay
         username={username}
         onAddComment={handleAddComment}
@@ -222,6 +237,8 @@ function UserFeed() {
         setShowClickMarkers={setShowClickMarkers}
         location={location}
         setCommentIsOpen={setCommentIsOpen}
+        setEventIsOpen={setEventIsOpen}
+        setQuestIsOpen={setQuestIsOpen}
       />
       <PointsOverlay points={points}/>
     </View>
@@ -266,7 +283,7 @@ const styles = StyleSheet.create({
   loadingText: { position: "absolute", top: "50%" },
   loadingIcon: { position: "absolute", top: "25%", right: "50%" },
   content: { height: "10%", width: "100%" },
-  text: { color: "#ccc" }
+  text: { color: "#ccc", textAlign: "center" }
 });
 
 export default UserFeed;

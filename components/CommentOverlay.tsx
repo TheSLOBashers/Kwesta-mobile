@@ -92,9 +92,9 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
     return (
         <View style={styles.backdrop}>
             {open && (
-                <Pressable style={styles.backdrop} onPress={close} />
+                <Pressable style={StyleSheet.absoluteFill} onPress={close} />
             )}
-            <View style={styles.overlay}>
+            <View style={styles.overlay} pointerEvents="box-none">
                 <ScrollView
                     ref={scrollRef}
                     horizontal
@@ -103,8 +103,7 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                     onMomentumScrollEnd={handleMomentumEnd}
                 >
                     {comments.map((c: any, i: any) => (
-                        <TouchableWithoutFeedback key={`${c.id}-${i}`} onPress={() => { }}>
-                            <View style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
+                            <View key={`${c.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                 <Text style={styles.author}>{c.author}</Text>
                                 <Text>{c.comment}</Text>
                                 <Text>Likes: {c.likes || 0}</Text>
@@ -121,7 +120,6 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                                     </Pressable>
                                 )}
                             </View>
-                        </TouchableWithoutFeedback>
                     ))}
                 </ScrollView>
             </View>

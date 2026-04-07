@@ -4,6 +4,7 @@ import AddButton from "./AddButton";
 import { TouchableWithoutFeedback, StyleSheet, View, Pressable, Text } from "react-native";
 
 import CommentForm from "./CommentForm";
+import EventForm from "./EventForm";
 //import EventForm from "./EventForm";
 //import QuestForm from "./QuestForm";
 
@@ -20,10 +21,12 @@ interface Props {
     clickedLocation: location;
     location: any;
     setShowClickMarkers: (data: boolean) => void;
+    setQuestIsOpen: (v: boolean) => void;
+    setEventIsOpen: (v: boolean) => void;
     setCommentIsOpen: (v: boolean) => void;
 }
 
-function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, onAddQuest, clickedLocation, location, setShowClickMarkers, setCommentIsOpen }: Props) {
+function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, onAddQuest, clickedLocation, location, setShowClickMarkers, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
 
     const [open, setOpen] = useState(false);
     const [formType, setFormType] = useState<null | string>(null);
@@ -32,6 +35,8 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
     useEffect(() => {
         if(!(formType===null)) {
             setCommentIsOpen(false)
+            setQuestIsOpen(false)
+            setEventIsOpen(false)
         }
 
         if (formType === "event" || formType === "quest") {
@@ -69,7 +74,10 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 : "translate(0, 0) scale(0)",
         },
         eventButton: {
-            backgroundColor: "#2196F3",
+            backgroundColor: "#4CAF50",
+            transform: open
+                ? "translate(0%, 500%) scale(1.0)"
+                : "translate(0, 0) scale(0)",
         },
         questButton: {
             backgroundColor: "#f3c221",
@@ -103,6 +111,20 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
             >
                 <Text>C</Text>
             </Pressable>
+            <Pressable
+                aria-label="add comment"
+                style={[
+                    styles.menuButton,
+                    styles.eventButton
+                ]}
+                onPress={() => {
+                    setFormType("event");
+                    setOpen(false);
+                }}
+                pointerEvents={open ? "auto" : "none"}
+            >
+                <Text>E</Text>
+            </Pressable>
 
             {formType === "comment" ? (
                 <CommentForm
@@ -113,6 +135,17 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                     onClose={() => setFormType(null)}
                     username={username}
                     location={location}
+                />
+            ) : null}
+            {formType === "event" ? (
+                <EventForm
+                    onSubmit={async (eventData: any) => {
+                        await onAddEvent(eventData);
+                        setFormType(null);
+                    }}
+                    onClose={() => setFormType(null)}
+                    username={username}
+                    location={clickedLocation}
                 />
             ) : null}
 

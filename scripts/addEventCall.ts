@@ -12,13 +12,14 @@ const addEventCall = async (eventData: any,  token: string | null) => {
         });
         
         if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
+            let text = await response.text();
+            throw new Error(`Error: ${String(text)}`);
         }
 
         const json = await response.json();
         return json;
-    } catch (err) {
-        console.error("Error adding event:", err);
+    } catch (err: any) {
+        console.error("Error adding event:", err.message);
         return null;
     }
 };

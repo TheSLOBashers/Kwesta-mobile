@@ -7,12 +7,13 @@ const styles = StyleSheet.create({
     backdrop: {
         ...StyleSheet.absoluteFillObject,
         zIndex: 1000,
-
     },
     overlay: {
-        flex: 1,
         marginTop: 85,
+        marginBottom: "120%",
         justifyContent: "flex-start",
+        alignSelf: "flex-start",
+        flexGrow: 0
     },
     Card: {
         width: CARD_WIDTH,

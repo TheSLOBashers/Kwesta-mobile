@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet, Dimensions, Alert, TouchableWithoutFeedback } from "react-native";
 import joinEvent from "@/scripts/joinEvent";
+import joinQuest from "@/scripts/joinQuest";
+import unjoinQuest from "@/scripts/unjoinQuest";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import { useAuth } from '@/components/auth-context';
 import { useSnappedCard } from "@/hooks/use-snapped-card";
@@ -9,28 +11,28 @@ import overlayStyle from "../styles/overlayStyle"
 interface Props {
     open: boolean;
     close: () => void;
-    events: any;
-    setEvents: (comments: any) => void;
+    quests: any;
+    setQuests: (comments: any) => void;
     onPointsChanged: () => void;
-    onSelectEvent: (comment: any) => void
+    onSelectQuest: (comment: any) => void
 }
 
 const styles = overlayStyle.styles;
 const CARD_WIDTH = overlayStyle.CARD_WIDTH;
 const CARD_MARGIN = overlayStyle.CARD_MARGIN;
 
-export default function EventOverlay({ close, events, setEvents, onPointsChanged, onSelectEvent, open }: Props) {
+export default function QuestOverlay({ close, quests, setQuests, onPointsChanged, onSelectQuest, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
     const { active, snapToCard } = useSnappedCard(0);
     const { token } = useAuth();
 
     useEffect(() => {
-        if (!onSelectEvent) return;
-        onSelectEvent(events[active] ?? null);
-    }, [active, events]);
+        if (!onSelectQuest) return;
+        onSelectQuest(quests[active] ?? null);
+    }, [active, quests]);
 
     const handleMomentumEnd = (e: any) => {
-        const snapped = snapToCard(e.nativeEvent.contentOffset.x, CARD_WIDTH, CARD_MARGIN, events.length);
+        const snapped = snapToCard(e.nativeEvent.contentOffset.x, CARD_WIDTH, CARD_MARGIN, quests.length);
         scrollRef.current?.scrollTo({ x: snapped * (CARD_WIDTH + CARD_MARGIN), animated: true });
     };
 
@@ -68,10 +70,10 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
             */
 
     function handleJoin(eventId: any) {
-        joinEvent(eventId, token)
+        joinQuest(eventId, token)
             .then(async () => {
                 // Update the local state to reflect the change
-                setEvents((prevEvents : any) =>
+                setQuests((prevEvents : any) =>
                 prevEvents.map((e: any) =>
                     e.id === eventId ? { ...e, joined: true } : e
                 )
@@ -87,9 +89,9 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
     }
 
     function handleUnjoin(eventId : any) {
-        unjoinEvent(eventId, token)
+        unjoinQuest(eventId, token)
         .then(() => {
-            setEvents((prevEvents: any) =>
+            setQuests((prevEvents: any) =>
             prevEvents.map((e: any) =>
                 e.id === eventId ? { ...e, joined: false } : e
             )
@@ -114,17 +116,17 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                     contentContainerStyle={styles.Slider}
                     onMomentumScrollEnd={handleMomentumEnd}
                 >
-                    {events.map((e: any, i: any) => (
-                            <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                <Text style={styles.author}>{e.author}</Text>
-                                <Text>{e.description}</Text>
-                                {e.joined ? (
-                                    <Pressable onPress={() => handleJoin(e.id)}>
-                                        <Text>Join Event</Text>
+                    {quests.map((q: any, i: any) => (
+                            <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
+                                <Text style={styles.author}>{q.author}</Text>
+                                <Text>{q.description}</Text>
+                                {q.joined ? (
+                                    <Pressable onPress={() => handleJoin(q.id)}>
+                                        <Text>Join Quest</Text>
                                     </Pressable>
                                 ) : (
-                                    <Pressable onPress={() => handleUnjoin(e.id)}>
-                                        <Text>Unjoin Event</Text>
+                                    <Pressable onPress={() => handleUnjoin(q.id)}>
+                                        <Text>Unjoin Quest</Text>
                                     </Pressable>
                                 )}
                             </View>
