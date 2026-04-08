@@ -20,8 +20,8 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
             return;
         };
         const validLocation = {
-            lat: location.latitude != null ? location.latitude : 0,
-            lng: location.longitude != null ? location.longitude : 0,
+            lat: location.lat != null ? location.lat : 0,
+            lng: location.lng != null ? location.lng : 0,
         };
 
         const eventData = {
