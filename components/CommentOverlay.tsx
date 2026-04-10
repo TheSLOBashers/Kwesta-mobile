@@ -3,7 +3,7 @@ import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -87,64 +87,79 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
     return (
         <View style={styles.backdrop}>
             {open && (
-                <Pressable style={StyleSheet.absoluteFill} onPress={close} />
+                <>
+                    <Pressable
+                        style={styles.backdrop}
+                        onPress={close}
+                    />
+
+                    <View style={styles.overlay} pointerEvents="box-none">
+                        <ScrollView
+                            ref={scrollRef}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.Slider}
+                            snapToInterval={CARD_WIDTH + CARD_MARGIN}
+                            snapToAlignment="center"
+                            decelerationRate="fast"
+                            onScroll={(e) => {
+                                const x = e.nativeEvent.contentOffset.x;
+                                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                                setActive(index);
+                            }}
+                            scrollEventThrottle={16}
+                        >
+                            {comments.map((c: any, i: any) => {
+                                const dateObj = new Date(c.date);
+
+                                const formattedDate =
+                                    dateObj.toLocaleDateString([], {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    }) +
+                                    " • " +
+                                    dateObj.toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    });
+
+                                return (
+                                    <View
+                                        key={`${c.id}-${i}`}
+                                        style={[
+                                            styles.Card,
+                                            { transform: [{ scale: i === active ? 1 : 0.92 }] },
+                                        ]}
+                                        >
+                                        <Text style={styles.author}>{c.author}</Text>
+                                        <Text>{formattedDate}</Text>
+                                        <Text>{c.comment}</Text>
+                                        <Text>Likes: {c.likes || 0}</Text>
+
+                                        <Pressable
+                                            onPress={() => handleLike(c.id)}
+                                            disabled={c.likedByUser}
+                                        >
+                                            <Text>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
+                                        </Pressable>
+
+                                        {c.flaggedByUser ? (
+                                            <Pressable onPress={() => handleUnflag(c.id)}>
+                                                <Text>Unflag comment</Text>
+                                            </Pressable>
+                                        ) : (
+                                            <Pressable onPress={() => handleFlag(c.id)}>
+                                                <Text>Flag comment</Text>
+                                            </Pressable>
+                                        )}
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
+                    </View>
+                </>
             )}
-            <View style={styles.overlay} pointerEvents="box-none">
-                <ScrollView
-                    ref={scrollRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.Slider}
-                    snapToInterval={CARD_WIDTH + CARD_MARGIN}
-                    snapToAlignment="center"
-                    decelerationRate="fast"
-
-                    onScroll={(e) => {
-                        const x = e.nativeEvent.contentOffset.x;
-
-                        const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-                        setActive(index);
-                    }}
-                    scrollEventThrottle={16}
-                >
-                    {comments.map((c: any, i: any) => {
-                        const dateObj = new Date(c.date);
-
-                        const formattedDate =
-                            dateObj.toLocaleDateString([], {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                            }) +
-                            " • " +
-                            dateObj.toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            });
-
-                        return(
-                            <View key={`${c.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                <Text style={styles.author}>{c.author}</Text>
-                                <Text>{formattedDate}</Text>
-                                <Text>{c.comment}</Text>
-                                <Text>Likes: {c.likes || 0}</Text>
-                                <Pressable onPress={() => handleLike(c.id)} disabled={c.likedByUser}>
-                                    <Text>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
-                                </Pressable>
-                                {c.flaggedByUser ? (
-                                    <Pressable onPress={() => handleUnflag(c.id)}>
-                                        <Text>Unflag comment</Text>
-                                    </Pressable>
-                                ) : (
-                                    <Pressable onPress={() => handleFlag(c.id)}>
-                                        <Text>Flag comment</Text>
-                                    </Pressable>
-                                )}
-                            </View>
-                        );
-                    })}
-                </ScrollView>
-            </View>
         </View>
     );
 }

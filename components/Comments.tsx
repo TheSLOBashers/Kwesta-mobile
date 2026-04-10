@@ -1,44 +1,30 @@
 
 import React from "react";
-import { useState, useEffect } from "react";
 
-import CommentOverlay from './CommentOverlay'
 import OpenButton from "./OpenButton";
 
-import { View, StyleSheet, Pressable } from "react-native";
+import { StyleSheet } from "react-native";
 
 interface Props {
   comments: any;
   setComments: (comments: any) => void;
   onPointsChanged: () => void;
   onSelectComment: (comment: any) => void;
-  commentIsOpen: boolean;
-  setCommentIsOpen: (v: boolean) => void;
-  setQuestIsOpen: (v: boolean) => void;
-  setEventIsOpen: (v: boolean) => void;
+  activeOverlay: string | null;
+  setActiveOverlay: (v: any) => void;
 }
 
-function Comments({ comments, setComments, onPointsChanged, onSelectComment, commentIsOpen, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
+function Comments({ comments, setComments, onPointsChanged, onSelectComment, activeOverlay, setActiveOverlay }: Props) {
 
+  const isOpen = activeOverlay === "comments";
+  
   return (
     <>
       <OpenButton
-        onClick={() => {setCommentIsOpen(!commentIsOpen); setQuestIsOpen(false); setEventIsOpen(false);}}
+        onClick={() => setActiveOverlay(isOpen ? null : "comments")}
         text={"Comments"}
         position="10%"
       />
-
-      {commentIsOpen ? (
-        <CommentOverlay
-          key={comments.length}
-          comments={comments}
-          setComments={setComments}
-          onPointsChanged={onPointsChanged}
-          open={commentIsOpen}
-          close={() => {setCommentIsOpen(false)}}
-          onSelectComment={onSelectComment}
-        />
-      ) : null}
     </>
   );
 }

@@ -7,10 +7,13 @@ import Quests from "./Quests";
 import AddButtonOverlay from "./AddButtonOverlay";
 */
 import AddButtonOverlay from "@/components/AddButtonOverlay";
+import CommentOverlay from "@/components/CommentOverlay";
 import Comments from "@/components/Comments";
+import EventOverlay from "@/components/EventOverlay";
 import Events from "@/components/Events";
 import MapSection from "@/components/MapSection";
 import PointsOverlay from "@/components/PointsOverlay";
+import QuestOverlay from "@/components/QuestOverlay";
 import Quests from "@/components/Quests";
 
 import addCommentCall from "@/scripts/addCommentCall";
@@ -44,9 +47,7 @@ function UserFeed() {
   const [selectedQuestId, setselectedQuestId] = useState(null);
   const [selectedEventId, setsselectedEventId] = useState(null);
   // open
-  const [commentIsOpen, setCommentIsOpen] = useState(false);
-  const [eventIsOpen, setEventIsOpen] = useState(false);
-  const [questIsOpen, setQuestIsOpen] = useState(false)
+  const [activeOverlay, setActiveOverlay] = useState<"comments" | "events" | "quests" | null>(null);
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
@@ -180,6 +181,46 @@ function UserFeed() {
   // Don't load map unless location permissions enabled
   if (!location && !locationAllowed) return <View style={[styles.container, styles.loading]}><Text style={[styles.text, styles.loadingText]}>Kwesta needs your location to run!</Text><ActivityIndicator style = {styles.loadingIcon} size="large" color="#FF6C00" /></View>;
   if (!location && locationAllowed) return <View style={[styles.container, styles.loading]}><Text style={[styles.text, styles.loadingText]}>Loading map...</Text><ActivityIndicator style = {styles.loadingIcon} size="large" color="#FF6C00" /></View>;
+  
+  let overlay = null;
+  if (activeOverlay === "comments") {
+    overlay = (
+      <CommentOverlay
+        comments={comments}
+        setComments={setComments}
+        onPointsChanged={refreshUserPoints}
+        onSelectComment={(c) => setSelectedCommentId(c?.id ?? null)}
+        open={true}
+        close={() => setActiveOverlay(null)}
+      />
+    );
+  }
+
+  if (activeOverlay === "events") {
+    overlay = (
+      <EventOverlay
+        events={events}
+        setEvents={setEvents}
+        onPointsChanged={refreshUserPoints}
+        onSelectEvent={(e) => setsselectedEventId(e?.id ?? null)}
+        open={true}
+        close={() => setActiveOverlay(null)}
+      />
+    );
+  }
+
+  if (activeOverlay === "quests") {
+    overlay = (
+      <QuestOverlay
+        quests={quests}
+        setQuests={setQuests}
+        onPointsChanged={refreshUserPoints}
+        onSelectQuest={(q) => setselectedQuestId(q?.id ?? null)}
+        open={true}
+        close={() => setActiveOverlay(null)}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -200,30 +241,25 @@ function UserFeed() {
         setComments={setComments}
         onPointsChanged={refreshUserPoints}
         onSelectComment={(comment: any) => setSelectedCommentId(comment?.id ?? null)}
-        commentIsOpen={commentIsOpen} 
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
       />
       <Events
         events={events}
         setEvents={setEvents}
         onPointsChanged={refreshUserPoints}
         onSelectEvent={(event: any) => setsselectedEventId(event?.id ?? null)}
-        eventIsOpen={eventIsOpen} 
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
       />
       <Quests
         quests={quests}
         setQuests={setQuests}
         onPointsChanged={refreshUserPoints}
         onSelectQuest={(event: any) => setselectedQuestId(event?.id ?? null)}
-        questIsOpen={questIsOpen} 
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}      />
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}     
+      />
       <AddButtonOverlay
         username={username}
         onAddComment={handleAddComment}
@@ -232,11 +268,11 @@ function UserFeed() {
         clickedLocation={clickedLocation}
         setShowClickMarkers={setShowClickMarkers}
         location={location}
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
       />
       <PointsOverlay points={points}/>
+      {overlay}
     </View>
   );
 }

@@ -2,7 +2,7 @@ import { useAuth } from '@/components/auth-context';
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -66,43 +66,46 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
     return (
         <View style={styles.backdrop}>
             {open && (
-                <Pressable style={StyleSheet.absoluteFill} onPress={close} />
+                <>
+                <Pressable style={styles.backdrop} onPress={close} />
+            
+                    <View style={styles.overlay} pointerEvents="box-none">
+                        <ScrollView
+                            ref={scrollRef}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.Slider}
+                            snapToInterval={CARD_WIDTH + CARD_MARGIN}
+                            snapToAlignment="center"
+                            decelerationRate="fast"
+
+                            onScroll={(e) => {
+                                const x = e.nativeEvent.contentOffset.x;
+
+                                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                                setActive(index);
+                            }}
+                            scrollEventThrottle={16}
+                        >
+                            {quests.map((q: any, i: any) => (
+                                    <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
+                                        <Text style={styles.author}>{q.author}</Text>
+                                        <Text>{q.description}</Text>
+                                        {q.joined ? (
+                                            <Pressable onPress={() => handleUnjoin(q.id)}>
+                                                <Text>Unjoin Quest</Text>
+                                            </Pressable>
+                                        ) : (
+                                            <Pressable onPress={() => handleJoin(q.id)}>
+                                                <Text>Join Quest</Text>
+                                            </Pressable>
+                                        )}
+                                    </View>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </>
             )}
-            <View style={styles.overlay} pointerEvents="box-none">
-                <ScrollView
-                    ref={scrollRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.Slider}
-                    snapToInterval={CARD_WIDTH + CARD_MARGIN}
-                    snapToAlignment="center"
-                    decelerationRate="fast"
-
-                    onScroll={(e) => {
-                        const x = e.nativeEvent.contentOffset.x;
-
-                        const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-                        setActive(index);
-                    }}
-                    scrollEventThrottle={16}
-                >
-                    {quests.map((q: any, i: any) => (
-                            <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                <Text style={styles.author}>{q.author}</Text>
-                                <Text>{q.description}</Text>
-                                {q.joined ? (
-                                    <Pressable onPress={() => handleUnjoin(q.id)}>
-                                        <Text>Unjoin Quest</Text>
-                                    </Pressable>
-                                ) : (
-                                    <Pressable onPress={() => handleJoin(q.id)}>
-                                        <Text>Join Quest</Text>
-                                    </Pressable>
-                                )}
-                            </View>
-                    ))}
-                </ScrollView>
-            </View>
         </View>
     );
 }

@@ -5,14 +5,20 @@ const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
 
 const styles = StyleSheet.create({
-    backdrop: {
+    container: {
         ...StyleSheet.absoluteFillObject,
         zIndex: 1000,
+    },
+    backdrop: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: "rgba(0,0,0,0.1)",
+        zIndex: 1,
     },
     overlay: {
         position: "absolute",
         marginTop: 85,
         justifyContent: "flex-start",
+        zIndex: 2,
     },
     Card: {
         width: CARD_WIDTH,
