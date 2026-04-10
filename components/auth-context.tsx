@@ -1,8 +1,9 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
-import { username as Username } from '@/scripts/username';
-import { user as User } from '@/scripts/user';
-import { token as Token } from '@/scripts/token';
 import { moderator as Moderator } from '@/scripts/moderator';
+import { token as Token } from '@/scripts/token';
+import { user as User } from '@/scripts/user';
+import { username as Username } from '@/scripts/username';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Text, View } from 'react-native';
 
 interface AuthContextType {
   user: string | null;
@@ -53,6 +54,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadData();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading session...</Text>
+      </View>
+    );
+  }
+
 
   const setMod = (m: string | null) => {
     setModerator(m);
@@ -96,7 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, setUserAs, username, setUsernameAs, token, setTokenAs, moderator, setMod, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

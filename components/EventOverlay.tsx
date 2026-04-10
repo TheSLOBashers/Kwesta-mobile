@@ -1,10 +1,9 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, Dimensions, Alert, TouchableWithoutFeedback } from "react-native";
+import { useAuth } from '@/components/auth-context';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
-import { useAuth } from '@/components/auth-context';
-import { useSnappedCard } from "@/hooks/use-snapped-card";
-import overlayStyle from "../styles/overlayStyle"
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
     open: boolean;
@@ -16,56 +15,19 @@ interface Props {
 }
 
 const styles = overlayStyle.styles;
-const CARD_WIDTH = overlayStyle.CARD_WIDTH;
-const CARD_MARGIN = overlayStyle.CARD_MARGIN;
+const screen_width = Dimensions.get("window").width;
+const CARD_WIDTH = screen_width * 0.8;
+const CARD_MARGIN = 16;
 
 export default function EventOverlay({ close, events, setEvents, onPointsChanged, onSelectEvent, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
-    const { active, snapToCard } = useSnappedCard(0);
+    const [active, setActive] = useState(0);
     const { token } = useAuth();
 
     useEffect(() => {
         if (!onSelectEvent) return;
         onSelectEvent(events[active] ?? null);
     }, [active, events]);
-
-    const handleMomentumEnd = (e: any) => {
-        const snapped = snapToCard(e.nativeEvent.contentOffset.x, CARD_WIDTH, CARD_MARGIN, events.length);
-        scrollRef.current?.scrollTo({ x: snapped * (CARD_WIDTH + CARD_MARGIN), animated: true });
-    };
-
-    /*
-    function handleJoin(CId: any) {
-        flagComment(CId, token)
-            .then(() => {
-                // Update the local state to reflect the change
-                setEvents((prevComments: any) =>
-                    prevComments.map((c: any) =>
-                        c.id === CId ? { ...c, flaggedByUser: true } : c
-                    )
-                );
-                alert("Successfully flagged comment!");
-            })
-            .catch(error => {
-                alert("Error flagging comment: " + error.message);
-            });
-    }
-
-    function handleUnjoin(CId: any) {
-        unflagComment(CId, token)
-            .then(() => {
-                setEvents((prevComments: any) =>
-                    prevComments.map((c: any) =>
-                        c.id === CId ? { ...c, flaggedByUser: false } : c
-                    )
-                );
-                alert("Successfully unflagged comment!");
-            })
-            .catch(error => {
-                alert("Error unflagging comment: " + error.message);
-            });
-    }
-            */
 
     function handleJoin(eventId: any) {
         joinEvent(eventId, token)
@@ -112,19 +74,29 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.Slider}
-                    onMomentumScrollEnd={handleMomentumEnd}
+                    snapToInterval={CARD_WIDTH + CARD_MARGIN}
+                    snapToAlignment="center"
+                    decelerationRate="fast"
+
+                    onScroll={(e) => {
+                        const x = e.nativeEvent.contentOffset.x;
+
+                        const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                        setActive(index);
+                    }}
+                    scrollEventThrottle={16}
                 >
                     {events.map((e: any, i: any) => (
                             <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                 <Text style={styles.author}>{e.author}</Text>
                                 <Text>{e.description}</Text>
                                 {e.joined ? (
-                                    <Pressable onPress={() => handleJoin(e.id)}>
-                                        <Text>Join Event</Text>
-                                    </Pressable>
-                                ) : (
                                     <Pressable onPress={() => handleUnjoin(e.id)}>
                                         <Text>Unjoin Event</Text>
+                                    </Pressable>
+                                ) : (
+                                    <Pressable onPress={() => handleJoin(e.id)}>
+                                        <Text>Join Event</Text>
                                     </Pressable>
                                 )}
                             </View>

@@ -1,6 +1,7 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 
-const CARD_WIDTH = Dimensions.get("window").width * 0.85;
+const screen_width = Dimensions.get("window").width;
+const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
 
 const styles = StyleSheet.create({
@@ -9,11 +10,9 @@ const styles = StyleSheet.create({
         zIndex: 1000,
     },
     overlay: {
+        position: "absolute",
         marginTop: 85,
-        marginBottom: "120%",
         justifyContent: "flex-start",
-        alignSelf: "flex-start",
-        flexGrow: 0
     },
     Card: {
         width: CARD_WIDTH,
@@ -21,12 +20,12 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 20,
         padding: 20,
-        marginRight: CARD_MARGIN,
-        marginTop: "0.3%"
+        marginHorizontal: CARD_MARGIN / 2,
+        marginTop: 16,
+        overflow: "hidden",
     },
     Slider: {
         flexDirection: "row",
-        paddingHorizontal: "7.5%",
     },
     author: { fontWeight: "600", fontSize: 18, marginBottom: 8 },
 });

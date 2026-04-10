@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 /*
 import Comments from "./Comments";
@@ -7,25 +6,25 @@ import Events from "./Events";
 import Quests from "./Quests";
 import AddButtonOverlay from "./AddButtonOverlay";
 */
-import MapSection from "@/components/MapSection";
+import AddButtonOverlay from "@/components/AddButtonOverlay";
 import Comments from "@/components/Comments";
 import Events from "@/components/Events";
-import Quests from "@/components/Quests";
-import AddButtonOverlay from "@/components/AddButtonOverlay";
+import MapSection from "@/components/MapSection";
 import PointsOverlay from "@/components/PointsOverlay";
+import Quests from "@/components/Quests";
 
-import getCommentsCall from "@/scripts/getCommentsCall";
-import getEventsCall from "@/scripts/getEventsCall";
-import getQuestsCall from "@/scripts/getQuestsCall";
 import addCommentCall from "@/scripts/addCommentCall";
 import addEventCall from "@/scripts/addEventCall";
 import addQuestCall from "@/scripts/addQuestCall";
+import getCommentsCall from "@/scripts/getCommentsCall";
+import getEventsCall from "@/scripts/getEventsCall";
+import getQuestsCall from "@/scripts/getQuestsCall";
 import * as Location from 'expo-location';
 
 import { useAuth } from '@/components/auth-context';
 import { usePoints } from "@/components/points-context";
 
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
 function UserFeed() {
   const { user, username, token } = useAuth();
@@ -102,16 +101,13 @@ function UserFeed() {
 
     const commentWithUsername = {
       comment: newComment.comment,            // use backend response
-      id: newComment.comment._id,
+      id: newComment._id,
       author: username,
-      likes: newComment.comment.likes || 0,
-      likedByUser: (newComment.comment.likedBy || []).some(
-        (uid: any) => uid.toString() === user
-      ),
-      flaggedByUser: (newComment.comment.flags || []).some(
-        (f: any) => f.toString() === user
-      ),
+      likes: newComment.likes || 0,
+      likedByUser: false,
+      flaggedByUser: false,
       location: newComment.location || { lat: 0, lng: 0 },
+      date: newComment.date
     };
 
     setComments((prev: any) => [commentWithUsername, ...prev]);

@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, Dimensions, Alert, TouchableWithoutFeedback } from "react-native";
+import { useAuth } from '@/components/auth-context';
 import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
-import { useAuth } from '@/components/auth-context';
-import { useSnappedCard } from "@/hooks/use-snapped-card";
-import overlayStyle from "../styles/overlayStyle"
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
     open: boolean;
@@ -17,23 +16,19 @@ interface Props {
 }
 
 const styles = overlayStyle.styles;
-const CARD_WIDTH = overlayStyle.CARD_WIDTH;
-const CARD_MARGIN = overlayStyle.CARD_MARGIN;
+const screen_width = Dimensions.get("window").width;
+const CARD_WIDTH = screen_width * 0.8;
+const CARD_MARGIN = 16;
 
 export default function CommentOverlay({ close, comments, setComments, onPointsChanged, onSelectComment, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
-    const { active, snapToCard } = useSnappedCard(0);
+    const [active, setActive] = useState(0);
     const { token } = useAuth();
 
     useEffect(() => {
         if (!onSelectComment) return;
         onSelectComment(comments[active] ?? null);
     }, [active, comments]);
-
-    const handleMomentumEnd = (e: any) => {
-        const snapped = snapToCard(e.nativeEvent.contentOffset.x, CARD_WIDTH, CARD_MARGIN, comments.length);
-        scrollRef.current?.scrollTo({ x: snapped * (CARD_WIDTH + CARD_MARGIN), animated: true });
-    };
 
     function handleLike(commentId: any) {
         likeComment(commentId, token)
@@ -100,7 +95,17 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={styles.Slider}
-                    onMomentumScrollEnd={handleMomentumEnd}
+                    snapToInterval={CARD_WIDTH + CARD_MARGIN}
+                    snapToAlignment="center"
+                    decelerationRate="fast"
+
+                    onScroll={(e) => {
+                        const x = e.nativeEvent.contentOffset.x;
+
+                        const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                        setActive(index);
+                    }}
+                    scrollEventThrottle={16}
                 >
                     {comments.map((c: any, i: any) => (
                             <View key={`${c.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
