@@ -1,7 +1,6 @@
-import React from "react";
-import { useState } from "react";
-import { TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, Pressable } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 interface Props {
     onSubmit: (commentData: any) => void;
@@ -13,7 +12,8 @@ interface Props {
 function EventForm({ onSubmit, onClose, username, location }: Props) {
     const [text, setText] = useState("");
     const [uDate, setDate] = useState(new Date());
-    const [show, setShow] = useState(false);
+    const [showDate, setShowDate] = useState(false);
+    const [showTime, setShowTime] = useState(false);
 
     const handleSubmit = () => {
         if (!username || !text || !uDate) {
@@ -27,20 +27,24 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
         const eventData = {
             description: text,
             location: validLocation,
-            date: uDate.toLocaleDateString(),
-            time: uDate.toLocaleTimeString()
+            date: uDate
         }
 
         onSubmit(eventData);
         onClose();
     };
 
-    const onChange = (event: any, selectedDate: any) => {
-    // Android: the picker closes on selection, so we must update 'show' state
-    const currentDate = selectedDate || uDate;
-    setDate(currentDate);
-    setShow(false);
-  };
+    const onChangeDate = (event: any, selectedDate: any) => {
+        const currentDate = selectedDate || uDate;
+        setDate(currentDate);
+        setShowDate(false);
+    };
+
+    const onChangeTime = (event: any, selectedTime: any) => {
+        const currentDate = selectedTime || uDate;
+        setDate(currentDate);
+        setShowTime(false);
+    };
 
 
     return (
@@ -57,17 +61,32 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
                     value={text}
                     onChangeText={setText}
                 />
-                {show ? (
-                <DateTimePicker
-                    value={uDate}
-                    mode="date" // Options: 'date', 'time', 'datetime' (iOS only)
-                    display="default" // Options: 'default', 'spinner', 'calendar', 'clock'
-                    onChange={onChange}
-                />
-                ) : (<Pressable onPress={() => setShow(true)}>
-                    <Text>{String(uDate)}</Text>
-                </Pressable>)}
+                {showDate ? (
+                    <DateTimePicker
+                        value={uDate}
+                        mode="date"
+                        display="default"
+                        onChange={onChangeDate}
+                    />
+                ) : (
+                    <Pressable onPress={() => setShowDate(true)}>
+                        <Text>Date: {uDate.toLocaleDateString()}</Text>
+                    </Pressable>
+                )}
 
+                {/* Time Picker */}
+                {showTime ? (
+                    <DateTimePicker
+                        value={uDate}
+                        mode="time"
+                        display="default"
+                        onChange={onChangeTime}
+                    />
+                ) : (
+                    <Pressable onPress={() => setShowTime(true)}>
+                        <Text>Time: {uDate.toLocaleTimeString()}</Text>
+                    </Pressable>
+                )}
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
                     <Text>Add Event</Text>
                 </Pressable>

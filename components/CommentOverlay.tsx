@@ -107,9 +107,25 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                     }}
                     scrollEventThrottle={16}
                 >
-                    {comments.map((c: any, i: any) => (
+                    {comments.map((c: any, i: any) => {
+                        const dateObj = new Date(c.date);
+
+                        const formattedDate =
+                            dateObj.toLocaleDateString([], {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                            }) +
+                            " • " +
+                            dateObj.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            });
+
+                        return(
                             <View key={`${c.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                 <Text style={styles.author}>{c.author}</Text>
+                                <Text>{formattedDate}</Text>
                                 <Text>{c.comment}</Text>
                                 <Text>Likes: {c.likes || 0}</Text>
                                 <Pressable onPress={() => handleLike(c.id)} disabled={c.likedByUser}>
@@ -125,7 +141,8 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                                     </Pressable>
                                 )}
                             </View>
-                    ))}
+                        );
+                    })}
                 </ScrollView>
             </View>
         </View>

@@ -86,9 +86,23 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                     }}
                     scrollEventThrottle={16}
                 >
-                    {events.map((e: any, i: any) => (
+                    {events.map((e: any, i: any) => {
+                        const dateObj = new Date(e.date);
+                        const formattedDate =
+                            dateObj.toLocaleDateString([], {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                            }) +
+                            " • " +
+                            dateObj.toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            });
+                        return(
                             <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                 <Text style={styles.author}>{e.author}</Text>
+                                <Text>{formattedDate}</Text>
                                 <Text>{e.description}</Text>
                                 {e.joined ? (
                                     <Pressable onPress={() => handleUnjoin(e.id)}>
@@ -100,7 +114,8 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                     </Pressable>
                                 )}
                             </View>
-                    ))}
+                        );
+                    })}
                 </ScrollView>
             </View>
         </View>
