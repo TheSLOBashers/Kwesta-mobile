@@ -12,6 +12,7 @@ const getCommentsCall = async (token: string | null) => {
         }
       }
     );
+    
     if (!response.ok) {
       throw new Error("Failed to fetch comments");
     }
@@ -22,7 +23,8 @@ const getCommentsCall = async (token: string | null) => {
 
     return commentsArray.map((c: any) => ({
       id: c._id,
-      author: c.author?.username || c.author,
+      authorId: c.author,
+      authorName: c.authorName,
       date: c.date,
       comment: c.comment,
       location: c.location,

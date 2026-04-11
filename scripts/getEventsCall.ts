@@ -12,7 +12,10 @@ const getEventsCall = async (token: string | null) => {
             }
         }
         );
+        
         if(!response.ok) {
+            const text = await response.text();
+            console.log("RAW ERROR RESPONSE:", text);
             throw new Error("Failed to fetch events");
         }
 
@@ -22,7 +25,8 @@ const getEventsCall = async (token: string | null) => {
 
         return eventsArray.map((e: any) => ({
             id: e._id,
-            author: e.author?.username || e.author,
+            authorId: e.author,
+            authorName: e.authorName,
             date: e.date,
             time: e.time,
             description: e.description,

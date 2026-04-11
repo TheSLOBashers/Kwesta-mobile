@@ -132,7 +132,7 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                                             { transform: [{ scale: i === active ? 1 : 0.92 }] },
                                         ]}
                                         >
-                                        <Text style={styles.author}>{c.author}</Text>
+                                        <Text style={styles.author}>{c.authorName}</Text>
                                         <Text>{formattedDate}</Text>
                                         <Text>{c.comment}</Text>
                                         <Text>Likes: {c.likes || 0}</Text>

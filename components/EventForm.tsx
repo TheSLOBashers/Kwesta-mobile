@@ -7,13 +7,19 @@ interface Props {
     onClose: () => void;
     username: string | null;
     location: any;
+    initialText?: string;
+    initialDate?: string | Date;
 }
 
-function EventForm({ onSubmit, onClose, username, location }: Props) {
-    const [text, setText] = useState("");
-    const [uDate, setDate] = useState(new Date());
+function EventForm({ onSubmit, onClose, username, location, initialText, initialDate }: Props) {
+    const [text, setText] = useState(initialText || "");
+    const [uDate, setDate] = useState(
+        initialDate ? new Date(initialDate) : new Date()
+    );
     const [showDate, setShowDate] = useState(false);
     const [showTime, setShowTime] = useState(false);
+
+    const isEditing = !!initialText;
 
     const handleSubmit = () => {
         if (!username || !text || !uDate) {
@@ -53,7 +59,7 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
             {/* Actual form */}
             <View style={styles.form}>
                 <Pressable onPress={onClose}><Text>X</Text></Pressable>
-                <Text style={styles.label}>Add an event</Text>
+                <Text style={styles.label}>{isEditing ? "Edit event" : "Add an event"}</Text>
 
                 <TextInput
                     style={styles.input}
@@ -88,7 +94,7 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
                     </Pressable>
                 )}
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
-                    <Text>Add Event</Text>
+                    <Text>{isEditing ? "Save Changes" : "Add Event"}</Text>
                 </Pressable>
             </View>
         </View>

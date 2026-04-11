@@ -103,7 +103,8 @@ function UserFeed() {
     const commentWithUsername = {
       comment: newComment.comment,            // use backend response
       id: newComment._id,
-      author: username,
+      authorId: newComment.author,
+      authorName: username,
       likes: newComment.likes || 0,
       likedByUser: false,
       flaggedByUser: false,
@@ -131,7 +132,8 @@ function UserFeed() {
     setEvents((prev: any) => [
       {
         id: newEvent._id,
-        author: newEvent.author?.username || newEvent.author,
+        authorId: newEvent.author,
+        authorName: username,
         date: newEvent.date,
         time: newEvent.time,
         description: newEvent.description,
@@ -160,7 +162,8 @@ function UserFeed() {
     setQuests((prev: any) => [
       {
         id: newQuest._id,
-        author: newQuest.author?.username || newQuest.author,
+        authorId: newQuest.author,
+        authorName: username,
         date: newQuest.date,
         time: newQuest.time,
         description: newQuest.description,

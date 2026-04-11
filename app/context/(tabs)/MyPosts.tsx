@@ -1,13 +1,17 @@
-import getCommentsCall from "@/scripts/getCommentsCall";
-import getEventsCall from "@/scripts/getEventsCall";
-import getQuestsCall from "@/scripts/getQuestsCall";
 import { useFocusEffect } from "expo-router";
 import React, { useEffect, useState } from "react";
 
 import { useAuth } from '@/components/auth-context';
 import { StyleSheet, Text, View } from 'react-native';
 
+import CommentForm from "@/components/CommentForm";
+import EventForm from "@/components/EventForm";
 import PostFeed from "@/components/PostFeed";
+import updateCommentCall from "@/scripts/updateCommentCall";
+import updateEventCall from "@/scripts/updateEventCall";
+import updateQuestCall from "@/scripts/updateQuestCall";
+
+import getMyPostsCall from "@/scripts/getMyPostsCall";
 
 function MyPosts() {
     const { user, username, token, loading: authLoading } = useAuth();
@@ -15,30 +19,15 @@ function MyPosts() {
 
     const [myPosts, setMyPosts] = useState<any[]>([]);
 
-    
+    const [editingPost, setEditingPost] = useState<any>(null);
+
     const fetchAll = async () => {
         setLoading(true);
 
         try {
-            const [commentData, eventData, questData] = await Promise.all([
-                getCommentsCall(token),
-                getEventsCall(token),
-                getQuestsCall(token),
-            ]);
+            const data = await getMyPostsCall(token);
 
-            const safeComments = Array.isArray(commentData) ? commentData : [];
-            const safeEvents = Array.isArray(eventData) ? eventData : [];
-            const safeQuests = Array.isArray(questData) ? questData : [];
-
-            const all = [
-                ...safeComments,
-                ...safeQuests,
-                ...safeEvents,
-            ];
-
-            const filtered = all.filter((post) => post.author === username);
-
-            setMyPosts(filtered);
+            setMyPosts(data);
         } catch (e) {
             console.log("ERROR:", e);
         } finally {
@@ -59,6 +48,34 @@ function MyPosts() {
         }, [])
     );
 
+    async function handleEditSubmit(data: any) {
+        if (!editingPost) return;
+
+        let updated;
+
+        if (editingPost.type === "comment") {
+            updated = await updateCommentCall(editingPost.id, data, token);
+        } 
+        else if (editingPost.type === "event") {
+            updated = await updateEventCall(editingPost.id, data, token);
+        } 
+        else if (editingPost.type === "quest") {
+            updated = await updateQuestCall(editingPost.id, data, token);
+        }
+
+        if (!updated) return;
+
+        setMyPosts((prev) =>
+            prev.map((p) =>
+                p.id === editingPost.id
+                    ? { ...p, ...updated }
+                    : p
+            )
+        );
+
+        setEditingPost(null);
+    }
+
     if (loading) {
         return (
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -68,7 +85,28 @@ function MyPosts() {
     } else {
         return (
             <View style={styles.container}>
-                <PostFeed data={myPosts} />
+                <PostFeed data={myPosts} onEdit={setEditingPost} />
+
+                {editingPost?.type === "comment" && (
+                    <CommentForm
+                        onSubmit={handleEditSubmit}
+                        onClose={() => setEditingPost(null)}
+                        username={username}
+                        location={editingPost.location}
+                        initialText={editingPost.comment}
+                    />
+                )}
+
+                {editingPost?.type === "event" && (
+                    <EventForm
+                        onSubmit={handleEditSubmit}
+                        onClose={() => setEditingPost(null)}
+                        username={username}
+                        location={editingPost.location}
+                        initialText={editingPost.description}
+                        initialDate={editingPost.date}
+                    />
+                )}
             </View>
         );
     }

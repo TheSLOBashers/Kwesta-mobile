@@ -1,12 +1,12 @@
 import { FlatList, StyleSheet } from "react-native";
 import PostCard from "./PostCard";
 
-export default function PostFeed({ data }: { data: any[] }) {
+export default function PostFeed({ data, onEdit }: { data: any[], onEdit: (item: any) => void }) {
   return (
     <FlatList
       data={data}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <PostCard item={item} />}
+      keyExtractor={(item, index) => `${item.type}-${item.id ?? index}`}
+      renderItem={({ item }) => <PostCard item={item} onEdit={onEdit} />}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ paddingTop: 30, paddingBottom: 8 }}
     />

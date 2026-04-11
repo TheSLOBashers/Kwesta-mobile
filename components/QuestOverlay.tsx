@@ -89,7 +89,7 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
                         >
                             {quests.map((q: any, i: any) => (
                                     <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                        <Text style={styles.author}>{q.author}</Text>
+                                        <Text style={styles.author}>{q.authorName}</Text>
                                         <Text>{q.description}</Text>
                                         {q.joined ? (
                                             <Pressable onPress={() => handleUnjoin(q.id)}>

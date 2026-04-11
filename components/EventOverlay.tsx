@@ -102,7 +102,7 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                     });
                                 return(
                                     <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                        <Text style={styles.author}>{e.author}</Text>
+                                        <Text style={styles.author}>{e.authorName}</Text>
                                         <Text>{formattedDate}</Text>
                                         <Text>{e.description}</Text>
                                         {e.joined ? (
