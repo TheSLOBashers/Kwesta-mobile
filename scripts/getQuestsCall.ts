@@ -22,7 +22,7 @@ const getQuestsCall = async (token: string | null) => {
 
     return questsArray.map((q: any) => ({
       id: q._id,
-      authorId: q.author,
+      authorId: q.authorId,
       authorName: q.authorName,
       date: q.date,
       description: q.description,

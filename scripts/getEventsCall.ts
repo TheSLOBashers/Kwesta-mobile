@@ -25,7 +25,7 @@ const getEventsCall = async (token: string | null) => {
 
         return eventsArray.map((e: any) => ({
             id: e._id,
-            authorId: e.author,
+            authorId: e.authorId,
             authorName: e.authorName,
             date: e.date,
             time: e.time,
