@@ -3,6 +3,7 @@ import { username as Username } from '@/scripts/username';
 import { user as User } from '@/scripts/user';
 import { token as Token } from '@/scripts/token';
 import { moderator as Moderator } from '@/scripts/moderator';
+import checkValidToken from '@/scripts/checkValidToken';
 
 interface AuthContextType {
   user: string | null;
@@ -31,9 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [username, setUsername] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [moderator, setModerator] = useState<string | null>(null);
-  const [points, setPoints] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
 
   // Check for existing session on mount (e.g., from localStorage)
   useEffect(() => {
@@ -47,12 +46,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (savedUsername) { setUsername(savedUsername) };
       if (savedModerator) { setModerator(savedModerator) };
 
+      if (token) {
+        await checkValidToken(token)
+          .catch(() => {
+            console.log("E");
+            setUsernameAs(null);
+            setTokenAs(null);
+            setUserAs(null);
+            setMod(null);
+          })
+      }
+
       setLoading(false);
     };
 
     loadData();
   }, []);
-
 
   const setMod = (m: string | null) => {
     setModerator(m);

@@ -1,4 +1,3 @@
-import { moderator } from "./moderator";
 import backend from "@/constants/backend";
 
 const loginCall = async (
@@ -7,7 +6,8 @@ const loginCall = async (
   setError: (error: string) => void,
   setIsLoading: (loading: boolean) => void,
   setMod: (m : string | null) => void,
-  setTokenAs: (token : string | null) => void
+  setTokenAs: (token : string | null) => void,
+  device: string | null
 ) => {
   try {
     setIsLoading(true);
@@ -19,7 +19,7 @@ const loginCall = async (
         headers: {
           "Content-Type": "application/json" // Indicate the content type
         },
-        body: JSON.stringify({ username, password }) // Convert the data to a JSON string
+        body: JSON.stringify({ username, password, device: device }) // Convert the data to a JSON string
       }
     );
 
