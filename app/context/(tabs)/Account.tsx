@@ -1,8 +1,9 @@
 import { useAuth } from '@/components/auth-context';
+import Devices from '@/components/Devices';
 import blockDeviceCall from '@/scripts/blockDeviceCall';
 import getDevicesCall from '@/scripts/getDevicesCall';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import LogOutButton from "../../../components/LogOutButton";
 
 export default function Account() {
@@ -42,21 +43,16 @@ export default function Account() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Account</Text>
-      <Text style={styles.text}>Username: {username}</Text>
-      {!error ? <View style={styles.devices}>
-        <Text style={styles.title2}>Devices</Text>
-        {devices.map((d: any, i: any) => (
-          <View key={`${d._id}:${i}`}>
-            <Text style={styles.text} >{d.device}, allowed: {d.allowed ? 'true' : 'false'}</Text>
-            <Pressable style={styles.dButton} onPress={() => handleBlock(d.device)}><Text style={styles.dButtonText}>Block</Text></Pressable>
-          </View>
-        ))}
-      </View> : null}
+    <ScrollView>
+      <View style={styles.container}>
 
-      <LogOutButton setUsernameAs={setUsernameAs} setTokenAs={setTokenAs} setMod={setMod} setUserAs={setUserAs}></LogOutButton>
-    </View>
+        <Text style={styles.title}>Account</Text>
+        <Text style={styles.text}>Username: {username}</Text>
+        {!error ? <Devices devices={devices} handleBlock={handleBlock}></Devices> : null}
+
+        <LogOutButton setUsernameAs={setUsernameAs} setTokenAs={setTokenAs} setMod={setMod} setUserAs={setUserAs}></LogOutButton>
+      </View>
+    </ScrollView>
   );
 
 }
@@ -65,11 +61,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginTop: "5%"
   },
   title: {
     fontFamily: "Cocogoose",
     fontSize: 28,
+    marginTop: 20,
     marginBottom: 12,
     color: '#ccc'
   },

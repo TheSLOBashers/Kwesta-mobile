@@ -21,7 +21,6 @@ export default function Login() {
 
   async function submitForm() {
     try {
-      let device = Device.brand + ":" + Device.designName + ":" + Device.deviceName + ":" + Device.deviceType + ":" + Device.deviceYearClass;
       setIsLoading(true);
       await handleSubmit(
         userDetails.username,
@@ -30,7 +29,11 @@ export default function Login() {
         setIsLoading,
         setMod,
         setTokenAs,
-        device
+        Device.brand,
+        Device.designName,
+        Device.deviceName,
+        String(Device.deviceYearClass),
+        String(Device.deviceType)
       );
       const isModerator = Boolean(moderator) && moderator;
       setUsernameAs(userDetails.username);
@@ -44,7 +47,7 @@ export default function Login() {
         router.replace("../(tabs)");
       }
     } catch (err: any) {
-      console.log(err.message);
+      //console.log(err.message);
       setError(err.message);
     } finally {
       setIsLoading(false);
