@@ -1,7 +1,6 @@
-import React from "react";
-import { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import AddButton from "./AddButton";
-import { TouchableWithoutFeedback, StyleSheet, View, Pressable, Text } from "react-native";
 
 import CommentForm from "./CommentForm";
 import EventForm from "./EventForm";
@@ -21,12 +20,11 @@ interface Props {
     clickedLocation: location;
     location: any;
     setShowClickMarkers: (data: boolean) => void;
-    setQuestIsOpen: (v: boolean) => void;
-    setEventIsOpen: (v: boolean) => void;
-    setCommentIsOpen: (v: boolean) => void;
+    activeOverlay: string | null;
+    setActiveOverlay: (v: any) => void;
 }
 
-function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, onAddQuest, clickedLocation, location, setShowClickMarkers, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
+function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, onAddQuest, clickedLocation, location, setShowClickMarkers, activeOverlay, setActiveOverlay }: Props) {
 
     const [open, setOpen] = useState(false);
     const [formType, setFormType] = useState<null | string>(null);
@@ -34,9 +32,7 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
 
     useEffect(() => {
         if(!(formType===null)) {
-            setCommentIsOpen(false)
-            setQuestIsOpen(false)
-            setEventIsOpen(false)
+            setActiveOverlay(null);
         }
 
         if (formType === "event" || formType === "quest") {
@@ -45,8 +41,11 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
         else {
             setShowClickMarkers(false)
         }
+    }, [formType]);
 
-    }, [formType])
+    useEffect(() => {
+        setOpen(false);
+    }, [activeOverlay]);
 
     const styles = StyleSheet.create({
         container: {

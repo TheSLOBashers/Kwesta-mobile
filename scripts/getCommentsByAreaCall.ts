@@ -1,9 +1,9 @@
 import backend from "@/constants/backend";
 
-const getCommentsCall = async (token: string | null) => {
+const getCommentsByAreaCall = async (token: string | null, lat: number, lng: number, radius: number) => {
   try {
     const response = await fetch(
-      `${backend}comments`,
+      `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}`,
       {
         method: "GET", // Specify the method
         headers: {
@@ -39,4 +39,4 @@ const getCommentsCall = async (token: string | null) => {
   }
 };
 
-export default getCommentsCall;
+export default getCommentsByAreaCall;

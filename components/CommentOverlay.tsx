@@ -1,11 +1,10 @@
-import React, { useRef, useState, useEffect } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, Dimensions, Alert, TouchableWithoutFeedback } from "react-native";
+import { useAuth } from '@/components/auth-context';
 import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
-import { useAuth } from '@/components/auth-context';
-import { useSnappedCard } from "@/hooks/use-snapped-card";
-import overlayStyle from "../styles/overlayStyle"
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
     open: boolean;
@@ -17,23 +16,19 @@ interface Props {
 }
 
 const styles = overlayStyle.styles;
-const CARD_WIDTH = overlayStyle.CARD_WIDTH;
-const CARD_MARGIN = overlayStyle.CARD_MARGIN;
+const screen_width = Dimensions.get("window").width;
+const CARD_WIDTH = screen_width * 0.8;
+const CARD_MARGIN = 16;
 
 export default function CommentOverlay({ close, comments, setComments, onPointsChanged, onSelectComment, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
-    const { active, snapToCard } = useSnappedCard(0);
+    const [active, setActive] = useState(0);
     const { token } = useAuth();
 
     useEffect(() => {
         if (!onSelectComment) return;
         onSelectComment(comments[active] ?? null);
     }, [active, comments]);
-
-    const handleMomentumEnd = (e: any) => {
-        const snapped = snapToCard(e.nativeEvent.contentOffset.x, CARD_WIDTH, CARD_MARGIN, comments.length);
-        scrollRef.current?.scrollTo({ x: snapped * (CARD_WIDTH + CARD_MARGIN), animated: true });
-    };
 
     function handleLike(commentId: any) {
         likeComment(commentId, token)
@@ -92,37 +87,79 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
     return (
         <View style={styles.backdrop}>
             {open && (
-                <Pressable style={StyleSheet.absoluteFill} onPress={close} />
+                <>
+                    <Pressable
+                        style={styles.backdrop}
+                        onPress={close}
+                    />
+
+                    <View style={styles.overlay} pointerEvents="box-none">
+                        <ScrollView
+                            ref={scrollRef}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.Slider}
+                            snapToInterval={CARD_WIDTH + CARD_MARGIN}
+                            snapToAlignment="center"
+                            decelerationRate="fast"
+                            onScroll={(e) => {
+                                const x = e.nativeEvent.contentOffset.x;
+                                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                                setActive(index);
+                            }}
+                            scrollEventThrottle={16}
+                        >
+                            {comments.map((c: any, i: any) => {
+                                const dateObj = new Date(c.date);
+
+                                const formattedDate =
+                                    dateObj.toLocaleDateString([], {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                    }) +
+                                    " • " +
+                                    dateObj.toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    });
+
+                                return (
+                                    <View
+                                        key={`${c.id}-${i}`}
+                                        style={[
+                                            styles.Card,
+                                            { transform: [{ scale: i === active ? 1 : 0.92 }] },
+                                        ]}
+                                        >
+                                        <Text style={styles.author}>{c.authorName}</Text>
+                                        <Text>{formattedDate}</Text>
+                                        <Text>{c.comment}</Text>
+                                        <Text>Likes: {c.likes || 0}</Text>
+
+                                        <Pressable
+                                            onPress={() => handleLike(c.id)}
+                                            disabled={c.likedByUser}
+                                        >
+                                            <Text>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
+                                        </Pressable>
+
+                                        {c.flaggedByUser ? (
+                                            <Pressable onPress={() => handleUnflag(c.id)}>
+                                                <Text>Unflag comment</Text>
+                                            </Pressable>
+                                        ) : (
+                                            <Pressable onPress={() => handleFlag(c.id)}>
+                                                <Text>Flag comment</Text>
+                                            </Pressable>
+                                        )}
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
+                    </View>
+                </>
             )}
-            <View style={styles.overlay} pointerEvents="box-none">
-                <ScrollView
-                    ref={scrollRef}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={styles.Slider}
-                    onMomentumScrollEnd={handleMomentumEnd}
-                >
-                    {comments.map((c: any, i: any) => (
-                            <View key={`${c.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                <Text style={styles.author}>{c.author}</Text>
-                                <Text>{c.comment}</Text>
-                                <Text>Likes: {c.likes || 0}</Text>
-                                <Pressable onPress={() => handleLike(c.id)} disabled={c.likedByUser}>
-                                    <Text>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
-                                </Pressable>
-                                {c.flaggedByUser ? (
-                                    <Pressable onPress={() => handleUnflag(c.id)}>
-                                        <Text>Unflag comment</Text>
-                                    </Pressable>
-                                ) : (
-                                    <Pressable onPress={() => handleFlag(c.id)}>
-                                        <Text>Flag comment</Text>
-                                    </Pressable>
-                                )}
-                            </View>
-                    ))}
-                </ScrollView>
-            </View>
         </View>
     );
 }

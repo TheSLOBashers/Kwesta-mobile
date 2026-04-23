@@ -1,19 +1,25 @@
-import React from "react";
-import { useState } from "react";
-import { TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, Pressable } from "react-native";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import React, { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 interface Props {
     onSubmit: (commentData: any) => void;
     onClose: () => void;
     username: string | null;
     location: any;
+    initialText?: string;
+    initialDate?: string | Date;
 }
 
-function EventForm({ onSubmit, onClose, username, location }: Props) {
-    const [text, setText] = useState("");
-    const [uDate, setDate] = useState(new Date());
-    const [show, setShow] = useState(false);
+function EventForm({ onSubmit, onClose, username, location, initialText, initialDate }: Props) {
+    const [text, setText] = useState(initialText || "");
+    const [uDate, setDate] = useState(
+        initialDate ? new Date(initialDate) : new Date()
+    );
+    const [showDate, setShowDate] = useState(false);
+    const [showTime, setShowTime] = useState(false);
+
+    const isEditing = !!initialText;
 
     const handleSubmit = () => {
         if (!username || !text || !uDate) {
@@ -27,20 +33,24 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
         const eventData = {
             description: text,
             location: validLocation,
-            date: uDate.toLocaleDateString(),
-            time: uDate.toLocaleTimeString()
+            date: uDate
         }
 
         onSubmit(eventData);
         onClose();
     };
 
-    const onChange = (event: any, selectedDate: any) => {
-    // Android: the picker closes on selection, so we must update 'show' state
-    const currentDate = selectedDate || uDate;
-    setDate(currentDate);
-    setShow(false);
-  };
+    const onChangeDate = (event: any, selectedDate: any) => {
+        const currentDate = selectedDate || uDate;
+        setDate(currentDate);
+        setShowDate(false);
+    };
+
+    const onChangeTime = (event: any, selectedTime: any) => {
+        const currentDate = selectedTime || uDate;
+        setDate(currentDate);
+        setShowTime(false);
+    };
 
 
     return (
@@ -49,7 +59,7 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
             {/* Actual form */}
             <View style={styles.form}>
                 <Pressable onPress={onClose}><Text>X</Text></Pressable>
-                <Text style={styles.label}>Add an event</Text>
+                <Text style={styles.label}>{isEditing ? "Edit event" : "Add an event"}</Text>
 
                 <TextInput
                     style={styles.input}
@@ -57,19 +67,34 @@ function EventForm({ onSubmit, onClose, username, location }: Props) {
                     value={text}
                     onChangeText={setText}
                 />
-                {show ? (
-                <DateTimePicker
-                    value={uDate}
-                    mode="date" // Options: 'date', 'time', 'datetime' (iOS only)
-                    display="default" // Options: 'default', 'spinner', 'calendar', 'clock'
-                    onChange={onChange}
-                />
-                ) : (<Pressable onPress={() => setShow(true)}>
-                    <Text>{String(uDate)}</Text>
-                </Pressable>)}
+                {showDate ? (
+                    <DateTimePicker
+                        value={uDate}
+                        mode="date"
+                        display="default"
+                        onChange={onChangeDate}
+                    />
+                ) : (
+                    <Pressable onPress={() => setShowDate(true)}>
+                        <Text>Date: {uDate.toLocaleDateString()}</Text>
+                    </Pressable>
+                )}
 
+                {/* Time Picker */}
+                {showTime ? (
+                    <DateTimePicker
+                        value={uDate}
+                        mode="time"
+                        display="default"
+                        onChange={onChangeTime}
+                    />
+                ) : (
+                    <Pressable onPress={() => setShowTime(true)}>
+                        <Text>Time: {uDate.toLocaleTimeString()}</Text>
+                    </Pressable>
+                )}
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
-                    <Text>Add Event</Text>
+                    <Text>{isEditing ? "Save Changes" : "Add Event"}</Text>
                 </Pressable>
             </View>
         </View>

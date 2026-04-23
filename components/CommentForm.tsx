@@ -1,24 +1,30 @@
-import React from "react";
-import { useState } from "react";
-import { TouchableWithoutFeedback, StyleSheet, View, Text, TextInput, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 interface Props {
     onSubmit: (commentData: any) => void;
     onClose: () => void;
     username: string | null;
     location: any;
+    initialText?: string;
 }
 
-function CommentForm({ onSubmit, onClose, username, location }: Props) {
-    const [text, setText] = useState("");
+function CommentForm({ onSubmit, onClose, username, location, initialText }: Props) {
+    const [text, setText] = useState(initialText || "");
+
+    const isEditing = !!initialText;
+
+    useEffect(() => {
+        setText(initialText || "");
+    }, [initialText]);
 
     const handleSubmit = () => {
         if (!username || !text) {
             return;
         };
         const validLocation = {
-            lat: location.latitude != null ? location.latitude : 0,
-            lng: location.longitude != null ? location.longitude : 0,
+            lat: location?.lat ?? location?.latitude ?? 0,
+            lng: location?.lng ?? location?.longitude ?? 0,
         };
 
         const commentData = {
@@ -38,7 +44,7 @@ function CommentForm({ onSubmit, onClose, username, location }: Props) {
 
             {/* Actual form */}
             <View style={styles.form}>
-                <Text style={styles.label}>Add a comment</Text>
+                <Text style={styles.label}>{isEditing ? "Edit comment" : "Add a comment"}</Text>
 
                 <TextInput
                     style={styles.input}
@@ -48,7 +54,7 @@ function CommentForm({ onSubmit, onClose, username, location }: Props) {
                 />
 
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
-                    <Text>Add Comment</Text>
+                    <Text>{isEditing ? "Save Changes" : "Add Comment"}</Text>
                 </Pressable>
             </View>
         </View>

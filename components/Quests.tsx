@@ -1,46 +1,30 @@
 
 import React from "react";
-import { useState, useEffect } from "react";
 
-import CommentOverlay from './CommentOverlay'
-import EventOverlay from "./EventOverlay";
-import QuestOverlay from "./QuestOverlay";
 import OpenButton from "./OpenButton";
 
-import { View, StyleSheet, Pressable } from "react-native";
+import { StyleSheet } from "react-native";
 
 interface Props {
   quests: any;
   setQuests: (events: any) => void;
   onPointsChanged: () => void;
   onSelectQuest: (events: any) => void;
-  questIsOpen: boolean;
-  setCommentIsOpen: (v: boolean) => void;
-  setQuestIsOpen: (v: boolean) => void;
-  setEventIsOpen: (v: boolean) => void;
+  activeOverlay: string | null;
+  setActiveOverlay: (v: any) => void;
 }
 
-function Quests({ quests, setQuests, onPointsChanged, onSelectQuest, questIsOpen, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
+function Quests({ quests, setQuests, onPointsChanged, onSelectQuest, activeOverlay, setActiveOverlay }: Props) {
+
+  const isOpen = activeOverlay === "quests";
 
   return (
     <>
       <OpenButton
-        onClick={() => {setQuestIsOpen(!questIsOpen); setCommentIsOpen(false); setEventIsOpen(false);}}
+        onClick={() => setActiveOverlay(isOpen ? null : "quests")}
         text={"Quests"}
         position="40%"
       />
-
-      {questIsOpen ? (
-        <QuestOverlay
-          key={quests.length}
-          quests={quests}
-          setQuests={setQuests}
-          onPointsChanged={onPointsChanged}
-          open={questIsOpen}
-          close={() => {setQuestIsOpen(false);}}
-          onSelectQuest={onSelectQuest}
-        />
-      ) : null}
     </>
   );
 }

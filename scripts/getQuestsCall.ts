@@ -22,7 +22,8 @@ const getQuestsCall = async (token: string | null) => {
 
     return questsArray.map((q: any) => ({
       id: q._id,
-      author: q.author?.username || q.author,
+      authorId: q.authorId,
+      authorName: q.authorName,
       date: q.date,
       description: q.description,
       location: q.location,

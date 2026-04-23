@@ -1,45 +1,30 @@
 
 import React from "react";
-import { useState, useEffect } from "react";
 
-import CommentOverlay from './CommentOverlay'
-import EventOverlay from "./EventOverlay";
 import OpenButton from "./OpenButton";
 
-import { View, StyleSheet, Pressable } from "react-native";
+import { StyleSheet } from "react-native";
 
 interface Props {
   events: any;
   setEvents: (events: any) => void;
   onPointsChanged: () => void;
   onSelectEvent: (events: any) => void;
-  eventIsOpen: boolean;
-  setCommentIsOpen: (v: boolean) => void;
-  setQuestIsOpen: (v: boolean) => void;
-  setEventIsOpen: (v: boolean) => void;
+  activeOverlay: string | null;
+  setActiveOverlay: (v: any) => void;
 }
 
-function Events({ events, setEvents, onPointsChanged, onSelectEvent, eventIsOpen, setCommentIsOpen, setQuestIsOpen, setEventIsOpen }: Props) {
+function Events({ events, setEvents, onPointsChanged, onSelectEvent, activeOverlay, setActiveOverlay }: Props) {
+
+  const isOpen = activeOverlay === "events";
 
   return (
     <>
       <OpenButton
-        onClick={() => {setEventIsOpen(!eventIsOpen); setQuestIsOpen(false); setCommentIsOpen(false);}}
+        onClick={() => setActiveOverlay(isOpen ? null : "events")}
         text={"Events"}
         position="70%"
       />
-
-      {eventIsOpen ? (
-        <EventOverlay
-          key={events.length}
-          events={events}
-          setEvents={setEvents}
-          onPointsChanged={onPointsChanged}
-          open={eventIsOpen}
-          close={() => {setEventIsOpen(false); console.log("breakpoint 1")}}
-          onSelectEvent={onSelectEvent}
-        />
-      ) : null}
     </>
   );
 }

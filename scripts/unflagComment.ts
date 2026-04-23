@@ -16,7 +16,8 @@ async function unflagComment(index: any, token: string | null) {
 
     const json = await response.json();
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      console.log("UNFLAG ERROR RESPONSE:", json);
+      throw new Error(json.error || `Status ${response.status}`);
     }
 
     return json;

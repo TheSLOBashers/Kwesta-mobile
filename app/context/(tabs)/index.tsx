@@ -1,5 +1,4 @@
-import React from "react";
-import { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 /*
 import Comments from "./Comments";
@@ -7,25 +6,29 @@ import Events from "./Events";
 import Quests from "./Quests";
 import AddButtonOverlay from "./AddButtonOverlay";
 */
-import MapSection from "@/components/MapSection";
-import Comments from "@/components/Comments";
-import Events from "@/components/Events";
-import Quests from "@/components/Quests";
 import AddButtonOverlay from "@/components/AddButtonOverlay";
+import CommentOverlay from "@/components/CommentOverlay";
+import Comments from "@/components/Comments";
+import EventOverlay from "@/components/EventOverlay";
+import Events from "@/components/Events";
+import MapSection from "@/components/MapSection";
 import PointsOverlay from "@/components/PointsOverlay";
+import QuestOverlay from "@/components/QuestOverlay";
+import Quests from "@/components/Quests";
 
-import getCommentsCall from "@/scripts/getCommentsCall";
-import getEventsCall from "@/scripts/getEventsCall";
-import getQuestsCall from "@/scripts/getQuestsCall";
 import addCommentCall from "@/scripts/addCommentCall";
 import addEventCall from "@/scripts/addEventCall";
 import addQuestCall from "@/scripts/addQuestCall";
-import * as Location from 'expo-location';
+import getEventsCall from "@/scripts/getEventsCall";
+import getQuestsCall from "@/scripts/getQuestsCall";
+import * as Location from "expo-location";
 
-import { useAuth } from '@/components/auth-context';
+import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
+
+import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 
 function UserFeed() {
   const { user, username, token } = useAuth();
@@ -45,29 +48,37 @@ function UserFeed() {
   const [selectedQuestId, setselectedQuestId] = useState(null);
   const [selectedEventId, setsselectedEventId] = useState(null);
   // open
-  const [commentIsOpen, setCommentIsOpen] = useState(false);
-  const [eventIsOpen, setEventIsOpen] = useState(false);
-  const [questIsOpen, setQuestIsOpen] = useState(false)
+  const [activeOverlay, setActiveOverlay] = useState<
+    "comments" | "events" | "quests" | null
+  >(null);
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
-    [comments, selectedCommentId]
+    [comments, selectedCommentId],
   );
 
   const selectedQuest = useMemo(
     () => quests.find((q: any) => q.id === selectedQuestId) || null,
-    [quests, selectedQuestId]
+    [quests, selectedQuestId],
   );
 
   const selectedEvent = useMemo(
     () => events.find((e: any) => e.id === selectedEventId) || null,
-    [events, selectedEventId]
+    [events, selectedEventId],
   );
 
   useEffect(() => {
     const fetchAll = async () => {
+      if (!location) return;
       setLoading(true);
-      const commentData = await getCommentsCall(token);
+
+      const commentData = await getCommentsByAreaCall(
+        token,
+        location.latitude,
+        location.longitude,
+        1,
+      );
+
       const eventData = await getEventsCall(token);
       const questData = await getQuestsCall(token);
       setComments(commentData);
@@ -77,14 +88,14 @@ function UserFeed() {
     };
 
     fetchAll();
-  }, []);
+  }, [location]);
 
   // request location permissions
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setLocationAllowed(false)
+      if (status !== "granted") {
+        setLocationAllowed(false);
         return;
       }
       setLocationAllowed(true);
@@ -101,17 +112,15 @@ function UserFeed() {
     }
 
     const commentWithUsername = {
-      comment: newComment.comment,            // use backend response
-      id: newComment.comment._id,
-      author: username,
-      likes: newComment.comment.likes || 0,
-      likedByUser: (newComment.comment.likedBy || []).some(
-        (uid: any) => uid.toString() === user
-      ),
-      flaggedByUser: (newComment.comment.flags || []).some(
-        (f: any) => f.toString() === user
-      ),
+      comment: newComment.comment, // use backend response
+      id: newComment._id,
+      authorId: newComment.author,
+      authorName: username,
+      likes: newComment.likes || 0,
+      likedByUser: newComment.likedByUser ?? false,
+      flaggedByUser: newComment.flaggedByUser ?? false,
       location: newComment.location || { lat: 0, lng: 0 },
+      date: newComment.date,
     };
 
     setComments((prev: any) => [commentWithUsername, ...prev]);
@@ -129,21 +138,23 @@ function UserFeed() {
 
     const eventWithUsername = {
       ...newEvent,
-      author: username
+      author: username,
     };
     setEvents((prev: any) => [
       {
         id: newEvent._id,
-        author: newEvent.author?.username || newEvent.author,
+        authorId: newEvent.author,
+        authorName: username,
         date: newEvent.date,
         time: newEvent.time,
         description: newEvent.description,
         location: newEvent.location,
         joined: false,
         image: newEvent.image,
-        flag: newEvent.flag
+        flag: newEvent.flag,
       },
-      ...prev]);
+      ...prev,
+    ]);
     /*
   if (props.onPointsChanged) {
     await props.onPointsChanged();
@@ -151,28 +162,37 @@ function UserFeed() {
     */
   };
   const handleAddQuest = async (data: any) => {
-    const newQuest = await addQuestCall(data.description, data.points, data.date, data.time, data.location, token);
+    const newQuest = await addQuestCall(
+      data.description,
+      data.points,
+      data.date,
+      data.time,
+      data.location,
+      token,
+    );
     if (!newQuest) {
       return;
     }
 
     const questWithUsername = {
       ...newQuest,
-      author: username
+      author: username,
     };
     setQuests((prev: any) => [
       {
         id: newQuest._id,
-        author: newQuest.author?.username || newQuest.author,
+        authorId: newQuest.author,
+        authorName: username,
         date: newQuest.date,
         time: newQuest.time,
         description: newQuest.description,
         location: newQuest.location,
         joined: false,
         image: newQuest.image,
-        flag: newQuest.flag
+        flag: newQuest.flag,
       },
-      ...prev]);
+      ...prev,
+    ]);
     /*
   if (props.onPointsChanged) {
     await props.onPointsChanged();
@@ -180,10 +200,82 @@ function UserFeed() {
     */
   };
 
-  if (loading) return <View style={[styles.container, styles.loading]}><Text style={[styles.text, styles.loadingText]}>Loading feed...</Text><ActivityIndicator style = {styles.loadingIcon} size="large" color="#FF6C00" /></View>;
+  if (loading)
+    return (
+      <View style={[styles.container, styles.loading]}>
+        <Text style={[styles.text, styles.loadingText]}>Loading feed...</Text>
+        <ActivityIndicator
+          style={styles.loadingIcon}
+          size="large"
+          color="#FF6C00"
+        />
+      </View>
+    );
   // Don't load map unless location permissions enabled
-  if (!location && !locationAllowed) return <View style={[styles.container, styles.loading]}><Text style={[styles.text, styles.loadingText]}>Kwesta needs your location to run!</Text><ActivityIndicator style = {styles.loadingIcon} size="large" color="#FF6C00" /></View>;
-  if (!location && locationAllowed) return <View style={[styles.container, styles.loading]}><Text style={[styles.text, styles.loadingText]}>Loading map...</Text><ActivityIndicator style = {styles.loadingIcon} size="large" color="#FF6C00" /></View>;
+  if (!location && !locationAllowed)
+    return (
+      <View style={[styles.container, styles.loading]}>
+        <Text style={[styles.text, styles.loadingText]}>
+          Kwesta needs your location to run!
+        </Text>
+        <ActivityIndicator
+          style={styles.loadingIcon}
+          size="large"
+          color="#FF6C00"
+        />
+      </View>
+    );
+  if (!location && locationAllowed)
+    return (
+      <View style={[styles.container, styles.loading]}>
+        <Text style={[styles.text, styles.loadingText]}>Loading map...</Text>
+        <ActivityIndicator
+          style={styles.loadingIcon}
+          size="large"
+          color="#FF6C00"
+        />
+      </View>
+    );
+
+  let overlay = null;
+  if (activeOverlay === "comments") {
+    overlay = (
+      <CommentOverlay
+        comments={comments}
+        setComments={setComments}
+        onPointsChanged={refreshUserPoints}
+        onSelectComment={(c) => setSelectedCommentId(c?.id ?? null)}
+        open={true}
+        close={() => setActiveOverlay(null)}
+      />
+    );
+  }
+
+  if (activeOverlay === "events") {
+    overlay = (
+      <EventOverlay
+        events={events}
+        setEvents={setEvents}
+        onPointsChanged={refreshUserPoints}
+        onSelectEvent={(e) => setsselectedEventId(e?.id ?? null)}
+        open={true}
+        close={() => setActiveOverlay(null)}
+      />
+    );
+  }
+
+  if (activeOverlay === "quests") {
+    overlay = (
+      <QuestOverlay
+        quests={quests}
+        setQuests={setQuests}
+        onPointsChanged={refreshUserPoints}
+        onSelectQuest={(q) => setselectedQuestId(q?.id ?? null)}
+        open={true}
+        close={() => setActiveOverlay(null)}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -203,31 +295,28 @@ function UserFeed() {
         comments={comments}
         setComments={setComments}
         onPointsChanged={refreshUserPoints}
-        onSelectComment={(comment: any) => setSelectedCommentId(comment?.id ?? null)}
-        commentIsOpen={commentIsOpen} 
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}
+        onSelectComment={(comment: any) =>
+          setSelectedCommentId(comment?.id ?? null)
+        }
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
       />
       <Events
         events={events}
         setEvents={setEvents}
         onPointsChanged={refreshUserPoints}
         onSelectEvent={(event: any) => setsselectedEventId(event?.id ?? null)}
-        eventIsOpen={eventIsOpen} 
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
       />
       <Quests
         quests={quests}
         setQuests={setQuests}
         onPointsChanged={refreshUserPoints}
         onSelectQuest={(event: any) => setselectedQuestId(event?.id ?? null)}
-        questIsOpen={questIsOpen} 
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}      />
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
+      />
       <AddButtonOverlay
         username={username}
         onAddComment={handleAddComment}
@@ -236,11 +325,11 @@ function UserFeed() {
         clickedLocation={clickedLocation}
         setShowClickMarkers={setShowClickMarkers}
         location={location}
-        setCommentIsOpen={setCommentIsOpen}
-        setEventIsOpen={setEventIsOpen}
-        setQuestIsOpen={setQuestIsOpen}
+        activeOverlay={activeOverlay}
+        setActiveOverlay={setActiveOverlay}
       />
-      <PointsOverlay points={points}/>
+      <PointsOverlay points={points} />
+      {overlay}
     </View>
   );
 }
@@ -283,7 +372,7 @@ const styles = StyleSheet.create({
   loadingText: { position: "absolute", top: "50%" },
   loadingIcon: { position: "absolute", top: "25%", right: "50%" },
   content: { height: "10%", width: "100%" },
-  text: { color: "#ccc", textAlign: "center" }
+  text: { color: "#ccc", textAlign: "center" },
 });
 
 export default UserFeed;
