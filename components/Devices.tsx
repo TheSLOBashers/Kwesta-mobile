@@ -34,6 +34,7 @@ function DeviceIcon({ device_type }: Props3) {
 function Device({ device, handleBlock }: Props2) {
 
     let device_type = Number(device.device_deviceType);
+    const [pressed, setPressed] = useState(false);
 
     return (
         <View style={styles.device}>
@@ -42,7 +43,15 @@ function Device({ device, handleBlock }: Props2) {
                 <DeviceIcon device_type={device_type}></DeviceIcon>
                 <View style={styles.takeoverBox}>
                     <Text style={styles.text}>{device.allowed ? "Device currently permitted." : "Device blocked."}</Text>
-                    {device.allowed ? <Pressable style={styles.dButton} onPress={() => handleBlock(device.device)}><Text style={styles.dButtonText}>Block</Text></Pressable> : null}
+                    {device.allowed ?
+                        (pressed ?
+                            <>
+                            <Pressable style={styles.dButton} onPress={() => { handleBlock(device.device); }}><Text style={styles.dButtonText}>Confirm</Text></Pressable>
+                            <Pressable style={styles.dButtonWhite} onPress={() => { setPressed(false); }}><Text style={styles.dButtonTextWhite}>Undo</Text></Pressable>
+                            </>
+                            : <Pressable style={styles.dButton} onPress={() => { setPressed(true); alert("Blocking this device cannot be undone.") }}><Text style={styles.dButtonText}>Block</Text></Pressable>
+                        )
+                        : null}
                 </View>
             </View>
         </View>
@@ -59,11 +68,11 @@ export default function Devices({ devices, handleBlock }: Props) {
             <View style={styles.devices}>
                 <View style={styles.splitBox}>
                     <Text style={styles.title2}>Devices</Text>
-                {open ? <Pressable onPress={() => setOpen(false)}><IconSymbol size={35} name="arrow.up" color={"#ccc"} /></Pressable>
-                    : <Pressable onPress={() => setOpen(true)}><IconSymbol size={35} name="arrow.down" color={"#ccc"} /></Pressable>}
+                    {open ? <Pressable onPress={() => setOpen(false)}><IconSymbol size={35} name="arrow.up" color={"#ccc"} /></Pressable>
+                        : <Pressable onPress={() => setOpen(true)}><IconSymbol size={35} name="arrow.down" color={"#ccc"} /></Pressable>}
 
                 </View>
-                
+
                 {open ?
                     (devices.map((d: any, i: any) => (
                         <View key={`${d._id}:${i}`}>
@@ -114,10 +123,22 @@ const styles = StyleSheet.create({
         backgroundColor: 'orange',
         padding: 10,
         borderRadius: 8,
-        alignItems: 'center'
+        alignItems: 'center',
+        margin: 3
     },
     dButtonText: {
         color: 'white',
+        fontWeight: 'bold'
+    },
+    dButtonWhite: {
+        backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 8,
+        alignItems: 'center',
+        margin: 3
+    },
+    dButtonTextWhite: {
+        color: '#151515',
         fontWeight: 'bold'
     },
     error: {
