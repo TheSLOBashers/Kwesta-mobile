@@ -3,6 +3,7 @@ import { moderator as Moderator } from '@/scripts/moderator';
 import { token as Token } from '@/scripts/token';
 import { user as User } from '@/scripts/user';
 import { username as Username } from '@/scripts/username';
+import { Redirect } from 'expo-router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 
@@ -17,7 +18,7 @@ interface AuthContextType {
   setMod: (m: string | null) => void;
   loading: boolean;
 }
-
+ 
 // 1. Initialize Context
 const AuthContext = createContext<AuthContextType | null>(null);
 /*
@@ -34,43 +35,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [moderator, setModerator] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Check for existing session on mount (e.g., from localStorage)
-  useEffect(() => {
-    const loadData = async () => {
-      const savedUser = await User.getData();
-      const savedToken = await Token.getData();
-      const savedUsername = await Username.getData();
-      const savedModerator = await Moderator.getData();
-      if (savedUser) { setUser(savedUser) };
-      if (savedToken) { setToken(savedToken) };
-      if (savedUsername) { setUsername(savedUsername) };
-      if (savedModerator) { setModerator(savedModerator) };
-
-      if (token) {
-        await checkValidToken(token)
-          .catch(() => {
-            console.log("E");
-            setUsernameAs(null);
-            setTokenAs(null);
-            setUserAs(null);
-            setMod(null);
-          })
-      }
-
-      setLoading(false);
-    };
-
-    loadData();
-  }, []);
-
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading session...</Text>
-      </View>
-    );
-  }
 
   const setMod = (m: string | null) => {
     setModerator(m);
@@ -110,6 +74,49 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     else {
       Token.storeData(token);
     }
+  }
+
+  // Check for existing session on mount (e.g., from localStorage)
+  useEffect(() => {
+    const loadData = async () => {
+      const savedUser = await User.getData();
+      const savedToken = await Token.getData();
+      const savedUsername = await Username.getData();
+      const savedModerator = await Moderator.getData();
+      if (savedUser) { setUser(savedUser) };
+      if (savedToken) { setToken(savedToken) };
+      if (savedUsername) { setUsername(savedUsername) };
+      if (savedModerator) { setModerator(savedModerator) };
+
+      if (savedToken) {
+        await checkValidToken(savedToken)
+        .then(() => {
+          console.log("Token is valid");
+        })
+          .catch(() => {
+            console.log("Error checking token");
+            setUsernameAs(null);
+            setTokenAs(null);
+            setUserAs(null);
+            setMod(null);
+            setLoading(false);
+            return <Redirect href="/context/(auth)/Login" />;
+          })
+      }
+
+      setLoading(false);
+    };
+
+    loadData();
+    console.log("Loaded data");
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Loading session...</Text>
+      </View>
+    );
   }
 
   return (

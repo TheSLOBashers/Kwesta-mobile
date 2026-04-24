@@ -2,9 +2,9 @@
 import { useRouter } from 'expo-router';
 import { useState } from "react";
 //import { ThreeDots } from "react-loader-spinner";
-import handleSubmit from '../../../scripts/signUpCall';
-import { StyleSheet, View, Text, TextInput, Pressable } from 'react-native';
 import { Link } from 'expo-router';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import handleSubmit from '../../../scripts/signUpCall';
 
 export default function Signup() {
   const router = useRouter();
@@ -106,7 +106,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginTop: 10,
-    marginBottom: 5
+    marginBottom: 5,
+    color: '#ccc'
   },
   input: {
     borderWidth: 1,

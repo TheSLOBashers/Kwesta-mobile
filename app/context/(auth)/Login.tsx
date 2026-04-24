@@ -42,9 +42,9 @@ export default function Login() {
       if (isModerator) {
         console.log("moderator");
         // router.push("/moderationPortal");
-        router.push("../(tabs)/index");
+        router.push("/context/(tabs)");
       } else {
-        router.replace("../(tabs)");
+        router.push("/context/(tabs)");
       }
     } catch (err: any) {
       //console.log(err.message);
@@ -112,7 +112,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginTop: 10,
-    marginBottom: 5
+    marginBottom: 5,
+    color: '#ccc'
   },
   input: {
     borderWidth: 1,

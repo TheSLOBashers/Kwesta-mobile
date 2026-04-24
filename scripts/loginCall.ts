@@ -36,7 +36,7 @@ const loginCall = async (
         setError(json.message);
         throw new Error(`${json.message}`);
       }
-      throw new Error(`Error: ${json.message}`);
+      throw new Error(`${json.message}`);
     }
 
     if (json.permissions && json.permissions === "moderator") {
