@@ -19,11 +19,11 @@ import Quests from "@/components/Quests";
 import addCommentCall from "@/scripts/addCommentCall";
 import addEventCall from "@/scripts/addEventCall";
 import addQuestCall from "@/scripts/addQuestCall";
-import getEventsCall from "@/scripts/getEventsCall";
-import getQuestsCall from "@/scripts/getQuestsCall";
 import * as Location from "expo-location";
 
 import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
+import getEventsByAreaCall from "@/scripts/getEventsByAreaCall";
+import getQuestsByAreaCall from "@/scripts/getQuestsByAreaCall";
 
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
@@ -77,9 +77,18 @@ function UserFeed() {
       location.longitude,
       1,
     );
-
-    const eventData = await getEventsCall(token);
-    const questData = await getQuestsCall(token);
+    const eventData = await getEventsByAreaCall(
+      token,
+      location.latitude,
+      location.longitude,
+      10,
+    );
+    const questData = await getQuestsByAreaCall(
+      token,
+      location.latitude,
+      location.longitude,
+      10,
+    );
     setComments(commentData);
     setEvents(eventData);
     setQuests(questData);
