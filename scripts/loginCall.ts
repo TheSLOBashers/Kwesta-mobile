@@ -16,6 +16,12 @@ const loginCall = async (
   try {
     setIsLoading(true);
 
+    device_brand = device_brand ? device_brand : "?";
+    device_designName = device_designName ? device_designName : "?";
+    device_deviceName = device_deviceName ? device_deviceName : "?";
+    device_deviceYearClass = device_deviceYearClass ? device_deviceYearClass : "?";
+    device_deviceType = device_deviceType ? device_deviceType : "?";
+
     const response = await fetch(
       `${backend}auth/login`,
       {

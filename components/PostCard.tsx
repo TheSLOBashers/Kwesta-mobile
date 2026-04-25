@@ -4,9 +4,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 type Props = {
   item: any;
   onEdit: (item: any) => void;
+  mode: "mine" | "joined";
+  onUnjoin?: (item: any) => void;
+  onDelete?: (item: any) => void;
 };
 
-export default function PostCard({ item, onEdit }: Props) {
+export default function PostCard({ item, onEdit, mode, onUnjoin, onDelete }: Props) {
     const text = item.comment || item.description || item.text;
     const formattedDate = new Date(item.date).toLocaleDateString();
     const formattedTime = new Date(item.date).toLocaleTimeString([], {
@@ -15,16 +18,52 @@ export default function PostCard({ item, onEdit }: Props) {
     });
     const author = item.authorName;
 
+    const label =
+      item.type === "event"
+        ? "EVENT"
+        : item.type === "quest"
+        ? "QUEST"
+        : "COMMENT";
+
+    const borderColor =
+      item.type === "event"
+        ? "#4da6ff"
+        : item.type === "quest"
+        ? "#ff9f0a"
+        : "#34c759";
+
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, { borderLeftColor: borderColor }]}>
           {/* Header */}
-          <View style={styles.header}>
-              <Text style={styles.author}>{author}</Text>
-              <Text style={styles.meta}>{formattedDate} • {formattedTime}</Text>
+          <View style={styles.headerTop}>
+            <Text style={styles.author}>{author}</Text>
+
+            <View style={styles.rightHeader}>
+              <View style={styles.tag}>
+                <Text style={styles.tagText}>{label}</Text>
+              </View>
+
+              {mode !== "joined" ? (
+                <Pressable onPress={() => onEdit?.(item)} style={styles.editButton}>
+                  <Text style={styles.editText}>Edit</Text>
+                </Pressable>
+              ) : (
+                <Pressable onPress={() => onUnjoin?.(item)} style={styles.unjoinButton}>
+                  <Text style={styles.unjoinText}>Unjoin</Text>
+                </Pressable>
+              )}
+              {mode === "mine" && (
+                <Pressable
+                  onPress={() => onDelete?.(item)}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteText}>Delete</Text>
+                </Pressable>
+              )}
+              
+            </View>
           </View>
-          <Pressable onPress={() => onEdit(item)} style={styles.editButton}>
-            <Text style={styles.editText}>Edit</Text>
-          </Pressable>
+          <Text style={styles.meta}>{formattedDate} • {formattedTime}</Text>
 
           {/* Content */}
           <Text style={styles.text}>{text}</Text>
@@ -32,11 +71,11 @@ export default function PostCard({ item, onEdit }: Props) {
           {/* Footer (optional extra info) */}
           <View style={styles.footer}>
               {item.likes !== undefined && (
-              <Text style={styles.small}>❤️ {item.likes}</Text>
+                <Text style={styles.small}>❤️ {item.likes}</Text>
               )}
 
               {item.flag !== undefined && (
-              <Text style={styles.small}>🚩 {item.flag}</Text>
+                <Text style={styles.small}>🚩 {item.flag}</Text>
               )}
           </View>
         </View>
@@ -51,6 +90,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     borderRadius: 14,
     position: "relative",
+    borderLeftWidth: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 4,
   },
   header: {
     marginBottom: 8,
@@ -80,12 +125,58 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   editButton: {
-    position: "absolute",
-    top: 10,
-    right: 10,
+    backgroundColor: "#4da6ff",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   editText: {
-    color: "#4da6ff",
-    fontSize: 13,
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  unjoinButton: {
+    backgroundColor: "#ff3b30",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  unjoinText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  headerTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  rightHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: "#333",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  tagText: {
+    fontSize: 10,
+    color: "#aaa",
+    fontWeight: "600",
+  },
+  deleteButton: {
+    backgroundColor: "#ff3b30",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+    marginLeft: 6,
+  },
+  deleteText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
 });

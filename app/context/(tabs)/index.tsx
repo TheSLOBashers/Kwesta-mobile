@@ -28,7 +28,7 @@ import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function UserFeed() {
   const { user, username, token } = useAuth();
@@ -67,26 +67,26 @@ function UserFeed() {
     [events, selectedEventId],
   );
 
+  const fetchAll = async () => {
+    if (!location) return;
+    setLoading(true);
+
+    const commentData = await getCommentsByAreaCall(
+      token,
+      location.latitude,
+      location.longitude,
+      1,
+    );
+
+    const eventData = await getEventsCall(token);
+    const questData = await getQuestsCall(token);
+    setComments(commentData);
+    setEvents(eventData);
+    setQuests(questData);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchAll = async () => {
-      if (!location) return;
-      setLoading(true);
-
-      const commentData = await getCommentsByAreaCall(
-        token,
-        location.latitude,
-        location.longitude,
-        1,
-      );
-
-      const eventData = await getEventsCall(token);
-      const questData = await getQuestsCall(token);
-      setComments(commentData);
-      setEvents(eventData);
-      setQuests(questData);
-      setLoading(false);
-    };
-
     fetchAll();
   }, [location]);
 
@@ -329,6 +329,11 @@ function UserFeed() {
         setActiveOverlay={setActiveOverlay}
       />
       <PointsOverlay points={points} />
+      <TouchableOpacity style={styles.refreshButton} onPress={fetchAll}>
+        <Text style={styles.refreshText}>
+          {loading ? "…" : "↻"}
+        </Text>
+      </TouchableOpacity>
       {overlay}
     </View>
   );
@@ -373,6 +378,23 @@ const styles = StyleSheet.create({
   loadingIcon: { position: "absolute", top: "25%", right: "50%" },
   content: { height: "10%", width: "100%" },
   text: { color: "#ccc", textAlign: "center" },
+  refreshButton: {
+    position: "absolute",
+    bottom: 100,
+    left: 20,
+    backgroundColor: "#FF6C00",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+  },
+  refreshText: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "bold",
+  },
 });
 
 export default UserFeed;
