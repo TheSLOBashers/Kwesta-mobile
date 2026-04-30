@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import AddButton from "./AddButton";
 
 import CommentForm from "./CommentForm";
@@ -67,13 +67,13 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
             opacity: open ? 1 : 0,
         },
         commentButton: {
-            backgroundColor: "#4CAF50",
+            backgroundColor: "#6A6A6A",
             transform: open
                 ? "translate(250%, 400%) scale(1.0)"
                 : "translate(0, 0) scale(0)",
         },
         eventButton: {
-            backgroundColor: "#4CAF50",
+            backgroundColor: "#6A6A6A",
             transform: open
                 ? "translate(0%, 500%) scale(1.0)"
                 : "translate(0, 0) scale(0)",
@@ -81,6 +81,16 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
         questButton: {
             backgroundColor: "#f3c221",
         },
+        imageContainer: {
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+        },
+        svg: {
+            width: 25,
+            height: 25,
+            resizeMode: 'stretch',
+        }
     });
 
     return (
@@ -108,10 +118,15 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 }}
                 pointerEvents={open ? "auto" : "none"}
             >
-                <Text>C</Text>
+                <View style={styles.imageContainer}>
+                    <Image
+                    style = {styles.svg}
+                    source = {require('../assets/images/speech2.png')}
+                    />
+                </View>
             </Pressable>
             <Pressable
-                aria-label="add comment"
+                aria-label="add event"
                 style={[
                     styles.menuButton,
                     styles.eventButton
@@ -122,7 +137,12 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 }}
                 pointerEvents={open ? "auto" : "none"}
             >
-                <Text>E</Text>
+                <View style={styles.imageContainer}>
+                    <Image
+                    style = {styles.svg}
+                    source = {require('../assets/images/event2.png')}
+                    />
+                </View>
             </Pressable>
 
             {formType === "comment" ? (

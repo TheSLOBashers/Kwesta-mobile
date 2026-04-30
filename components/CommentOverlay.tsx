@@ -3,7 +3,7 @@ import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -133,23 +133,36 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                                         ]}
                                         >
                                         <Text style={styles.author}>{c.authorName}</Text>
-                                        <Text>{formattedDate}</Text>
-                                        <Text>{c.comment}</Text>
-                                        <Text>Likes: {c.likes || 0}</Text>
-
+                                        <Text style={{marginBottom: '3%'}}>{formattedDate}</Text>
+                                        <Text style={{marginBottom: '3%'}}>{c.comment}</Text>
+                                        <Text style={{marginBottom: '5%'}}>Likes: {c.likes || 0}</Text>
+                                            
                                         <Pressable
+                                            style={{flexDirection: 'row', marginBottom: '3%'}}
                                             onPress={() => handleLike(c.id)}
                                             disabled={c.likedByUser}
                                         >
+                                            <Image
+                                                style = {imageStyles.image}
+                                                source = {c.likedByUser ? require('../assets/images/thumbsup.png') : require('../assets/images/thumbsup_non.png')}
+                                            />
                                             <Text>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
                                         </Pressable>
 
                                         {c.flaggedByUser ? (
-                                            <Pressable onPress={() => handleUnflag(c.id)}>
+                                            <Pressable style={{flexDirection: 'row'}} onPress={() => handleUnflag(c.id)}>
+                                                <Image
+                                                    style = {imageStyles.image}
+                                                    source = {require('../assets/images/flag.png')}
+                                                />
                                                 <Text>Unflag comment</Text>
                                             </Pressable>
                                         ) : (
-                                            <Pressable onPress={() => handleFlag(c.id)}>
+                                            <Pressable style={{flexDirection: 'row'}} onPress={() => handleFlag(c.id)}>
+                                                <Image
+                                                    style = {imageStyles.image}
+                                                    source = {require('../assets/images/flag_non.png')}
+                                                />
                                                 <Text>Flag comment</Text>
                                             </Pressable>
                                         )}
@@ -164,3 +177,16 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
     );
 }
 
+const imageStyles = StyleSheet.create({
+  image: {
+    width: 15,
+    height: 20,
+    resizeMode: 'stretch',
+    marginRight: '2%',
+  },
+  pressableContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  }
+});

@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Pressable, StyleSheet, Dimensions, Alert, DimensionValue } from "react-native";
+import { DimensionValue, Pressable, StyleSheet, Text } from "react-native";
 
 interface Props {
     onClick: () => void;
@@ -24,9 +24,12 @@ const styles = StyleSheet.create({
         padding: "1%",
         zIndex: 1000,
         alignItems: "center",
+        justifyContent: 'center',
         fontFamily: "Acephimere",
-        backgroundColor: "rgba(0,0,0,0.5)",
-        width: "20%",
+        backgroundColor: "rgba(0,0,0,0.6)",
+        width: "25%",
+        height: "4%",
+        borderRadius: "10%",
     },
     text: {
         color: "#ffffff",
