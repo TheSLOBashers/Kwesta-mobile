@@ -19,7 +19,13 @@ import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
 import getEventsByAreaCall from "@/scripts/getEventsByAreaCall";
 import getQuestsByAreaCall from "@/scripts/getQuestsByAreaCall";
 import * as Location from "expo-location";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 function UserFeed() {
   const { user, username, token } = useAuth();

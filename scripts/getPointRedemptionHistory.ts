@@ -1,10 +1,5 @@
 import backend from "@/constants/backend";
-
-
-
-
-//THIS WAS CODED IN A WAY THE USERS WOULD LINK TO ANOTHER POINT HISTORY SCHEMA
-//YET TO IMPLEMENT
+import { getLocalRedemptions } from "./localRedemptions";
 
 export type PointRedemptionHistoryEntry = {
   id: string;
@@ -54,6 +49,7 @@ function toArray(data: any): any[] {
   }
 
   const candidateArrays = [
+    data.entries,
     data.redemptions,
     data.history,
     data.data,
@@ -99,10 +95,14 @@ function normalizeEntry(
   };
 }
 
+function buildRedemptionsUrl(): string {
+  return `${backend.replace(/\/+$/, "")}/users/me/redemptions`;
+}
+
 async function fetchBackendHistory(
   authToken: string,
 ): Promise<PointRedemptionHistoryEntry[]> {
-  const response = await fetch(`${backend}/users/me/redemptions`, {
+  const response = await fetch(buildRedemptionsUrl(), {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -140,19 +140,66 @@ const getPointRedemptionHistory = async (
 
   try {
     const entries = await fetchBackendHistory(token);
-    return {
-      entries,
-      usingMockData: false,
-      error: null,
-    };
+    // include any local redemptions saved when backend endpoint wasn't available
+    try {
+      const local = await getLocalRedemptions();
+      const mapped = local.map((l) => ({
+        id: l.id,
+        rewardName: l.rewardName,
+        pointsRedeemed: l.pointsRedeemed,
+        redeemedAt: l.redeemedAt,
+        status: l.status,
+      }));
+      const merged = [...mapped, ...entries].sort(
+        (left, right) =>
+          new Date(right.redeemedAt).getTime() -
+          new Date(left.redeemedAt).getTime(),
+      );
+      return {
+        entries: merged,
+        usingMockData: false,
+        error: null,
+      };
+    } catch (e) {
+      return {
+        entries,
+        usingMockData: false,
+        error: null,
+      };
+    }
   } catch (error: any) {
-    return {
-      entries: [...mockPointRedemptionHistory],
-      usingMockData: true,
-      error:
-        error?.message ??
-        "Failed to load redemption history from backend. Showing mock data.",
-    };
+    // backend failed - include local redemptions in the fallback history
+    try {
+      const local = await getLocalRedemptions();
+      const mapped = local.map((l) => ({
+        id: l.id,
+        rewardName: l.rewardName,
+        pointsRedeemed: l.pointsRedeemed,
+        redeemedAt: l.redeemedAt,
+        status: l.status,
+      }));
+      const merged = [...mapped, ...mockPointRedemptionHistory].sort(
+        (left, right) =>
+          new Date(right.redeemedAt).getTime() -
+          new Date(left.redeemedAt).getTime(),
+      );
+
+      return {
+        entries: merged,
+        usingMockData: true,
+        error:
+          error?.message ??
+          "Failed to load redemption history from backend. Showing mock data.",
+      };
+    } catch (e) {
+      return {
+        entries: [...mockPointRedemptionHistory],
+        usingMockData: true,
+        error:
+          error?.message ??
+          "Failed to load redemption history from backend. Showing mock data.",
+      };
+    }
   }
 };
 

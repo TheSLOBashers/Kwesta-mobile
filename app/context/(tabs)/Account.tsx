@@ -45,7 +45,11 @@ export default function Account() {
 
   const loadDevices = useCallback(async () => {
     try {
-      const result = await getDevicesCall(setLoadingDevices, setDevicesError, token);
+      const result = await getDevicesCall(
+        setLoadingDevices,
+        setDevicesError,
+        token,
+      );
       setDevices(Array.isArray(result) ? result : []);
       setDevicesError(null);
     } catch {
@@ -56,7 +60,11 @@ export default function Account() {
   useEffect(() => {
     const load = async () => {
       setLoadingHistory(true);
-      await Promise.all([loadRedemptionHistory(), refreshUserPoints(), loadDevices()]);
+      await Promise.all([
+        loadRedemptionHistory(),
+        refreshUserPoints(),
+        loadDevices(),
+      ]);
       setLoadingHistory(false);
     };
 
@@ -101,13 +109,17 @@ export default function Account() {
       contentContainerStyle={styles.container}
     >
       <Text style={[styles.title, { color: colors.text }]}>Account</Text>
-      <Text style={[styles.text, { color: colors.text }]}>Username: {username}</Text>
+      <Text style={[styles.text, { color: colors.text }]}>
+        Username: {username}
+      </Text>
       <Text style={[styles.pointsText, { color: colors.text }]}>
         Current Points: {points ?? 0}
       </Text>
 
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Redemption History</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Redemption History
+        </Text>
         <Pressable
           onPress={handleRefreshHistory}
           style={[
@@ -120,7 +132,9 @@ export default function Account() {
             },
           ]}
         >
-          <Text style={[styles.refreshButtonText, { color: colors.text }]}>Refresh</Text>
+          <Text style={[styles.refreshButtonText, { color: colors.text }]}>
+            Refresh
+          </Text>
         </Pressable>
       </View>
 
@@ -149,7 +163,9 @@ export default function Account() {
       {loadingHistory ? (
         <View style={styles.loadingState}>
           <ActivityIndicator size="large" color={colors.tint} />
-          <Text style={[styles.metaText, { color: colors.text }]}>Loading history...</Text>
+          <Text style={[styles.metaText, { color: colors.text }]}>
+            Loading history...
+          </Text>
         </View>
       ) : history.length > 0 ? (
         <View style={styles.listContent}>
@@ -171,7 +187,9 @@ export default function Account() {
               ]}
             >
               <View style={styles.cardTopRow}>
-                <Text style={[styles.rewardName, { color: colors.text }]}>{item.rewardName}</Text>
+                <Text style={[styles.rewardName, { color: colors.text }]}>
+                  {item.rewardName}
+                </Text>
                 <Text style={[styles.pointsCost, { color: colors.tint }]}>
                   -{item.pointsRedeemed} pts
                 </Text>
@@ -200,8 +218,12 @@ export default function Account() {
 
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Devices</Text>
-          {loadingDevices && <ActivityIndicator size="small" color={colors.tint} />}
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Devices
+          </Text>
+          {loadingDevices && (
+            <ActivityIndicator size="small" color={colors.tint} />
+          )}
         </View>
 
         {devicesError && (
@@ -215,7 +237,9 @@ export default function Account() {
           </Text>
         )}
 
-        {!devicesError ? <Devices devices={devices} handleBlock={handleBlock} /> : null}
+        {!devicesError ? (
+          <Devices devices={devices} handleBlock={handleBlock} />
+        ) : null}
       </View>
 
       <LogOutButton
