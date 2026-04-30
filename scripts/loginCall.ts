@@ -1,4 +1,3 @@
-import { moderator } from "./moderator";
 import backend from "@/constants/backend";
 
 const loginCall = async (
@@ -7,10 +6,21 @@ const loginCall = async (
   setError: (error: string) => void,
   setIsLoading: (loading: boolean) => void,
   setMod: (m : string | null) => void,
-  setTokenAs: (token : string | null) => void
+  setTokenAs: (token : string | null) => void,
+  device_brand: string | null,
+  device_designName: string | null,
+  device_deviceName: string | null,
+  device_deviceYearClass: string | null,
+  device_deviceType: string | null
 ) => {
   try {
     setIsLoading(true);
+
+    device_brand = device_brand ? device_brand : "?";
+    device_designName = device_designName ? device_designName : "?";
+    device_deviceName = device_deviceName ? device_deviceName : "?";
+    device_deviceYearClass = device_deviceYearClass ? device_deviceYearClass : "?";
+    device_deviceType = device_deviceType ? device_deviceType : "?";
 
     const response = await fetch(
       `${backend}auth/login`,
@@ -19,7 +29,7 @@ const loginCall = async (
         headers: {
           "Content-Type": "application/json" // Indicate the content type
         },
-        body: JSON.stringify({ username, password }) // Convert the data to a JSON string
+        body: JSON.stringify({ username, password, device_brand: device_brand, device_designName: device_designName, device_deviceName: device_deviceName, device_deviceYearClass: device_deviceYearClass, device_deviceType: device_deviceType }) // Convert the data to a JSON string
       }
     );
 
@@ -32,7 +42,7 @@ const loginCall = async (
         setError(json.message);
         throw new Error(`${json.message}`);
       }
-      throw new Error(`Error: ${response.status}`);
+      throw new Error(`${json.message}`);
     }
 
     if (json.permissions && json.permissions === "moderator") {

@@ -2,10 +2,11 @@
 import { useRouter } from 'expo-router';
 import { useState } from "react";
 //import { ThreeDots } from "react-loader-spinner";
-import handleSubmit from '../../../scripts/loginCall';
-import { StyleSheet, View, Text, TextInput, Pressable } from 'react-native';
 import { useAuth } from '@/components/auth-context';
+import * as Device from 'expo-device';
 import { Link } from 'expo-router';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import handleSubmit from '../../../scripts/loginCall';
 
 export default function Login() {
   const { moderator, setUsernameAs, setTokenAs, setMod, token } = useAuth();
@@ -27,7 +28,12 @@ export default function Login() {
         setError,
         setIsLoading,
         setMod,
-        setTokenAs
+        setTokenAs,
+        Device.brand,
+        Device.designName,
+        Device.deviceName,
+        String(Device.deviceYearClass),
+        String(Device.deviceType)
       );
       const isModerator = Boolean(moderator) && moderator;
       setUsernameAs(userDetails.username);
@@ -36,12 +42,12 @@ export default function Login() {
       if (isModerator) {
         console.log("moderator");
         // router.push("/moderationPortal");
-        router.push("../(tabs)/index");
+        router.push("/context/(tabs)");
       } else {
-        router.push("../(tabs)/");
+        router.push("/context/(tabs)");
       }
     } catch (err: any) {
-      console.log(err.message);
+      //console.log(err.message);
       setError(err.message);
     } finally {
       setIsLoading(false);
@@ -75,6 +81,7 @@ export default function Login() {
         <Text style={styles.buttonText}>Submit</Text>
       </Pressable>
 
+      {isLoading && <ActivityIndicator style = {styles.loadingIcon} size="large" color="#FF6C00" />}
       {error !== "" && <Text style={styles.error}>{error}</Text>}
 
       <Text style={styles.text}>
@@ -105,7 +112,8 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 18,
     marginTop: 10,
-    marginBottom: 5
+    marginBottom: 5,
+    color: '#ccc'
   },
   input: {
     borderWidth: 1,
@@ -129,5 +137,6 @@ const styles = StyleSheet.create({
     color: 'red',
     fontWeight: 'bold',
     marginTop: 10
-  }
+  },
+  loadingIcon: { margin: "10%" },
 });

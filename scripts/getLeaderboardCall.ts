@@ -1,4 +1,4 @@
-//import backend from "@/constants/backend";
+import backend from "../constants/backend";
 
 type LeaderboardEntry = {
   id: string;
@@ -34,42 +34,49 @@ const getLeaderboardCall = async (
   token: string | null,
 ): Promise<LeaderboardResult> => {
   try {
-    // if (!token) {
-    //   return { users: [], error: "No auth token available." };
-    // }
-    // const attempts = [
-    //   await fetchUsersWithAuth(token, true),
-    //   await fetchUsersWithAuth(token, false),
-    // ];
-    // const response =
-    //   attempts.find((attempt) => attempt.ok) ?? attempts[attempts.length - 1];
-    // if (!response.ok) {
-    //   if (response.status === 401) {
-    //     return {
-    //       users: [],
-    //       error: "Backend returned 401 Unauthorized for /users.",
-    //     };
-    //   }
-    //   return {
-    //     users: [],
-    //     error: `Backend returned ${response.status} for /users.`,
-    //   };
-    // }
-    // const data = await response.json();
-    // const usersArray = Array.isArray(data)
-    //   ? data
-    //   : (data.users ?? data.leaderboard ?? data.data ?? []);
-    // const users = usersArray
-    //   .map(normalizeUser) **need to reimplement**
-    //   .sort(
-    //     (left: LeaderboardEntry, right: LeaderboardEntry) =>
-    //       right.points - left.points,
-    //   );
+    // try to fetch real users from backend
+    const res = await fetch(`${backend}users`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
 
-    const users = [...mockLeaderboardUsers].sort(
-      (left: LeaderboardEntry, right: LeaderboardEntry) =>
-        right.points - left.points,
-    );
+    if (!res.ok) {
+      // fallback to mock on non-OK response
+      const users = [...mockLeaderboardUsers].sort(
+        (l: LeaderboardEntry, r: LeaderboardEntry) => r.points - l.points,
+      );
+      return { users, error: `Backend returned ${res.status} for /users.` };
+    }
+
+    const data = await res.json();
+    const usersArray: any[] = Array.isArray(data)
+      ? data
+      : (data.users_list ?? data.users ?? data.leaderboard ?? data.data ?? []);
+
+    const normalizeUser = (u: any): LeaderboardEntry => {
+      const id = u._id ?? u.id ?? u.userId ?? "";
+      const username = u.username ?? u.handle ?? u.undername ?? "";
+      const name =
+        (u.name ?? u.displayName ?? u.fullName ?? username) || "Unknown";
+      const undername = username
+        ? `@${username.replace(/^@/, "")}`
+        : (u.undername ?? "");
+      const points = Number(u.points ?? u.score ?? u.totalPoints ?? 0) || 0;
+
+      return {
+        id: String(id),
+        name,
+        undername,
+        points,
+      };
+    };
+
+    const users = usersArray
+      .map(normalizeUser)
+      .sort((a, b) => b.points - a.points);
 
     return { users, error: null };
   } catch {

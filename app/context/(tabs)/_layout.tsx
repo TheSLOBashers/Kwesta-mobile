@@ -27,7 +27,16 @@ export default function TabLayout() {
         name="MyPosts"
         options={{
           title: "My Posts",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="envelope.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bookmark.circle.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="JoinedPosts"
+        options={{
+          title: "Joined",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="person.2.fill" color={color} />
+          ),
         }}
       />
       <Tabs.Screen

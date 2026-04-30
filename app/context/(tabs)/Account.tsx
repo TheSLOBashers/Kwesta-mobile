@@ -1,20 +1,24 @@
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+
+import Devices from "@/components/Devices";
 import LogOutButton from "@/components/LogOutButton";
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import blockDeviceCall from "@/scripts/blockDeviceCall";
+import getDevicesCall from "@/scripts/getDevicesCall";
 import getPointRedemptionHistory, {
   PointRedemptionHistoryEntry,
 } from "@/scripts/getPointRedemptionHistory";
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
 
 export default function Account() {
   const { username, token, setUsernameAs, setTokenAs, setMod, setUserAs } =
@@ -23,34 +27,59 @@ export default function Account() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const [usingMockData, setUsingMockData] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const [history, setHistory] = useState<PointRedemptionHistoryEntry[]>([]);
+
+  const [devices, setDevices] = useState<any[]>([]);
+  const [loadingDevices, setLoadingDevices] = useState(false);
+  const [devicesError, setDevicesError] = useState<string | null>(null);
 
   const loadRedemptionHistory = useCallback(async () => {
     const result = await getPointRedemptionHistory(token);
     setHistory(result.entries);
     setUsingMockData(result.usingMockData);
-    setError(result.error);
+    setHistoryError(result.error);
+  }, [token]);
+
+  const loadDevices = useCallback(async () => {
+    try {
+      const result = await getDevicesCall(setLoadingDevices, setDevicesError, token);
+      setDevices(Array.isArray(result) ? result : []);
+      setDevicesError(null);
+    } catch {
+      setDevices([]);
+    }
   }, [token]);
 
   useEffect(() => {
     const load = async () => {
-      setLoading(true);
-      await Promise.all([loadRedemptionHistory(), refreshUserPoints()]);
-      setLoading(false);
+      setLoadingHistory(true);
+      await Promise.all([loadRedemptionHistory(), refreshUserPoints(), loadDevices()]);
+      setLoadingHistory(false);
     };
 
     load();
+  }, [loadDevices, loadRedemptionHistory, refreshUserPoints]);
+
+  const handleRefreshHistory = useCallback(async () => {
+    await Promise.all([loadRedemptionHistory(), refreshUserPoints()]);
   }, [loadRedemptionHistory, refreshUserPoints]);
 
-  const handleRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await Promise.all([loadRedemptionHistory(), refreshUserPoints()]);
-    setRefreshing(false);
-  }, [loadRedemptionHistory, refreshUserPoints]);
+  async function handleBlock(device: any) {
+    blockDeviceCall(token, device)
+      .then(() => {
+        setDevices((prevDevices: any[]) =>
+          prevDevices.map((entry: any) =>
+            entry.device === device ? { ...entry, allowed: false } : entry,
+          ),
+        );
+      })
+      .catch((error: any) => {
+        alert("Blocking device failed." + error.message);
+      });
+  }
 
   const formatDate = (isoDate: string) => {
     const parsed = new Date(isoDate);
@@ -67,21 +96,20 @@ export default function Account() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <ScrollView
+      style={[styles.screen, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.container}
+    >
       <Text style={[styles.title, { color: colors.text }]}>Account</Text>
-      <Text style={[styles.text, { color: colors.text }]}>
-        Username: {username}
-      </Text>
+      <Text style={[styles.text, { color: colors.text }]}>Username: {username}</Text>
       <Text style={[styles.pointsText, { color: colors.text }]}>
         Current Points: {points ?? 0}
       </Text>
 
       <View style={styles.sectionHeader}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>
-          Redemption History
-        </Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Redemption History</Text>
         <Pressable
-          onPress={handleRefresh}
+          onPress={handleRefreshHistory}
           style={[
             styles.refreshButton,
             {
@@ -92,9 +120,7 @@ export default function Account() {
             },
           ]}
         >
-          <Text style={[styles.refreshButtonText, { color: colors.text }]}>
-            Refresh
-          </Text>
+          <Text style={[styles.refreshButtonText, { color: colors.text }]}>Refresh</Text>
         </Pressable>
       </View>
 
@@ -109,33 +135,27 @@ export default function Account() {
         </Text>
       )}
 
-      {error && (
+      {historyError && (
         <Text
           style={[
             styles.metaText,
             { color: colorScheme === "dark" ? "#fca5a5" : "#b91c1c" },
           ]}
         >
-          {error}
+          {historyError}
         </Text>
       )}
 
-      {loading ? (
+      {loadingHistory ? (
         <View style={styles.loadingState}>
           <ActivityIndicator size="large" color={colors.tint} />
-          <Text style={[styles.metaText, { color: colors.text }]}>
-            Loading history...
-          </Text>
+          <Text style={[styles.metaText, { color: colors.text }]}>Loading history...</Text>
         </View>
-      ) : (
-        <FlatList
-          data={history}
-          keyExtractor={(item) => item.id}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item }) => (
+      ) : history.length > 0 ? (
+        <View style={styles.listContent}>
+          {history.map((item) => (
             <View
+              key={item.id}
               style={[
                 styles.card,
                 {
@@ -151,9 +171,7 @@ export default function Account() {
               ]}
             >
               <View style={styles.cardTopRow}>
-                <Text style={[styles.rewardName, { color: colors.text }]}>
-                  {item.rewardName}
-                </Text>
+                <Text style={[styles.rewardName, { color: colors.text }]}>{item.rewardName}</Text>
                 <Text style={[styles.pointsCost, { color: colors.tint }]}>
                   -{item.pointsRedeemed} pts
                 </Text>
@@ -167,19 +185,38 @@ export default function Account() {
                 {formatDate(item.redeemedAt)} • {item.status}
               </Text>
             </View>
-          )}
-          ListEmptyComponent={
-            <Text
-              style={[
-                styles.metaText,
-                { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
-              ]}
-            >
-              You have no redemptions yet.
-            </Text>
-          }
-        />
+          ))}
+        </View>
+      ) : (
+        <Text
+          style={[
+            styles.metaText,
+            { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
+          ]}
+        >
+          You have no redemptions yet.
+        </Text>
       )}
+
+      <View style={styles.sectionGap}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Devices</Text>
+          {loadingDevices && <ActivityIndicator size="small" color={colors.tint} />}
+        </View>
+
+        {devicesError && (
+          <Text
+            style={[
+              styles.metaText,
+              { color: colorScheme === "dark" ? "#fca5a5" : "#b91c1c" },
+            ]}
+          >
+            {devicesError}
+          </Text>
+        )}
+
+        {!devicesError ? <Devices devices={devices} handleBlock={handleBlock} /> : null}
+      </View>
 
       <LogOutButton
         setUsernameAs={setUsernameAs}
@@ -187,20 +224,25 @@ export default function Account() {
         setMod={setMod}
         setUserAs={setUserAs}
       />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
+  },
+  container: {
     padding: 20,
     paddingTop: 48,
+    gap: 12,
   },
   title: {
     fontFamily: "Cocogoose",
     fontSize: 28,
-    marginBottom: 10,
+    marginTop: 20,
+    marginBottom: 12,
+    color: "#ccc",
   },
   text: {
     fontFamily: "Acephimere",
@@ -210,7 +252,7 @@ const styles = StyleSheet.create({
   pointsText: {
     fontFamily: "Acephimere",
     fontSize: 16,
-    marginBottom: 16,
+    marginBottom: 4,
   },
   sectionHeader: {
     flexDirection: "row",
@@ -221,6 +263,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "Cocogoose",
     fontSize: 20,
+  },
+  sectionGap: {
+    marginTop: 12,
   },
   refreshButton: {
     paddingVertical: 8,
@@ -240,7 +285,6 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   listContent: {
-    paddingBottom: 12,
     gap: 10,
   },
   card: {

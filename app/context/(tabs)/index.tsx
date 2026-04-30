@@ -1,35 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-/*
-import Comments from "./Comments";
-import Events from "./Events";
-import Quests from "./Quests";
-import AddButtonOverlay from "./AddButtonOverlay";
-*/
 import AddButtonOverlay from "@/components/AddButtonOverlay";
 import CommentOverlay from "@/components/CommentOverlay";
 import Comments from "@/components/Comments";
 import EventOverlay from "@/components/EventOverlay";
 import Events from "@/components/Events";
+import LeaderboardOverlay from "@/components/LeaderboardOverlay";
 import MapSection from "@/components/MapSection";
+import PointsOverlay from "@/components/PointsOverlay";
 import QuestOverlay from "@/components/QuestOverlay";
 import Quests from "@/components/Quests";
-import PointsOverlay from "../../../components/PointsOverlay";
-
-import LeaderboardOverlay from "@/components/LeaderboardOverlay";
+import { useAuth } from "@/components/auth-context";
+import { usePoints } from "@/components/points-context";
 import addCommentCall from "@/scripts/addCommentCall";
 import addEventCall from "@/scripts/addEventCall";
 import addQuestCall from "@/scripts/addQuestCall";
-import getEventsCall from "@/scripts/getEventsCall";
-import getQuestsCall from "@/scripts/getQuestsCall";
-import * as Location from "expo-location";
-
 import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
-
-import { useAuth } from "@/components/auth-context";
-import { usePoints } from "@/components/points-context";
-
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import getEventsByAreaCall from "@/scripts/getEventsByAreaCall";
+import getQuestsByAreaCall from "@/scripts/getQuestsByAreaCall";
+import * as Location from "expo-location";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 function UserFeed() {
   const { user, username, token } = useAuth();
@@ -38,17 +28,13 @@ function UserFeed() {
   const [events, setEvents] = useState<any>([]);
   const [quests, setQuests] = useState<any>([]);
   const [loading, setLoading] = useState(true);
-  // user location
   const [location, setLocation] = useState<any>(null);
   const [locationAllowed, setLocationAllowed] = useState(false);
-
   const [clickedLocation, setclickedLocation] = useState({ lat: 0, lng: 0 });
   const [showClickMarkers, setShowClickMarkers] = useState(false);
-  // New
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [selectedQuestId, setselectedQuestId] = useState(null);
   const [selectedEventId, setsselectedEventId] = useState(null);
-  // open
   const [activeOverlay, setActiveOverlay] = useState<
     "comments" | "events" | "quests" | "leaderboard" | null
   >(null);
@@ -68,30 +54,38 @@ function UserFeed() {
     [events, selectedEventId],
   );
 
+  const fetchAll = async () => {
+    if (!location) return;
+    setLoading(true);
+
+    const commentData = await getCommentsByAreaCall(
+      token,
+      location.latitude,
+      location.longitude,
+      1,
+    );
+    const eventData = await getEventsByAreaCall(
+      token,
+      location.latitude,
+      location.longitude,
+      10,
+    );
+    const questData = await getQuestsByAreaCall(
+      token,
+      location.latitude,
+      location.longitude,
+      10,
+    );
+    setComments(commentData);
+    setEvents(eventData);
+    setQuests(questData);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchAll = async () => {
-      if (!location) return;
-      setLoading(true);
-
-      const commentData = await getCommentsByAreaCall(
-        token,
-        location.latitude,
-        location.longitude,
-        1,
-      );
-
-      const eventData = await getEventsCall(token);
-      const questData = await getQuestsCall(token);
-      setComments(commentData);
-      setEvents(eventData);
-      setQuests(questData);
-      setLoading(false);
-    };
-
     fetchAll();
   }, [location]);
 
-  // request location permissions
   useEffect(() => {
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
@@ -113,34 +107,26 @@ function UserFeed() {
     }
 
     const commentWithUsername = {
-      comment: newComment.comment, // use backend response
+      comment: newComment.comment,
       id: newComment._id,
       authorId: newComment.author,
       authorName: username,
       likes: newComment.likes || 0,
-      likedByUser: false,
-      flaggedByUser: false,
+      likedByUser: newComment.likedByUser ?? false,
+      flaggedByUser: newComment.flaggedByUser ?? false,
       location: newComment.location || { lat: 0, lng: 0 },
       date: newComment.date,
     };
 
     setComments((prev: any) => [commentWithUsername, ...prev]);
-    /*
-    if (props.onPointsChanged) {
-      await props.onPointsChanged();
-    }
-      */
   };
+
   const handleAddEvent = async (data: any) => {
     const newEvent = await addEventCall(data, token);
     if (!newEvent) {
       return;
     }
 
-    const eventWithUsername = {
-      ...newEvent,
-      author: username,
-    };
     setEvents((prev: any) => [
       {
         id: newEvent._id,
@@ -156,12 +142,8 @@ function UserFeed() {
       },
       ...prev,
     ]);
-    /*
-  if (props.onPointsChanged) {
-    await props.onPointsChanged();
-  }
-    */
   };
+
   const handleAddQuest = async (data: any) => {
     const newQuest = await addQuestCall(
       data.description,
@@ -175,10 +157,6 @@ function UserFeed() {
       return;
     }
 
-    const questWithUsername = {
-      ...newQuest,
-      author: username,
-    };
     setQuests((prev: any) => [
       {
         id: newQuest._id,
@@ -194,11 +172,6 @@ function UserFeed() {
       },
       ...prev,
     ]);
-    /*
-  if (props.onPointsChanged) {
-    await props.onPointsChanged();
-  }
-    */
   };
 
   if (loading)
@@ -212,7 +185,7 @@ function UserFeed() {
         />
       </View>
     );
-  // Don't load map unless location permissions enabled
+
   if (!location && !locationAllowed)
     return (
       <View style={[styles.container, styles.loading]}>
@@ -226,6 +199,7 @@ function UserFeed() {
         />
       </View>
     );
+
   if (!location && locationAllowed)
     return (
       <View style={[styles.container, styles.loading]}>
@@ -341,42 +315,13 @@ function UserFeed() {
         open={activeOverlay === "leaderboard"}
         close={() => setActiveOverlay(null)}
       />
+      <TouchableOpacity style={styles.refreshButton} onPress={fetchAll}>
+        <Text style={styles.refreshText}>{loading ? "…" : "↻"}</Text>
+      </TouchableOpacity>
       {overlay}
     </View>
   );
 }
-
-/*
-      <View style={styles.content}>
-        <Comments
-          comments={comments}
-          setComments={setComments}
-          onPointsChanged={refreshUserPoints}
-          onSelectComment={(comment: any) => setSelectedCommentId(comment?.id ?? null)}
-        />
-        <Events 
-          events={events} 
-          setEvents={setEvents}
-          onPointsChanged={refreshUserPoints}
-          onSelectEvent={(event) => setsselectedEventId(event?.id ?? null)}
-        />
-        <Quests
-          quests={quests}
-          setQuests={setQuests}
-          onPointsChanged={refreshUserPoints}
-          onSelectQuest={(quest) => setselectedQuestId(quest?.id ?? null)}
-        />
-      </View>
-
-      <AddButtonOverlay
-        username={user}
-        onAddComment={handleAddComment}
-        onAddEvent={handleAddEvent}
-        onAddQuest={handleAddQuest}
-        clickedLocation={clickedLocation}
-        setShowClickMarkers={setShowClickMarkers}
-      />
-      */
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
@@ -385,6 +330,23 @@ const styles = StyleSheet.create({
   loadingIcon: { position: "absolute", top: "25%", right: "50%" },
   content: { height: "10%", width: "100%" },
   text: { color: "#ccc", textAlign: "center" },
+  refreshButton: {
+    position: "absolute",
+    bottom: 100,
+    left: 20,
+    backgroundColor: "#FF6C00",
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 6,
+  },
+  refreshText: {
+    color: "white",
+    fontSize: 22,
+    fontWeight: "bold",
+  },
 });
 
 export default UserFeed;
