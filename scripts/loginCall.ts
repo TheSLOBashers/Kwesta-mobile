@@ -45,7 +45,7 @@ const loginCall = async (
       throw new Error(`${json.message}`);
     }
 
-    if (json.permissions && json.permissions === "moderator") {
+    if (json.permissions && (json.permissions === "moderator" || json.permissions === "admin")) {
       setMod("True");
     }
     setTokenAs(json.token);
