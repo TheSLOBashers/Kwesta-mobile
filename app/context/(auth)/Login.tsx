@@ -85,7 +85,7 @@ export default function Login() {
       {error !== "" && <Text style={styles.error}>{error}</Text>}
 
       <Text style={styles.text}>
-        Don't have an account? <Link href="./Signup">Sign Up!</Link>
+        Don{"'"}t have an account? <Link href="./Signup">Sign Up!</Link>
       </Text>
     </View>
   );

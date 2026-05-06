@@ -1,9 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { View, StyleSheet } from 'react-native';
-
-const mapRef = useRef<MapView | null>(null);
 
 interface location {
     lat: number;
@@ -24,6 +22,9 @@ interface Props {
 }
 
 function MapSection({ comments, selectedComment, quests, selectedQuest, events, selectedEvent, setclickedLocation, showClickMarkers, clickedLocation, location }: Props) {
+
+    
+    const mapRef = useRef<MapView | null>(null);
 
     // get position of press
     const handlePress = (event: any) => {
