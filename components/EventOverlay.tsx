@@ -71,6 +71,7 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
             
                     <View style={styles.overlay} pointerEvents="box-none">
                         <ScrollView
+                            testID="event-scroll"
                             ref={scrollRef}
                             horizontal
                             showsHorizontalScrollIndicator={false}

@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1778127744455" clover="3.2.0">
+  <project timestamp="1778127744455" name="All files">
+    <metrics statements="313" coveredstatements="299" conditionals="150" coveredconditionals="115" methods="93" coveredmethods="79" elements="556" coveredelements="493" complexity="0" loc="313" ncloc="313" packages="3" files="29" classes="29"/>
+    <package name="components">
+      <metrics statements="107" coveredstatements="93" conditionals="56" coveredconditionals="30" methods="57" coveredmethods="43"/>
+      <file name="CommentOverlay.tsx" path="C:\Users\Bobby\Documents\Kwesta-mobile\components\CommentOverlay.tsx">
+        <metrics statements="39" coveredstatements="33" conditionals="24" coveredconditionals="12" methods="22" coveredmethods="16"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="24" count="9" type="stmt"/>
+        <line num="25" count="9" type="stmt"/>
+        <line num="26" count="9" type="stmt"/>
+        <line num="28" count="9" type="stmt"/>
+        <line num="29" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="30" count="9" type="cond" truecount="1" falsecount="1"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="47" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="57" count="2" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="73" count="2" type="stmt"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="80" count="1" type="stmt"/>
+        <line num="83" count="1" type="stmt"/>
+        <line num="87" count="9" type="stmt"/>
+        <line num="107" count="1" type="stmt"/>
+        <line num="108" count="1" type="stmt"/>
+        <line num="109" count="1" type="stmt"/>
+        <line num="114" count="16" type="stmt"/>
+        <line num="117" count="16" type="stmt"/>
+        <line num="128" count="16" type="stmt"/>
+        <line num="142" count="2" type="stmt"/>
+        <line num="149" count="2" type="stmt"/>
+        <line num="153" count="2" type="stmt"/>
+      </file>
+      <file name="EventOverlay.tsx" path="C:\Users\Bobby\Documents\Kwesta-mobile\components\EventOverlay.tsx">
+        <metrics statements="33" coveredstatements="29" conditionals="16" coveredconditionals="9" methods="16" coveredmethods="12"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="23" count="7" type="stmt"/>
+        <line num="24" count="7" type="stmt"/>
+        <line num="25" count="7" type="stmt"/>
+        <line num="27" count="7" type="stmt"/>
+        <line num="28" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="41" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="56" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="66" count="7" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="92" count="12" type="stmt"/>
+        <line num="94" count="12" type="stmt"/>
+        <line num="104" count="12" type="stmt"/>
+        <line num="110" count="2" type="stmt"/>
+        <line num="114" count="2" type="stmt"/>
+      </file>
+      <file name="PostFeed.tsx" path="C:\Users\Bobby\Documents\Kwesta-mobile\components\PostFeed.tsx">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="9" count="13" type="stmt"/>
+        <line num="10" count="8" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+      </file>
+      <file name="QuestOverlay.tsx" path="C:\Users\Bobby\Documents\Kwesta-mobile\components\QuestOverlay.tsx">
+        <metrics statements="31" coveredstatements="27" conditionals="16" coveredconditionals="9" methods="16" coveredmethods="12"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="23" count="7" type="stmt"/>
+        <line num="24" count="7" type="stmt"/>
+        <line num="25" count="7" type="stmt"/>
+        <line num="27" count="7" type="stmt"/>
+        <line num="28" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="29" count="7" type="cond" truecount="1" falsecount="1"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="41" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="42" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="56" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="59" count="1" type="stmt"/>
+        <line num="62" count="1" type="stmt"/>
+        <line num="66" count="7" type="stmt"/>
+        <line num="84" count="1" type="stmt"/>
+        <line num="86" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="92" count="12" type="cond" truecount="2" falsecount="0"/>
+        <line num="96" count="2" type="stmt"/>
+        <line num="100" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="scripts">
+      <metrics statements="202" coveredstatements="202" conditionals="94" coveredconditionals="85" methods="36" coveredmethods="36"/>
+      <file name="addCommentCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\addCommentCall.ts">
+        <metrics statements="13" coveredstatements="13" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="7" count="4" type="stmt"/>
+        <line num="16" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="30" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+      </file>
+      <file name="addEventCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\addEventCall.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="14" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+      </file>
+      <file name="addQuestCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\addQuestCall.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="18" count="3" type="stmt"/>
+        <line num="19" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+      </file>
+      <file name="deleteCommentCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\deleteCommentCall.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="3" count="3" type="stmt"/>
+      </file>
+      <file name="deleteEventCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\deleteEventCall.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="3" count="3" type="stmt"/>
+      </file>
+      <file name="deleteQuestCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\deleteQuestCall.ts">
+        <metrics statements="1" coveredstatements="1" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="3" count="3" type="stmt"/>
+      </file>
+      <file name="flagComment.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\flagComment.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="5" count="4" type="stmt"/>
+        <line num="13" count="3" type="stmt"/>
+        <line num="14" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="18" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+      </file>
+      <file name="getCommentsByAreaCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getCommentsByAreaCall.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="10" coveredconditionals="8" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="16" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="22" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+      </file>
+      <file name="getCommentsCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getCommentsCall.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="10" coveredconditionals="8" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="16" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="22" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+      </file>
+      <file name="getEventsByAreaCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getEventsByAreaCall.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="5" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="16" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="22" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+      </file>
+      <file name="getEventsCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getEventsCall.ts">
+        <metrics statements="12" coveredstatements="12" conditionals="6" coveredconditionals="5" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="16" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="24" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="26" count="3" type="stmt"/>
+        <line num="39" count="2" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+      </file>
+      <file name="getJoinedPostsCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getJoinedPostsCall.ts">
+        <metrics statements="14" coveredstatements="14" conditionals="10" coveredconditionals="9" methods="4" coveredmethods="4"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="13" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="19" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="22" count="3" type="stmt"/>
+        <line num="35" count="3" type="stmt"/>
+        <line num="48" count="3" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+      </file>
+      <file name="getMyPostsCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getMyPostsCall.ts">
+        <metrics statements="15" coveredstatements="15" conditionals="8" coveredconditionals="8" methods="4" coveredmethods="4"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="13" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="19" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="20" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="21" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="3" type="stmt"/>
+        <line num="35" count="3" type="stmt"/>
+        <line num="47" count="3" type="stmt"/>
+        <line num="59" count="3" type="stmt"/>
+        <line num="61" count="2" type="stmt"/>
+        <line num="62" count="2" type="stmt"/>
+      </file>
+      <file name="getQuestsByAreaCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getQuestsByAreaCall.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="5" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="16" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="3" type="stmt"/>
+        <line num="22" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+      </file>
+      <file name="getQuestsCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\getQuestsCall.ts">
+        <metrics statements="10" coveredstatements="10" conditionals="6" coveredconditionals="5" methods="2" coveredmethods="2"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="15" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="19" count="3" type="stmt"/>
+        <line num="21" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="3" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+      </file>
+      <file name="joinEvent.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\joinEvent.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+      </file>
+      <file name="joinQuest.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\joinQuest.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+      </file>
+      <file name="likeComment.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\likeComment.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="5" type="stmt"/>
+        <line num="6" count="5" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="26" count="3" type="stmt"/>
+      </file>
+      <file name="unflagComment.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\unflagComment.ts">
+        <metrics statements="8" coveredstatements="8" conditionals="4" coveredconditionals="4" methods="1" coveredmethods="1"/>
+        <line num="4" count="5" type="stmt"/>
+        <line num="6" count="5" type="stmt"/>
+        <line num="17" count="4" type="stmt"/>
+        <line num="18" count="4" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="26" count="3" type="stmt"/>
+      </file>
+      <file name="unjoinEvent.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\unjoinEvent.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+      </file>
+      <file name="unjoinQuest.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\unjoinQuest.ts">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="6" count="4" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+      </file>
+      <file name="updateCommentCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\updateCommentCall.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+      </file>
+      <file name="updateEventCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\updateEventCall.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+      </file>
+      <file name="updateQuestCall.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\scripts\updateQuestCall.ts">
+        <metrics statements="9" coveredstatements="9" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="8" count="4" type="stmt"/>
+        <line num="9" count="4" type="stmt"/>
+        <line num="18" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="2" type="stmt"/>
+        <line num="24" count="2" type="stmt"/>
+        <line num="27" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="styles">
+      <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="overlayStyle.ts" path="C:\Users\Bobby\Documents\Kwesta-mobile\styles\overlayStyle.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="3" count="3" type="stmt"/>
+        <line num="4" count="3" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="7" count="3" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

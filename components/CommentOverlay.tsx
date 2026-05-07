@@ -95,6 +95,7 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
 
                     <View style={styles.overlay} pointerEvents="box-none">
                         <ScrollView
+                            testID="comment-scroll"
                             ref={scrollRef}
                             horizontal
                             showsHorizontalScrollIndicator={false}

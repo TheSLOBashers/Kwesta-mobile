@@ -41,10 +41,10 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
                 if (onPointsChanged) {
                 await onPointsChanged();
                 }
-                alert("Successfully joined event!");
+                alert("Successfully joined quest!");
             })
             .catch(error => {
-                alert("Error joining event: " + error.message);
+                alert("Error joining quest: " + error.message);
             });
     }
 
@@ -56,10 +56,10 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
                 e.id === eventId ? { ...e, joined: false } : e
             )
             );
-            alert("Successfully unjoined event!");
+            alert("Successfully unjoined quest!");
         })
         .catch(error => {
-            alert("Error joining event: " + error.message);
+            alert("Error joining quest: " + error.message);
         });
     }
 
@@ -71,6 +71,7 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
             
                     <View style={styles.overlay} pointerEvents="box-none">
                         <ScrollView
+                            testID="quest-scroll"
                             ref={scrollRef}
                             horizontal
                             showsHorizontalScrollIndicator={false}
