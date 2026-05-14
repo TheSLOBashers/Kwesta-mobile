@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, Text, StyleSheet } from "react-native";
+import { Appearance, Pressable, StyleSheet, Text } from "react-native";
 
 interface Props {
     onClick: () => void;
@@ -24,17 +24,17 @@ const styles = StyleSheet.create({
         right: "15%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "white",
+        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
         zIndex: 1000,
         alignItems: "center",
         justifyContent: "center",
         borderRadius: "100%",
         width: "10%",
         height: "5%",
-        padding: "2%"
+        padding: "2%",
     },
     text: {
-        color: "#000000",
+        color: Appearance.getColorScheme() === 'dark' ? "white" : "black",
         margin: 0,
     }
 });

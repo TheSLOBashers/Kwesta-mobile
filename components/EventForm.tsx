@@ -1,6 +1,10 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Appearance, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+
+const bgColor = Appearance.getColorScheme() === 'light' ? "white" : "black";
+const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const buttonColor = "#4CAF50";
 
 interface Props {
     onSubmit: (commentData: any) => void;
@@ -58,7 +62,7 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
 
             {/* Actual form */}
             <View style={styles.form}>
-                <Pressable onPress={onClose}><Text>X</Text></Pressable>
+                <Pressable onPress={onClose}><Text style={{color: buttonColor}}>X</Text></Pressable>
                 <Text style={styles.label}>{isEditing ? "Edit event" : "Add an event"}</Text>
 
                 <TextInput
@@ -76,7 +80,7 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
                     />
                 ) : (
                     <Pressable onPress={() => setShowDate(true)}>
-                        <Text>Date: {uDate.toLocaleDateString()}</Text>
+                        <Text style={styles.timeDate}>Date: {uDate.toLocaleDateString()}</Text>
                     </Pressable>
                 )}
 
@@ -90,11 +94,11 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
                     />
                 ) : (
                     <Pressable onPress={() => setShowTime(true)}>
-                        <Text>Time: {uDate.toLocaleTimeString()}</Text>
+                        <Text style={styles.timeDate}>Time: {uDate.toLocaleTimeString()}</Text>
                     </Pressable>
                 )}
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
-                    <Text>{isEditing ? "Save Changes" : "Add Event"}</Text>
+                    <Text style={{color: bgColor}}>{isEditing ? "Save Changes" : "Add Event"}</Text>
                 </Pressable>
             </View>
         </View>
@@ -109,26 +113,36 @@ const styles = StyleSheet.create({
     },
     form: {
         flexDirection: "column",
-        backgroundColor: "#ccc",
+        backgroundColor: bgColor,
         padding: 16,
-        marginTop: "30%"
+        marginTop: "30%",
+        borderRadius: '7%',
     },
 
     input: {
         padding: 8,
         fontSize: 14,
         marginBottom: 10,
+        color: textColor,
     },
 
     submitButton: {
         padding: 10,
-        backgroundColor: "#aaa",
+        backgroundColor: buttonColor,
+        borderRadius: '5%',
+        textAlign: 'center',
+        margin: 'auto',
     },
     label: {
         fontSize: 18,
         marginTop: 10,
-        marginBottom: 5
+        marginBottom: 5,
+        color: textColor,
     },
+    timeDate: {
+        color: textColor,
+        marginBottom: '5%',
+    }
 });
 
 export default EventForm;
