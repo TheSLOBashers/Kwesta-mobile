@@ -2,6 +2,7 @@ import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
+import buyBadgeCall from "@/scripts/buyBadgeCall";
 import redeemPointsCall from "@/scripts/redeemPointsCall";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -20,11 +21,23 @@ type GiftCard = {
   amountCents: number; // cents
 };
 
+type BadgeItem = {
+  id: string;
+  name: string;
+  cost: number;
+};
+
 const AVAILABLE_GIFTCARDS: GiftCard[] = [
   { id: "mcdo-10", name: "McDonald's $10", amountCents: 1000 },
   { id: "star-5", name: "Starbucks $5", amountCents: 500 },
   { id: "grocery-25", name: "Grocery $25", amountCents: 2500 },
   { id: "chipotle-15", name: "Chipotle $15", amountCents: 1500 },
+];
+
+const AVAILABLE_BADGES: BadgeItem[] = [
+  { id: "founding_member", name: "Founding Member", cost: 3 },
+  { id: "kwester", name: "Kwester", cost: 4 },
+  { id: "basher", name: "Basher", cost: 5 },
 ];
 
 export default function Shop() {
@@ -62,6 +75,39 @@ export default function Shop() {
                 "Success",
                 `You redeemed ${costPoints} points for ${item.name}.`,
               );
+            } catch (err: any) {
+              Alert.alert("Purchase failed", err?.message ?? String(err));
+            } finally {
+              setBusyId(null);
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleBadgePurchase = async (item: BadgeItem) => {
+    if ((points ?? 0) < item.cost) {
+      Alert.alert(
+        "Insufficient funds",
+        "You don't have enough points to buy this badge.",
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Confirm Purchase",
+      `Spend ${item.cost} points for the ${item.name} badge?`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Buy",
+          onPress: async () => {
+            try {
+              setBusyId(item.id);
+              await buyBadgeCall(token, item.name, item.cost);
+              await refreshUserPoints();
+              Alert.alert("Success", `You bought the ${item.name} badge.`);
             } catch (err: any) {
               Alert.alert("Purchase failed", err?.message ?? String(err));
             } finally {
@@ -119,6 +165,51 @@ export default function Shop() {
                 {busyId === item.id
                   ? "Processing…"
                   : `Buy for ${item.amountCents} pts`}
+              </Text>
+            </Pressable>
+          </View>
+        )}
+      />
+
+      {/* Badge Shop Code */}
+      <Text style={[styles.title, { color: colors.text }]}>Badge Shop</Text>
+
+      <FlatList
+        data={AVAILABLE_BADGES}
+        keyExtractor={(i) => i.id}
+        contentContainerStyle={styles.list}
+        renderItem={({ item }) => (
+          <View
+            style={[
+              styles.card,
+              {
+                borderColor: colors.tint,
+                backgroundColor:
+                  colorScheme === "dark" ? "rgba(255,255,255,0.02)" : "#fff",
+              },
+            ]}
+          >
+            <View style={styles.cardRow}>
+              <Text style={[styles.name, { color: colors.text }]}>
+                {item.name}
+              </Text>
+              <Text style={[styles.price, { color: colors.text }]}>
+                {item.cost} pts
+              </Text>
+            </View>
+
+            <Pressable
+              onPress={() => handleBadgePurchase(item)}
+              style={({ pressed }) => [
+                styles.buyButton,
+                { opacity: pressed ? 0.8 : 1 },
+              ]}
+              disabled={busyId !== null}
+            >
+              <Text style={styles.buyText}>
+                {busyId === item.id
+                  ? "Processing…"
+                  : `Buy for ${item.cost} pts`}
               </Text>
             </Pressable>
           </View>

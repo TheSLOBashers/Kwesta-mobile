@@ -19,6 +19,7 @@ import getDevicesCall from "@/scripts/getDevicesCall";
 import getPointRedemptionHistory, {
   PointRedemptionHistoryEntry,
 } from "@/scripts/getPointRedemptionHistory";
+import getUserBadgesCall from "@/scripts/getUserBadges";
 
 export default function Account() {
   const { username, token, setUsernameAs, setTokenAs, setMod, setUserAs } =
@@ -35,6 +36,9 @@ export default function Account() {
   const [devices, setDevices] = useState<any[]>([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
   const [devicesError, setDevicesError] = useState<string | null>(null);
+
+  const [badges, setBadges] = useState<string[]>([]);
+  const [loadingBadges, setLoadingBadges] = useState(false);
 
   const loadRedemptionHistory = useCallback(async () => {
     const result = await getPointRedemptionHistory(token);
@@ -57,6 +61,18 @@ export default function Account() {
     }
   }, [token]);
 
+  const loadBadges = useCallback(async () => {
+    setLoadingBadges(true);
+    try {
+      const result = await getUserBadgesCall(token);
+      setBadges(Array.isArray(result) ? result : []);
+    } catch {
+      setBadges([]);
+    } finally {
+      setLoadingBadges(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     const load = async () => {
       setLoadingHistory(true);
@@ -64,12 +80,13 @@ export default function Account() {
         loadRedemptionHistory(),
         refreshUserPoints(),
         loadDevices(),
+        loadBadges(),
       ]);
       setLoadingHistory(false);
     };
 
     load();
-  }, [loadDevices, loadRedemptionHistory, refreshUserPoints]);
+  }, [loadBadges, loadDevices, loadRedemptionHistory, refreshUserPoints]);
 
   const handleRefreshHistory = useCallback(async () => {
     await Promise.all([loadRedemptionHistory(), refreshUserPoints()]);
@@ -115,6 +132,55 @@ export default function Account() {
       <Text style={[styles.pointsText, { color: colors.text }]}>
         Current Points: {points ?? 0}
       </Text>
+
+      {/* Badges section */}
+      <View style={styles.sectionGap}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Badges
+          </Text>
+        </View>
+
+        {loadingBadges ? (
+          <Text
+            style={[
+              styles.metaText,
+              { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
+            ]}
+          >
+            Loading badges...
+          </Text>
+        ) : badges.length > 0 ? (
+          <View style={styles.listContent}>
+            {badges.map((badge) => (
+              <View
+                key={badge}
+                style={[
+                  styles.card,
+                  {
+                    borderColor: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a",
+                    backgroundColor:
+                      colorScheme === "dark" ? "#98a2b3" : "#5f6b7a",
+                  },
+                ]}
+              >
+                <Text style={[styles.rewardName, { color: colors.text }]}>
+                  {badge}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text
+            style={[
+              styles.metaText,
+              { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
+            ]}
+          >
+            You have no badges yet.
+          </Text>
+        )}
+      </View>
 
       <View style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
