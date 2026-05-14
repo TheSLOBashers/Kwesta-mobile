@@ -35,6 +35,20 @@ const styles = StyleSheet.create({
         flexDirection: "row",
     },
     author: { fontWeight: "600", fontSize: 18, color: textColor},
+    popupOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  popup: {
+    width: "85%",
+    maxHeight: "80%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+  },
 });
 
-export default { styles, CARD_WIDTH, CARD_MARGIN };
+export default { styles, CARD_WIDTH, CARD_MARGIN};
