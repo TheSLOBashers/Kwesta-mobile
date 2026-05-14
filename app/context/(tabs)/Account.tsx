@@ -129,6 +129,7 @@ export default function Account() {
       <Text style={[styles.text, { color: colors.text }]}>
         Username: {username}
       </Text>
+
       <Text style={[styles.pointsText, { color: colors.text }]}>
         Current Points: {points ?? 0}
       </Text>
