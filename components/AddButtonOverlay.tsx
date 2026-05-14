@@ -111,7 +111,7 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 <Text>C</Text>
             </Pressable>
             <Pressable
-                aria-label="add comment"
+                aria-label="add event"
                 style={[
                     styles.menuButton,
                     styles.eventButton

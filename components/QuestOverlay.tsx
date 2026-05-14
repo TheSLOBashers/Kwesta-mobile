@@ -2,7 +2,7 @@ import { useAuth } from '@/components/auth-context';
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Appearance, Dimensions, Pressable, ScrollView, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -18,6 +18,7 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
+const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 
 export default function QuestOverlay({ close, quests, setQuests, onPointsChanged, onSelectQuest, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
@@ -91,14 +92,14 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
                             {quests.map((q: any, i: any) => (
                                     <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                         <Text style={styles.author}>{q.authorName}</Text>
-                                        <Text>{q.description}</Text>
+                                        <Text style={{color: textColor}}>{q.description}</Text>
                                         {q.joined ? (
                                             <Pressable onPress={() => handleUnjoin(q.id)}>
-                                                <Text>Unjoin Quest</Text>
+                                                <Text style={{color: textColor}}>Unjoin Quest</Text>
                                             </Pressable>
                                         ) : (
                                             <Pressable onPress={() => handleJoin(q.id)}>
-                                                <Text>Join Quest</Text>
+                                                <Text style={{color: textColor}}>Join Quest</Text>
                                             </Pressable>
                                         )}
                                     </View>

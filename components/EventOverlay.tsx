@@ -2,7 +2,7 @@ import { useAuth } from '@/components/auth-context';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Appearance, Dimensions, Pressable, ScrollView, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -18,6 +18,7 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
+const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 
 export default function EventOverlay({ close, events, setEvents, onPointsChanged, onSelectEvent, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
@@ -104,15 +105,15 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                 return(
                                     <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                         <Text style={styles.author}>{e.authorName}</Text>
-                                        <Text>{formattedDate}</Text>
-                                        <Text>{e.description}</Text>
+                                        <Text style={{color: textColor}}>{formattedDate}</Text>
+                                        <Text style={{color: textColor}}>{e.description}</Text>
                                         {e.joined ? (
                                             <Pressable onPress={() => handleUnjoin(e.id)}>
-                                                <Text>Unjoin Event</Text>
+                                                <Text style={{color: textColor}}>Unjoin Event</Text>
                                             </Pressable>
                                         ) : (
                                             <Pressable onPress={() => handleJoin(e.id)}>
-                                                <Text>Join Event</Text>
+                                                <Text style={{color: textColor}}>Join Event</Text>
                                             </Pressable>
                                         )}
                                     </View>
