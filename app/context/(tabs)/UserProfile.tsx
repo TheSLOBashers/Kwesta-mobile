@@ -5,21 +5,56 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 import getUserBadgesCall from "@/scripts/getUserBadges";
+import getUserProfileCall from "@/scripts/getUserProfileCall";
 import { useCallback, useEffect, useState } from "react";
-
 interface Props {
-  user: {
-    name?: string | null;
-  };
-  points: number;
+  userName?: string | null;
 }
 
-export default function UserProfile({ user }: Props) {
+export default function UserProfile({ userName }: Props) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
   const { username, token } = useAuth();
+  const [profile, setProfile] = useState<any | null>(null);
+
   const { points, refreshUserPoints } = usePoints();
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      // Default the profile to display the current user if there was non specified
+      console.log("Got user: " + userName);
+      if (!userName) {
+        setProfile({
+          username,
+          points,
+        });
+
+        return;
+      }
+
+      console.log(userName);
+
+      // Show what we already know
+      setProfile({
+        username: userName ?? "Unknown User",
+      });
+
+      // Only fetch if we have an id
+      if (!userName) return;
+
+      // Otherwise fetch the passed in user
+      try {
+        const result = await getUserProfileCall(token, userName);
+
+        setProfile(result);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    loadProfile();
+  }, [userName, username, points, token]);
 
   const [badges, setBadges] = useState<string[]>([]);
   const [loadingBadges, setLoadingBadges] = useState(false);
@@ -51,20 +86,18 @@ export default function UserProfile({ user }: Props) {
         },
       ]}
     >
-      <View style={styles.container}></View>
-
       <View style={[styles.row]}>
         <Image
           source={require("@/assets/images/profile-placeholder.png")}
           style={styles.image}
         ></Image>
         <Text style={[styles.title, { color: colors.text }]}>
-          {username ?? "Unknown User"}
+          {profile?.username ?? "Unknown User"}
         </Text>
       </View>
 
       <Text style={[styles.text, { color: colors.text }]}>
-        Points: {points ?? 0}
+        Points: {profile?.points ?? 0}
       </Text>
 
       <View style={styles.badgesSection}>

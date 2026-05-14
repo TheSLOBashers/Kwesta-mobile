@@ -24,9 +24,14 @@ const normalizeSocialUser = (user: any): SocialUser => ({
 
 const getUserProfileCall = async (
   token: string | null,
+  userName?: string | null,
 ): Promise<UserProfile | null> => {
   try {
-    const response = await fetch(`${backend}users/me`, {
+    const url = userName
+      ? `${backend}users/username/${userName}`
+      : `${backend}users/me`;
+
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

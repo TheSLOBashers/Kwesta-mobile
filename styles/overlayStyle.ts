@@ -37,4 +37,4 @@ const styles = StyleSheet.create({
     author: { fontWeight: "600", fontSize: 18, color: textColor},
 });
 
-export default { styles, CARD_WIDTH, CARD_MARGIN};
+export default { styles, CARD_WIDTH, CARD_MARGIN };
