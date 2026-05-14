@@ -1,24 +1,24 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { StyleSheet, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import { StyleSheet, View } from "react-native";
+import MapView, { Marker } from "react-native-maps";
 
 interface location {
-    lat: number;
-    lng: number
+  lat: number;
+  lng: number;
 }
 
 interface Props {
-    comments: any;
-    selectedComment: any;
-    quests: any;
-    selectedQuest: any;
-    events: any;
-    selectedEvent: any;
-    setclickedLocation: (ll: location) => void;
-    showClickMarkers: boolean;
-    clickedLocation: location;
-    location: any;
+  comments: any;
+  selectedComment: any;
+  quests: any;
+  selectedQuest: any;
+  events: any;
+  selectedEvent: any;
+  setclickedLocation: (ll: location) => void;
+  showClickMarkers: boolean;
+  clickedLocation: location;
+  location: any;
 }
 
 function MapSection({ comments, selectedComment, quests, selectedQuest, events, selectedEvent, setclickedLocation, showClickMarkers, clickedLocation, location }: Props) {
@@ -145,8 +145,8 @@ function MapSection({ comments, selectedComment, quests, selectedQuest, events, 
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    map: { flex: 1 },
+  container: { flex: 1 },
+  map: { flex: 1 },
 });
 
 export default MapSection;
