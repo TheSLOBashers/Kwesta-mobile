@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   popup: {
     width: "85%",
     maxHeight: "80%",
-    backgroundColor: "white",
+    backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
     borderRadius: 20,
     padding: 20,
   },

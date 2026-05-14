@@ -222,7 +222,7 @@ export default function CommentOverlay({
         <View style={styles.popupOverlay}>
           <View style={styles.popup}>
             <Pressable onPress={() => setShowProfile(false)}>
-              <Text>Close</Text>
+              <Text style={{color: textColor, marginBottom: 5}}>Close</Text>
             </Pressable>
 
             <UserProfile userName={selectedUser} />
