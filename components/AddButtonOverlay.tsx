@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Appearance, Image, Pressable, StyleSheet, View } from "react-native";
 import AddButton from "./AddButton";
 
 import CommentForm from "./CommentForm";
@@ -81,6 +81,11 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
         questButton: {
             backgroundColor: "#f3c221",
         },
+        buttonImage: {
+            height: "70%",
+            width: "70%",
+            resizeMode: 'stretch',
+        },
     });
 
     return (
@@ -108,7 +113,8 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 }}
                 pointerEvents={open ? "auto" : "none"}
             >
-                <Text>C</Text>
+                <Image style={styles.buttonImage}
+                source={Appearance.getColorScheme() === 'light' ? require('../assets/images/speech_white.png'): require('../assets/images/speech_black.png')}/>
             </Pressable>
             <Pressable
                 aria-label="add event"
@@ -122,7 +128,8 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 }}
                 pointerEvents={open ? "auto" : "none"}
             >
-                <Text>E</Text>
+                <Image style={styles.buttonImage}
+                source={Appearance.getColorScheme() === 'light' ? require('../assets/images/event_white.png'): require('../assets/images/event_black.png')}/>
             </Pressable>
 
             {formType === "comment" ? (

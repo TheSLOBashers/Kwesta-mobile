@@ -2,7 +2,7 @@ import { useAuth } from '@/components/auth-context';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -19,6 +19,20 @@ const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
 const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const midTextColor = "grey";
+const imageStyle = StyleSheet.create({
+    image: {
+        height: 20,
+        width: 20,
+        resizeMode: 'stretch',
+        marginRight: 10
+    },
+    inline: {
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: 10
+    }
+});
 
 export default function EventOverlay({ close, events, setEvents, onPointsChanged, onSelectEvent, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
@@ -105,15 +119,24 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                 return(
                                     <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                         <Text style={styles.author}>{e.authorName}</Text>
-                                        <Text style={{color: textColor}}>{formattedDate}</Text>
-                                        <Text style={{color: textColor}}>{e.description}</Text>
+                                        <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
+                                        <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{e.description}</Text>
                                         {e.joined ? (
                                             <Pressable onPress={() => handleUnjoin(e.id)}>
-                                                <Text style={{color: textColor}}>Unjoin Event</Text>
+                                                <View style={imageStyle.inline}>
+                                                    <Image style={imageStyle.image}
+                                                    source={require("../assets/images/exit_sign.png")}/>
+                                                    <Text style={{color: textColor}}>Unjoin event</Text>
+                                                </View>
+                                                
                                             </Pressable>
                                         ) : (
                                             <Pressable onPress={() => handleJoin(e.id)}>
-                                                <Text style={{color: textColor}}>Join Event</Text>
+                                                <View style={imageStyle.inline}>
+                                                    <Image style={imageStyle.image}
+                                                    source={require("../assets/images/enter_sign.png")}/>
+                                                    <Text style={{color: textColor}}>Join event</Text>
+                                                </View>
                                             </Pressable>
                                         )}
                                     </View>

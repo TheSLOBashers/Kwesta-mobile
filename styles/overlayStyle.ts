@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     Slider: {
         flexDirection: "row",
     },
-    author: { fontWeight: "600", fontSize: 18, marginBottom: 8, color: textColor},
+    author: { fontWeight: "600", fontSize: 18, color: textColor},
 });
 
 export default { styles, CARD_WIDTH, CARD_MARGIN};

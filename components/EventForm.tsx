@@ -4,7 +4,7 @@ import { Appearance, Pressable, StyleSheet, Text, TextInput, View } from "react-
 
 const bgColor = Appearance.getColorScheme() === 'light' ? "white" : "black";
 const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
-const buttonColor = Appearance.getColorScheme() === 'light' ? "grey" : "grey";
+const buttonColor = "#4CAF50";
 
 interface Props {
     onSubmit: (commentData: any) => void;
@@ -98,7 +98,7 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
                     </Pressable>
                 )}
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
-                    <Text style={{color: textColor}}>{isEditing ? "Save Changes" : "Add Event"}</Text>
+                    <Text style={{color: bgColor}}>{isEditing ? "Save Changes" : "Add Event"}</Text>
                 </Pressable>
             </View>
         </View>

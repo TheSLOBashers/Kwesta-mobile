@@ -3,7 +3,7 @@ import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -20,6 +20,20 @@ const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
 const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const midTextColor = "grey";
+const imageStyle = StyleSheet.create({
+    image: {
+        height: 20,
+        width: 20,
+        resizeMode: 'stretch',
+        marginRight: 10
+    },
+    inline: {
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: 10
+    }
+});
 
 export default function CommentOverlay({ close, comments, setComments, onPointsChanged, onSelectComment, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
@@ -135,24 +149,34 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                                         ]}
                                         >
                                         <Text style={styles.author}>{c.authorName}</Text>
-                                        <Text style={{color: textColor}}>{formattedDate}</Text>
-                                        <Text style={{color: textColor}}>{c.comment}</Text>
-                                        <Text style={{color: textColor}}>Likes: {c.likes || 0}</Text>
+                                        <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
+                                        <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{c.comment}</Text>
+                                        
 
                                         <Pressable
                                             onPress={() => handleLike(c.id)}
                                             disabled={c.likedByUser}
                                         >
-                                            <Text style={{color: textColor}}>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
+                                            <View style={imageStyle.inline}>
+                                                <Image style={imageStyle.image}
+                                            source={c.likedByUser ? require("../assets/images/heart_filled.png") : (Appearance.getColorScheme() === 'light' ? require("../assets/images/heart_empty_black.png") : require("../assets/images/heart_empty_white.png"))}/>
+                                            <Text style={{color: textColor}}>{c.likes || 0}</Text>
+                                            </View>
                                         </Pressable>
 
                                         {c.flaggedByUser ? (
                                             <Pressable onPress={() => handleUnflag(c.id)}>
-                                                <Text style={{color: textColor}}>Unflag comment</Text>
+                                                <View style={imageStyle.inline}>
+                                                    <Image style={imageStyle.image} source={require("../assets/images/flag_filled.png")}/>
+                                                <Text style={{color: textColor}}>Unflag</Text>
+                                                </View>
                                             </Pressable>
                                         ) : (
                                             <Pressable onPress={() => handleFlag(c.id)}>
-                                                <Text style={{color: textColor}}>Flag comment</Text>
+                                                <View style={imageStyle.inline}>
+                                                    <Image style={imageStyle.image} source={Appearance.getColorScheme() === 'light' ? require("../assets/images/flag_empty_black.png") : require("../assets/images/flag_empty_white.png")}/>
+                                                <Text style={{color: textColor}}>Flag</Text>
+                                                </View>
                                             </Pressable>
                                         )}
                                     </View>
@@ -166,3 +190,5 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
     );
 }
 
+// <Text style={{color: textColor}}>{c.likes || 0}</Text>
+// <Text style={{color: textColor}}>{c.likedByUser ? "Liked" : "Like Comment"}</Text>

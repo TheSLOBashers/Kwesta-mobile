@@ -2,7 +2,7 @@ import { useAuth } from '@/components/auth-context';
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -19,6 +19,20 @@ const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
 const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const midTextColor = "grey";
+const imageStyle = StyleSheet.create({
+    image: {
+        height: 20,
+        width: 20,
+        resizeMode: 'stretch',
+        marginRight: 10
+    },
+    inline: {
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: 10
+    }
+});
 
 export default function QuestOverlay({ close, quests, setQuests, onPointsChanged, onSelectQuest, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
@@ -92,14 +106,22 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
                             {quests.map((q: any, i: any) => (
                                     <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                         <Text style={styles.author}>{q.authorName}</Text>
-                                        <Text style={{color: textColor}}>{q.description}</Text>
+                                        <Text style={{color: textColor, fontSize: 17, marginTop: 7, marginBottom: 30}}>{q.description}</Text>
                                         {q.joined ? (
                                             <Pressable onPress={() => handleUnjoin(q.id)}>
-                                                <Text style={{color: textColor}}>Unjoin Quest</Text>
+                                                <View style={imageStyle.inline}>
+                                                    <Image style={imageStyle.image}
+                                                    source={require("../assets/images/exit_sign.png")}/>
+                                                    <Text style={{color: textColor}}>Unjoin Quest</Text>
+                                                </View>
                                             </Pressable>
                                         ) : (
                                             <Pressable onPress={() => handleJoin(q.id)}>
-                                                <Text style={{color: textColor}}>Join Quest</Text>
+                                                <View style={imageStyle.inline}>
+                                                    <Image style={imageStyle.image}
+                                                      source={require("../assets/images/enter_sign.png")}/>
+                                                    <Text style={{color: textColor}}>Join Quest</Text>
+                                                </View>
                                             </Pressable>
                                         )}
                                     </View>
