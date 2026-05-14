@@ -3,7 +3,7 @@ import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, ScrollView, Text, View } from "react-native";
+import { Appearance, Dimensions, Pressable, ScrollView, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -19,6 +19,7 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
+const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 
 export default function CommentOverlay({ close, comments, setComments, onPointsChanged, onSelectComment, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
@@ -134,24 +135,24 @@ export default function CommentOverlay({ close, comments, setComments, onPointsC
                                         ]}
                                         >
                                         <Text style={styles.author}>{c.authorName}</Text>
-                                        <Text>{formattedDate}</Text>
-                                        <Text>{c.comment}</Text>
-                                        <Text>Likes: {c.likes || 0}</Text>
+                                        <Text style={{color: textColor}}>{formattedDate}</Text>
+                                        <Text style={{color: textColor}}>{c.comment}</Text>
+                                        <Text style={{color: textColor}}>Likes: {c.likes || 0}</Text>
 
                                         <Pressable
                                             onPress={() => handleLike(c.id)}
                                             disabled={c.likedByUser}
                                         >
-                                            <Text>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
+                                            <Text style={{color: textColor}}>{c.likedByUser ? "Liked" : "Like Comment"}</Text>
                                         </Pressable>
 
                                         {c.flaggedByUser ? (
                                             <Pressable onPress={() => handleUnflag(c.id)}>
-                                                <Text>Unflag comment</Text>
+                                                <Text style={{color: textColor}}>Unflag comment</Text>
                                             </Pressable>
                                         ) : (
                                             <Pressable onPress={() => handleFlag(c.id)}>
-                                                <Text>Flag comment</Text>
+                                                <Text style={{color: textColor}}>Flag comment</Text>
                                             </Pressable>
                                         )}
                                     </View>

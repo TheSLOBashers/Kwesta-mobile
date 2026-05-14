@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Appearance, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+
+const bgColor = Appearance.getColorScheme() === 'light' ? "white" : "black";
+const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const buttonColor = Appearance.getColorScheme() === 'light' ? "grey" : "grey";
 
 interface Props {
     onSubmit: (commentData: any) => void;
@@ -54,7 +58,7 @@ function CommentForm({ onSubmit, onClose, username, location, initialText }: Pro
                 />
 
                 <Pressable style={styles.submitButton} onPress={handleSubmit}>
-                    <Text>{isEditing ? "Save Changes" : "Add Comment"}</Text>
+                    <Text style={{color: textColor}}>{isEditing ? "Save Changes" : "Add Comment"}</Text>
                 </Pressable>
             </View>
         </View>
@@ -69,25 +73,31 @@ const styles = StyleSheet.create({
     },
     form: {
         flexDirection: "column",
-        backgroundColor: "#ccc",
+        backgroundColor: bgColor,
         padding: 16,
-        marginTop: "30%"
+        marginTop: "30%",
+        borderRadius: '7%',
     },
 
     input: {
         padding: 8,
         fontSize: 14,
         marginBottom: 10,
+        color: textColor,
     },
 
     submitButton: {
         padding: 10,
-        backgroundColor: "#aaa",
+        backgroundColor: buttonColor,
+        borderRadius: '5%',
+        textAlign: 'center',
+        margin: 'auto',
     },
     label: {
         fontSize: 18,
         marginTop: 10,
-        marginBottom: 5
+        marginBottom: 5,
+        color: textColor,
     },
 });
 

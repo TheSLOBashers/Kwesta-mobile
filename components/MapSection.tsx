@@ -103,8 +103,8 @@ function MapSection({ comments, selectedComment, quests, selectedQuest, events, 
                         <Marker
                             coordinate={{ latitude: lat, longitude: lng }}
                             key={c.id ?? `${lat}-${lng}-${c.comment}`}
-                            title={c.comment}
-                        />
+                            title={c.comment}/>
+                        
                     );
                 })}
                 {quests.map((q: any) => {
