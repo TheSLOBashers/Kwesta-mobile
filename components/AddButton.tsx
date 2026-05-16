@@ -8,8 +8,8 @@ interface Props {
 
 function AddButton({ onClick }: Props){
     const colorScheme = useColorScheme();
-    var bgColor = colorScheme === 'light' ? "white" : "#0F0F0F";
-    var textColor = colorScheme === 'dark' ? "white" : "#0F0F0F";
+    const bgColor = colorScheme === 'light' ? "white" : "#0F0F0F";
+    const textColor = colorScheme === 'dark' ? "white" : "#0F0F0F";
     return (
         <Pressable 
             aria-label = "add button"
