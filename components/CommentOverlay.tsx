@@ -41,8 +41,14 @@ const imageStyle = StyleSheet.create({
     inline: {
         display: "flex",
         flexDirection: "row",
-        marginBottom: 10
-    }
+        marginBottom: 10,
+    },
+    crossExit: {
+        height: 12,
+        width: 12,
+        resizeMode: 'stretch',
+        marginBottom: 10,
+    },
 });
 
 export default function CommentOverlay({
@@ -224,8 +230,12 @@ export default function CommentOverlay({
       >
         <View style={styles.popupOverlay}>
           <View style={[styles.popup, {backgroundColor: bgColor}]}>
-            <Pressable onPress={() => setShowProfile(false)}>
-              <Text style={{color: textColor, marginBottom: 10}}>X</Text>
+            <Pressable style={{ margin: 2, alignItems: 'flex-end'}}
+            onPress={() => setShowProfile(false)}>
+              <Image style={imageStyle.crossExit}
+              source={colorScheme === 'dark' ? require("../assets/images/close_white.png") : 
+                require("../assets/images/close_black.png")}
+              />
             </Pressable>
 
             <UserProfile userName={selectedUser} />

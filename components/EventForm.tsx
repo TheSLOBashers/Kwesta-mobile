@@ -1,7 +1,7 @@
 import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 interface Props {
     onSubmit: (commentData: any) => void;
@@ -64,7 +64,12 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
 
             {/* Actual form */}
             <View style={[styles.form,{backgroundColor:bgColor}]}>
-                <Pressable onPress={onClose}><Text style={{color: buttonColor}}>X</Text></Pressable>
+                <Pressable style={{ margin: 2, alignItems: 'flex-end'}} 
+                    onPress={onClose}>
+                    <Image style={styles.image}
+                    source={require("../assets/images/close_green.png")}
+                    />
+                </Pressable>
                 <Text style={[styles.label,{color:textColor}]}>{isEditing ? "Edit event" : "Add an event"}</Text>
 
                 <TextInput
@@ -139,7 +144,14 @@ const styles = StyleSheet.create({
     },
     timeDate: {
         marginBottom: '5%',
+    },
+    image: {
+        width: 12,
+        height: 12,
+        resizeMode:'stretch',
     }
 });
 
 export default EventForm;
+
+// <Text style={{color: buttonColor}}>X</Text>
