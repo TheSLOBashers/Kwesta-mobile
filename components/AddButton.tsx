@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
         right: "15%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
+        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "#0F0F0F",
         zIndex: 1000,
         alignItems: "center",
         justifyContent: "center",

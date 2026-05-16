@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     Card: {
         width: CARD_WIDTH,
         height: 200,
-        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
+        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "#0F0F0F",
         borderRadius: 20,
         padding: 20,
         marginHorizontal: CARD_MARGIN / 2,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   popup: {
     width: "85%",
     maxHeight: "80%",
-    backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
+    backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "#0F0F0F",
     borderRadius: 20,
     padding: 20,
   },
