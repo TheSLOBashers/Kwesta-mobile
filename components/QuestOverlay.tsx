@@ -1,8 +1,9 @@
 import { useAuth } from '@/components/auth-context';
+import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -18,7 +19,6 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
     image: {
@@ -38,6 +38,10 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
     const scrollRef = useRef<ScrollView>(null);
     const [active, setActive] = useState(0);
     const { token } = useAuth();
+
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+    const textColor = colorScheme === 'light' ? "black" : "white";
 
     useEffect(() => {
         if (!onSelectQuest) return;
@@ -104,7 +108,7 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
                             scrollEventThrottle={16}
                         >
                             {quests.map((q: any, i: any) => (
-                                    <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
+                                    <View key={`${q.id}-${i}`} style={[styles.Card, { backgroundColor: bgColor, transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                         <Text style={styles.author}>{q.authorName}</Text>
                                         <Text style={{color: textColor, fontSize: 17, marginTop: 7, marginBottom: 30}}>{q.description}</Text>
                                         {q.joined ? (

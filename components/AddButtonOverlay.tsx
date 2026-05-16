@@ -1,5 +1,6 @@
+import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Image, Pressable, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import AddButton from "./AddButton";
 
 import CommentForm from "./CommentForm";
@@ -29,6 +30,7 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
     const [open, setOpen] = useState(false);
     const [formType, setFormType] = useState<null | string>(null);
     const containerRef = useRef(null);
+    const colorScheme = useColorScheme();
 
     useEffect(() => {
         if(!(formType===null)) {
@@ -114,7 +116,7 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 pointerEvents={open ? "auto" : "none"}
             >
                 <Image style={styles.buttonImage}
-                source={Appearance.getColorScheme() === 'light' ? require('../assets/images/speech_white.png'): require('../assets/images/speech_black.png')}/>
+                source={colorScheme === 'light' ? require('../assets/images/speech_white.png'): require('../assets/images/speech_black.png')}/>
             </Pressable>
             <Pressable
                 aria-label="add event"
@@ -129,7 +131,7 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                 pointerEvents={open ? "auto" : "none"}
             >
                 <Image style={styles.buttonImage}
-                source={Appearance.getColorScheme() === 'light' ? require('../assets/images/event_white.png'): require('../assets/images/event_black.png')}/>
+                source={colorScheme === 'light' ? require('../assets/images/event_white.png'): require('../assets/images/event_black.png')}/>
             </Pressable>
 
             {formType === "comment" ? (

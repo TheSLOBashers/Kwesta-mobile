@@ -3,7 +3,6 @@ import { Appearance, Dimensions, StyleSheet } from "react-native";
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 
 const styles = StyleSheet.create({
     container: {
@@ -34,7 +33,7 @@ const styles = StyleSheet.create({
     Slider: {
         flexDirection: "row",
     },
-    author: { fontWeight: "600", fontSize: 18, color: textColor},
+    author: { fontWeight: "600", fontSize: 18},
     popupOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",

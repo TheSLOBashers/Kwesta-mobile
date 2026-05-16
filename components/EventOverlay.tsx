@@ -1,8 +1,9 @@
 import { useAuth } from '@/components/auth-context';
+import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -18,7 +19,6 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
     image: {
@@ -38,6 +38,10 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
     const scrollRef = useRef<ScrollView>(null);
     const [active, setActive] = useState(0);
     const { token } = useAuth();
+
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+    const textColor = colorScheme === 'light' ? "black" : "white";
 
     useEffect(() => {
         if (!onSelectEvent) return;
@@ -117,7 +121,7 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                         minute: "2-digit",
                                     });
                                 return(
-                                    <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
+                                    <View key={`${e.id}-${i}`} style={[styles.Card, { backgroundColor: bgColor, transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
                                         <Text style={styles.author}>{e.authorName}</Text>
                                         <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
                                         <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{e.description}</Text>

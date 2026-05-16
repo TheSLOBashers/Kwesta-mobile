@@ -1,11 +1,11 @@
 import UserProfile from "@/app/context/(tabs)/UserProfile";
 import { useAuth } from "@/components/auth-context";
+import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Appearance,
   Dimensions,
   Image,
   Modal,
@@ -13,7 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
@@ -30,7 +30,6 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
     image: {
@@ -60,6 +59,9 @@ export default function CommentOverlay({
 
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const colorScheme = useColorScheme();
+  const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+  const textColor = colorScheme === 'light' ? "black" : "white";
 
   useEffect(() => {
     if (!onSelectComment) return;
@@ -163,6 +165,7 @@ export default function CommentOverlay({
                     key={`${c.id}-${i}`}
                     style={[
                       styles.Card,
+                      { backgroundColor: bgColor },
                       { transform: [{ scale: i === active ? 1 : 0.92 }] },
                     ]}
                   >
@@ -173,7 +176,7 @@ export default function CommentOverlay({
                         setShowProfile(true);
                       }}
                     >
-                      <Text style={styles.author}>{c.authorName}</Text>
+                      <Text style={[styles.author, {color: textColor}]}>{c.authorName}</Text>
                     </Pressable>
 
                     <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
@@ -185,7 +188,7 @@ export default function CommentOverlay({
                     >
                       <View style={imageStyle.inline}>
                         <Image style={imageStyle.image}
-                          source={c.likedByUser ? require("../assets/images/heart_filled.png") : (Appearance.getColorScheme() === 'light' ? require("../assets/images/heart_empty_black.png") : require("../assets/images/heart_empty_white.png"))}/>
+                          source={c.likedByUser ? require("../assets/images/heart_filled.png") : (colorScheme === 'light' ? require("../assets/images/heart_empty_black.png") : require("../assets/images/heart_empty_white.png"))}/>
                         <Text style={{color: textColor}}>{c.likes || 0}</Text>
                       </View>
                     </Pressable>
@@ -200,7 +203,7 @@ export default function CommentOverlay({
                     ) : (
                       <Pressable onPress={() => handleFlag(c.id)}>
                         <View style={imageStyle.inline}>
-                          <Image style={imageStyle.image} source={Appearance.getColorScheme() === 'light' ? require("../assets/images/flag_empty_black.png") : require("../assets/images/flag_empty_white.png")}/>
+                          <Image style={imageStyle.image} source={colorScheme === 'light' ? require("../assets/images/flag_empty_black.png") : require("../assets/images/flag_empty_white.png")}/>
                           <Text style={{color: textColor}}>Flag</Text>
                         </View>
                       </Pressable>
