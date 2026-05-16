@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
 
   popup: {
-    width: "85%",
+    width: "90%",
     maxHeight: "80%",
     backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "#0F0F0F",
     borderRadius: 20,

@@ -223,9 +223,9 @@ export default function CommentOverlay({
         onRequestClose={() => setShowProfile(false)}
       >
         <View style={styles.popupOverlay}>
-          <View style={styles.popup}>
+          <View style={[styles.popup, {backgroundColor: bgColor}]}>
             <Pressable onPress={() => setShowProfile(false)}>
-              <Text style={{color: textColor, marginBottom: 5}}>Close</Text>
+              <Text style={{color: textColor, marginBottom: 10}}>X</Text>
             </Pressable>
 
             <UserProfile userName={selectedUser} />
@@ -235,3 +235,5 @@ export default function CommentOverlay({
     </View>
   );
 }
+
+// want to replace these X's with svgs

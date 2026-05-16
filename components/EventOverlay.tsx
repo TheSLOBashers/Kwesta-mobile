@@ -1,9 +1,10 @@
+import UserProfile from "@/app/context/(tabs)/UserProfile";
 import { useAuth } from '@/components/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import React, { useEffect, useRef, useState } from "react";
-import { Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -38,6 +39,9 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
     const scrollRef = useRef<ScrollView>(null);
     const [active, setActive] = useState(0);
     const { token } = useAuth();
+
+    const [selectedUser, setSelectedUser] = useState<any | null>(null);
+    const [showProfile, setShowProfile] = useState(false);
 
     const colorScheme = useColorScheme();
     const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
@@ -122,7 +126,15 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                     });
                                 return(
                                     <View key={`${e.id}-${i}`} style={[styles.Card, { backgroundColor: bgColor, transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                        <Text style={styles.author}>{e.authorName}</Text>
+                                        <Pressable
+                                            onPress={() => {
+                                            console.log("Passing user " + e.authorName);
+                                            setSelectedUser(e.authorName);
+                                            setShowProfile(true);
+                                            }}
+                                        >
+                                            <Text style={[styles.author, {color: textColor}]}>{e.authorName}</Text>
+                                        </Pressable>
                                         <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
                                         <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{e.description}</Text>
                                         {e.joined ? (
@@ -150,6 +162,22 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                     </View>
                 </>
             )}
+            <Modal
+                    visible={showProfile}
+                    animationType="fade"
+                    transparent
+                    onRequestClose={() => setShowProfile(false)}
+                  >
+                    <View style={styles.popupOverlay}>
+                      <View style={[styles.popup, {backgroundColor: bgColor}]}>
+                        <Pressable onPress={() => setShowProfile(false)}>
+                          <Text style={{color: textColor, marginBottom: 10}}>X</Text>
+                        </Pressable>
+            
+                        <UserProfile userName={selectedUser} />
+                      </View>
+                    </View>
+                  </Modal>
         </View>
     );
 }
