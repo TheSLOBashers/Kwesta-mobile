@@ -1,19 +1,16 @@
 import { useRouter } from 'expo-router';
-import { username } from '@/scripts/username';
-import { token } from '@/scripts/token';
-import { moderator } from '@/scripts/moderator';
-import { StyleSheet } from 'react-native';
-import { Pressable, Text } from 'react-native';
+import { ColorSchemeName, Pressable, StyleSheet, Text } from 'react-native';
 
 interface Props {
   setUsernameAs: (username: string | null) => void;
    setTokenAs: (token: string | null) => void; 
    setMod: (mod: string | null) => void;
     setUserAs: (user: string | null) => void
+    colorScheme: ColorSchemeName
 }
 
 
-function LogOutButton({setUsernameAs, setTokenAs, setMod, setUserAs} : Props){
+function LogOutButton({setUsernameAs, setTokenAs, setMod, setUserAs, colorScheme} : Props){
 
     const router = useRouter();
 
@@ -26,7 +23,7 @@ function LogOutButton({setUsernameAs, setTokenAs, setMod, setUserAs} : Props){
     }
 
     return (
-        <Pressable style={styles.button} onPress={handleClick}>
+        <Pressable style={[styles.button, { backgroundColor: colorScheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#5f6b7a" }]} onPress={handleClick}>
                 <Text style={styles.buttonText}>Logout</Text>
               </Pressable>
     );
@@ -61,7 +58,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    backgroundColor: 'orange',
     padding: 12,
     borderRadius: 5,
     alignItems: 'center'

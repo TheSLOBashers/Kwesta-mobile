@@ -13,7 +13,6 @@ import LogOutButton from "@/components/LogOutButton";
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import blockDeviceCall from "@/scripts/blockDeviceCall";
 import followUserCall from "@/scripts/followUserCall";
 import getDevicesCall from "@/scripts/getDevicesCall";
@@ -28,6 +27,7 @@ import getUserProfileCall, {
   UserProfile,
 } from "@/scripts/getUserProfileCall";
 import unfollowUserCall from "@/scripts/unfollowUserCall";
+import { useColorScheme } from "react-native";
 
 type AccountItem = {
   id: string;
@@ -355,15 +355,39 @@ export default function Account() {
     );
   };
 
+  const ProfileContainerCard = ({ count, label }: { count: number | null; label: string }) => {
+    return (
+      <View style={[styles.heroMetaItem, {
+        backgroundColor:
+          colorScheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#f7fcfe",
+      }]}>
+        <Text style={[styles.heroMetaValue, { color: colors.text }]}>
+          {count ?? 0}
+        </Text>
+        <Text
+          style={[
+            styles.heroMetaLabel,
+            { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
+          ]}
+        >
+          {label}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView
       style={[styles.screen, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.container}
     >
+      <Text style={[styles.sectionTitle, {color: colors.text, marginTop: 30, fontSize: 32}]}>Account</Text>
       <View
         style={[
           styles.heroCard,
           {
+            shadowOpacity: 0,
+            shadowColor: "transparent",
             borderColor:
               colorScheme === "dark"
                 ? "rgba(255, 255, 255, 0.08)"
@@ -371,6 +395,10 @@ export default function Account() {
             backgroundColor:
               colorScheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#f7fcfe",
           },
+          {
+            marginTop: 15,
+            marginBottom: 10,
+          }
         ]}
       >
         <View style={styles.heroTopRow}>
@@ -402,118 +430,10 @@ export default function Account() {
           </Pressable>
         </View>
 
-        <View style={styles.heroMetaRow}>
-          <View style={styles.heroMetaItem}>
-            <Text style={[styles.heroMetaValue, { color: colors.text }]}>
-              {points ?? 0}
-            </Text>
-            <Text
-              style={[
-                styles.heroMetaLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              Points
-            </Text>
-          </View>
-          <View style={styles.heroMetaItem}>
-            <Text style={[styles.heroMetaValue, { color: colors.text }]}>
-              {badges.length}
-            </Text>
-            <Text
-              style={[
-                styles.heroMetaLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              Badges
-            </Text>
-          </View>
-          <View style={styles.heroMetaItem}>
-            <Text style={[styles.heroMetaValue, { color: colors.text }]}>
-              {eventRsvps.length}
-            </Text>
-            <Text
-              style={[
-                styles.heroMetaLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              RSVPs
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.statsGrid}>
-        <View
-          style={[
-            styles.statCard,
-            {
-              borderColor:
-                colorScheme === "dark"
-                  ? "rgba(255, 255, 255, 0.08)"
-                  : "rgba(10, 126, 164, 0.15)",
-            },
-          ]}
-        >
-          <Text style={[styles.statValue, { color: colors.text }]}>
-            {hasFollowerCount ? followerCount : "—"}
-          </Text>
-          <Text
-            style={[
-              styles.statLabel,
-              { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-            ]}
-          >
-            Followers
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.statCard,
-            {
-              borderColor:
-                colorScheme === "dark"
-                  ? "rgba(255, 255, 255, 0.08)"
-                  : "rgba(10, 126, 164, 0.15)",
-            },
-          ]}
-        >
-          <Text style={[styles.statValue, { color: colors.text }]}>
-            {hasFollowingCount ? followingCount : "—"}
-          </Text>
-          <Text
-            style={[
-              styles.statLabel,
-              { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-            ]}
-          >
-            Following
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.statCard,
-            {
-              borderColor:
-                colorScheme === "dark"
-                  ? "rgba(255, 255, 255, 0.08)"
-                  : "rgba(10, 126, 164, 0.15)",
-            },
-          ]}
-        >
-          <Text style={[styles.statValue, { color: colors.text }]}>
-            {commentCount}
-          </Text>
-          <Text
-            style={[
-              styles.statLabel,
-              { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-            ]}
-          >
-            Comments
-          </Text>
+        <View style={[styles.heroMetaRow]}>
+          <ProfileContainerCard count={points} label="Points" />
+          <ProfileContainerCard count={badges.length} label="Badges" />
+          <ProfileContainerCard count={eventRsvps.length} label="RSVPS" />
         </View>
       </View>
 
@@ -573,71 +493,23 @@ export default function Account() {
         )}
       </View>
 
-      <View style={styles.summaryStrip}>
-        <View style={styles.summaryChip}>
-          <Text
-            style={[
-              styles.summaryChipLabel,
-              { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-            ]}
-          >
-            Comment activity
-          </Text>
-          <Text style={[styles.summaryChipValue, { color: colors.text }]}>
-            {commentCount} posts
-          </Text>
-        </View>
-        <View style={styles.summaryChip}>
-          <Text
-            style={[
-              styles.summaryChipLabel,
-              { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-            ]}
-          >
-            Event RSVPs
-          </Text>
-          <Text style={[styles.summaryChipValue, { color: colors.text }]}>
-            {eventRsvps.length} events
-          </Text>
-        </View>
-        <View style={styles.summaryChip}>
-          <Text
-            style={[
-              styles.summaryChipLabel,
-              { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-            ]}
-          >
-            Quests joined
-          </Text>
-          <Text style={[styles.summaryChipValue, { color: colors.text }]}>
-            {questJoins.length} quests
-          </Text>
-        </View>
-      </View>
-
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Badges
+            Event RSVPs
+          </Text>
+          <Text style={[styles.sectionCount, { color: colors.tint }]}>
+            {eventRsvps.length}
           </Text>
         </View>
 
-        {loadingBadges ? (
-          <Text
-            style={[
-              styles.metaText,
-              { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
-            ]}
-          >
-            Loading badges...
-          </Text>
-        ) : badges.length > 0 ? (
-          <View style={styles.badgeGrid}>
-            {badges.map((badge) => (
+        {eventRsvps.length > 0 ? (
+          <View style={styles.listContent}>
+            {eventRsvps.filter((item, index) => index < 3).map((item) => (
               <View
-                key={badge}
+                key={item.id}
                 style={[
-                  styles.badgePill,
+                  styles.activityCard,
                   {
                     borderColor:
                       colorScheme === "dark"
@@ -646,12 +518,20 @@ export default function Account() {
                     backgroundColor:
                       colorScheme === "dark"
                         ? "rgba(255, 255, 255, 0.05)"
-                        : "#ffffff",
+                        : "rgba(255, 255, 255, 0.9)",
                   },
                 ]}
               >
-                <Text style={[styles.badgeText, { color: colors.text }]}>
-                  {badge}
+                <Text style={[styles.activityTitle, { color: colors.text }]}>
+                  {item.description ?? "Event RSVP"}
+                </Text>
+                <Text
+                  style={[
+                    styles.activityMeta,
+                    { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
+                  ]}
+                >
+                  {formatRelativeDate(item.date)}
                 </Text>
               </View>
             ))}
@@ -663,12 +543,78 @@ export default function Account() {
               { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
             ]}
           >
-            You have no badges yet.
+            No event RSVPs yet.
           </Text>
         )}
       </View>
 
       <View style={styles.sectionGap}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Joined quests
+          </Text>
+          <Text style={[styles.sectionCount, { color: colors.tint }]}>
+            {questJoins.length}
+          </Text>
+        </View>
+
+        {questJoins.length > 0 ? (
+          <View style={styles.listContent}>
+            {questJoins.filter((item, index) => index < 3).map((item) => (
+              <View
+                key={item.id}
+                style={[
+                  styles.activityCard,
+                  {
+                    borderColor:
+                      colorScheme === "dark"
+                        ? "rgba(255, 255, 255, 0.08)"
+                        : "rgba(10, 126, 164, 0.15)",
+                    backgroundColor:
+                      colorScheme === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(255, 255, 255, 0.9)",
+                  },
+                ]}
+              >
+                <Text style={[styles.activityTitle, { color: colors.text }]}>
+                  {item.description ?? "Quest joined"}
+                </Text>
+                <Text
+                  style={[
+                    styles.activityMeta,
+                    { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
+                  ]}
+                >
+                  {formatRelativeDate(item.date)}
+                </Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <Text
+            style={[
+              styles.metaText,
+              { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
+            ]}
+          >
+            No quests joined yet.
+          </Text>
+        )}
+      </View>
+
+      <View style={[styles.sectionGap, {marginBottom: 0}]}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Comments
+          </Text>
+          <Text style={[styles.sectionCount, { color: colors.tint }]}>
+            {commentCount}
+          </Text>
+        </View>
+      </View>
+
+      <View style={[styles.sectionGap, { marginTop: 0, marginLeft: 8 }]}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Recent comments
@@ -710,7 +656,6 @@ export default function Account() {
                     { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
                   ]}
                 >
-                  {formatLocation(item.location)} •{" "}
                   {formatRelativeDate(item.date)}
                 </Text>
               </View>
@@ -726,181 +671,6 @@ export default function Account() {
             No comments yet.
           </Text>
         )}
-      </View>
-
-      <View style={styles.sectionGap}>
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Event RSVPs
-          </Text>
-          <Text style={[styles.sectionCount, { color: colors.tint }]}>
-            {eventRsvps.length}
-          </Text>
-        </View>
-
-        {eventRsvps.length > 0 ? (
-          <View style={styles.listContent}>
-            {eventRsvps.map((item) => (
-              <View
-                key={item.id}
-                style={[
-                  styles.activityCard,
-                  {
-                    borderColor:
-                      colorScheme === "dark"
-                        ? "rgba(255, 255, 255, 0.08)"
-                        : "rgba(10, 126, 164, 0.15)",
-                    backgroundColor:
-                      colorScheme === "dark"
-                        ? "rgba(255, 255, 255, 0.05)"
-                        : "rgba(255, 255, 255, 0.9)",
-                  },
-                ]}
-              >
-                <Text style={[styles.activityTitle, { color: colors.text }]}>
-                  {item.description ?? "Event RSVP"}
-                </Text>
-                <Text
-                  style={[
-                    styles.activityMeta,
-                    { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-                  ]}
-                >
-                  {formatLocation(item.location)} •{" "}
-                  {formatRelativeDate(item.date)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <Text
-            style={[
-              styles.metaText,
-              { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
-            ]}
-          >
-            No event RSVPs yet.
-          </Text>
-        )}
-      </View>
-
-      <View style={styles.sectionGap}>
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Joined quests
-          </Text>
-          <Text style={[styles.sectionCount, { color: colors.tint }]}>
-            {questJoins.length}
-          </Text>
-        </View>
-
-        {questJoins.length > 0 ? (
-          <View style={styles.listContent}>
-            {questJoins.map((item) => (
-              <View
-                key={item.id}
-                style={[
-                  styles.activityCard,
-                  {
-                    borderColor:
-                      colorScheme === "dark"
-                        ? "rgba(255, 255, 255, 0.08)"
-                        : "rgba(10, 126, 164, 0.15)",
-                    backgroundColor:
-                      colorScheme === "dark"
-                        ? "rgba(255, 255, 255, 0.05)"
-                        : "rgba(255, 255, 255, 0.9)",
-                  },
-                ]}
-              >
-                <Text style={[styles.activityTitle, { color: colors.text }]}>
-                  {item.description ?? "Quest joined"}
-                </Text>
-                <Text
-                  style={[
-                    styles.activityMeta,
-                    { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-                  ]}
-                >
-                  {formatLocation(item.location)} •{" "}
-                  {formatRelativeDate(item.date)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        ) : (
-          <Text
-            style={[
-              styles.metaText,
-              { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
-            ]}
-          >
-            No quests joined yet.
-          </Text>
-        )}
-      </View>
-
-      <View style={styles.sectionGap}>
-        <View style={styles.sectionHeader}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Account details
-          </Text>
-        </View>
-
-        <View style={styles.detailGrid}>
-          <View style={styles.detailCard}>
-            <Text
-              style={[
-                styles.detailLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              Username
-            </Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>
-              {username ?? "Unknown"}
-            </Text>
-          </View>
-          <View style={styles.detailCard}>
-            <Text
-              style={[
-                styles.detailLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              Current points
-            </Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>
-              {points ?? 0}
-            </Text>
-          </View>
-          <View style={styles.detailCard}>
-            <Text
-              style={[
-                styles.detailLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              Badges
-            </Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>
-              {badges.length}
-            </Text>
-          </View>
-          <View style={styles.detailCard}>
-            <Text
-              style={[
-                styles.detailLabel,
-                { color: colorScheme === "dark" ? "#b3c0cf" : "#5f6b7a" },
-              ]}
-            >
-              Linked devices
-            </Text>
-            <Text style={[styles.detailValue, { color: colors.text }]}>
-              {devices.length}
-            </Text>
-          </View>
-        </View>
       </View>
 
       <View style={styles.sectionHeader}>
@@ -1008,6 +778,9 @@ export default function Account() {
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Devices
           </Text>
+          <Text style={[styles.sectionCount, { color: colors.tint }]}>
+            {devices.length}
+          </Text>
           {loadingDevices && (
             <ActivityIndicator size="small" color={colors.tint} />
           )}
@@ -1025,7 +798,7 @@ export default function Account() {
         )}
 
         {!devicesError ? (
-          <Devices devices={devices} handleBlock={handleBlock} />
+          <Devices devices={devices} handleBlock={handleBlock} colorScheme={colorScheme}/>
         ) : null}
       </View>
 
@@ -1034,6 +807,7 @@ export default function Account() {
         setTokenAs={setTokenAs}
         setMod={setMod}
         setUserAs={setUserAs}
+        colorScheme={colorScheme}
       />
     </ScrollView>
   );
