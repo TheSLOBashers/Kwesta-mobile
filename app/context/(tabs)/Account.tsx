@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Appearance,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,6 +27,7 @@ import getUserProfileCall, {
   SocialUser,
   UserProfile,
 } from "@/scripts/getUserProfileCall";
+import switchUITheme from "@/scripts/switchTheme";
 import unfollowUserCall from "@/scripts/unfollowUserCall";
 import { useColorScheme } from "react-native";
 
@@ -772,6 +774,31 @@ export default function Account() {
           You have no redemptions yet.
         </Text>
       )}
+
+      <View style={styles.sectionGap}>
+        <View style={styles.sectionHeader}>
+          <Text style={[styles.sectionTitle, {color: colors.text}]}>
+            Theme Settings
+          </Text>
+          <Text style={[styles.sectionCount, { color: colors.tint }]}>
+            {Appearance.getColorScheme()!.charAt(0).toUpperCase() + Appearance.getColorScheme()!.slice(1)}
+          </Text>
+        </View>
+        <Pressable
+        onPress={switchUITheme}
+        style={{
+          padding: 10,
+          backgroundColor: colorScheme === "dark"
+                  ? "rgba(255, 255, 255, 0.08)"
+                  : "rgba(10, 126, 164, 0.1)",
+          alignItems: "center",
+          borderRadius: 10,
+        }}>
+            <Text style={{color: colors.text}}>
+              Switch theme
+            </Text>
+          </Pressable>
+      </View>
 
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>

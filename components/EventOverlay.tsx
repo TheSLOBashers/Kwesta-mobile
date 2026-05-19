@@ -1,8 +1,10 @@
+import UserProfile from "@/app/context/(tabs)/UserProfile";
 import { useAuth } from '@/components/auth-context';
+import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -18,7 +20,6 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
     image: {
@@ -31,13 +32,26 @@ const imageStyle = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         marginBottom: 10
-    }
+    },
+    crossExit: {
+        height: 12,
+        width: 12,
+        resizeMode: 'stretch',
+        marginBottom: 10,
+    },
 });
 
 export default function EventOverlay({ close, events, setEvents, onPointsChanged, onSelectEvent, open }: Props) {
     const scrollRef = useRef<ScrollView>(null);
     const [active, setActive] = useState(0);
     const { token } = useAuth();
+
+    const [selectedUser, setSelectedUser] = useState<any | null>(null);
+    const [showProfile, setShowProfile] = useState(false);
+
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+    const textColor = colorScheme === 'light' ? "black" : "white";
 
     useEffect(() => {
         if (!onSelectEvent) return;
@@ -117,8 +131,16 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                                         minute: "2-digit",
                                     });
                                 return(
-                                    <View key={`${e.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                        <Text style={styles.author}>{e.authorName}</Text>
+                                    <View key={`${e.id}-${i}`} style={[styles.Card, { backgroundColor: bgColor, transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
+                                        <Pressable
+                                            onPress={() => {
+                                            console.log("Passing user " + e.authorName);
+                                            setSelectedUser(e.authorName);
+                                            setShowProfile(true);
+                                            }}
+                                        >
+                                            <Text style={[styles.author, {color: textColor}]}>{e.authorName}</Text>
+                                        </Pressable>
                                         <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
                                         <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{e.description}</Text>
                                         {e.joined ? (
@@ -146,6 +168,26 @@ export default function EventOverlay({ close, events, setEvents, onPointsChanged
                     </View>
                 </>
             )}
+            <Modal
+                    visible={showProfile}
+                    animationType="fade"
+                    transparent
+                    onRequestClose={() => setShowProfile(false)}
+                  >
+                    <View style={styles.popupOverlay}>
+                      <View style={[styles.popup, {backgroundColor: bgColor}]}>
+                        <Pressable style={{ margin: 2, alignItems: 'flex-end'}}
+                        onPress={() => setShowProfile(false)}>
+                          <Image style={imageStyle.crossExit}
+                                        source={colorScheme === 'dark' ? require("../assets/images/close_white.png") : 
+                                          require("../assets/images/close_black.png")}
+                                        />
+                        </Pressable>
+            
+                        <UserProfile userName={selectedUser} />
+                      </View>
+                    </View>
+                  </Modal>
         </View>
     );
 }

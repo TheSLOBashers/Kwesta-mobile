@@ -83,6 +83,7 @@ export default function UserProfile({ userName }: Props) {
         styles.card,
         {
           backgroundColor: colors.background,
+          borderColor: colors.icon,
         },
       ]}
     >
@@ -96,7 +97,7 @@ export default function UserProfile({ userName }: Props) {
         </Text>
       </View>
 
-      <Text style={[styles.text, { color: colors.text }]}>
+      <Text style={[styles.pointsText, { color: colors.text }]}>
         Points: {profile?.points ?? 0}
       </Text>
 
@@ -135,9 +136,8 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: "Cocogoose",
     fontSize: 28,
-    marginTop: 20,
-    marginBottom: 12,
-    color: "#ccc",
+    marginTop: 15,
+    marginBottom: 15,
   },
   text: {
     fontFamily: "Acephimere",
@@ -146,13 +146,13 @@ const styles = StyleSheet.create({
   },
   pointsText: {
     fontFamily: "Acephimere",
-    fontSize: 16,
+    fontSize: 18,
     marginBottom: 4,
   },
   card: {
     borderWidth: 1,
     borderRadius: 12,
-    padding: 12,
+    padding: 20,
   },
   row: {
     flexDirection: "row",
@@ -170,6 +170,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   badgesSection: {
-    marginTop: 20,
+    marginTop: 15,
   },
 });

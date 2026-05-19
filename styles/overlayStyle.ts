@@ -3,7 +3,6 @@ import { Appearance, Dimensions, StyleSheet } from "react-native";
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
 
 const styles = StyleSheet.create({
     container: {
@@ -24,7 +23,7 @@ const styles = StyleSheet.create({
     Card: {
         width: CARD_WIDTH,
         height: 200,
-        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
+        backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "#0F0F0F",
         borderRadius: 20,
         padding: 20,
         marginHorizontal: CARD_MARGIN / 2,
@@ -34,7 +33,7 @@ const styles = StyleSheet.create({
     Slider: {
         flexDirection: "row",
     },
-    author: { fontWeight: "600", fontSize: 18, color: textColor},
+    author: { fontWeight: "600", fontSize: 18},
     popupOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -43,9 +42,9 @@ const styles = StyleSheet.create({
   },
 
   popup: {
-    width: "85%",
+    width: "90%",
     maxHeight: "80%",
-    backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "black",
+    backgroundColor: Appearance.getColorScheme() === 'light' ? "white" : "#0F0F0F",
     borderRadius: 20,
     padding: 20,
   },

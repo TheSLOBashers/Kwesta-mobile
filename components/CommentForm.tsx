@@ -1,9 +1,6 @@
+import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import React, { useEffect, useState } from "react";
-import { Appearance, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-
-const bgColor = Appearance.getColorScheme() === 'light' ? "white" : "black";
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
-const buttonColor = "#4CAF50";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 interface Props {
     onSubmit: (commentData: any) => void;
@@ -17,6 +14,11 @@ function CommentForm({ onSubmit, onClose, username, location, initialText }: Pro
     const [text, setText] = useState(initialText || "");
 
     const isEditing = !!initialText;
+
+    const buttonColor = "#4CAF50";
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+    const textColor = colorScheme === 'light' ? "black" : "white";
 
     useEffect(() => {
         setText(initialText || "");
@@ -47,8 +49,8 @@ function CommentForm({ onSubmit, onClose, username, location, initialText }: Pro
             <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
 
             {/* Actual form */}
-            <View style={styles.form}>
-                <Text style={styles.label}>{isEditing ? "Edit comment" : "Add a comment"}</Text>
+            <View style={[styles.form,{backgroundColor: bgColor}]}>
+                <Text style={[styles.label, {color: textColor}]}>{isEditing ? "Edit comment" : "Add a comment"}</Text>
 
                 <TextInput
                     style={styles.input}
@@ -57,7 +59,7 @@ function CommentForm({ onSubmit, onClose, username, location, initialText }: Pro
                     onChangeText={setText}
                 />
 
-                <Pressable style={styles.submitButton} onPress={handleSubmit}>
+                <Pressable style={[styles.submitButton, {backgroundColor:buttonColor}]} onPress={handleSubmit}>
                     <Text style={{color: bgColor}}>{isEditing ? "Save Changes" : "Add Comment"}</Text>
                 </Pressable>
             </View>
@@ -73,7 +75,6 @@ const styles = StyleSheet.create({
     },
     form: {
         flexDirection: "column",
-        backgroundColor: bgColor,
         padding: 16,
         marginTop: "30%",
         borderRadius: '7%',
@@ -83,12 +84,10 @@ const styles = StyleSheet.create({
         padding: 8,
         fontSize: 14,
         marginBottom: 10,
-        color: textColor,
     },
 
     submitButton: {
         padding: 10,
-        backgroundColor: buttonColor,
         borderRadius: '5%',
         textAlign: 'center',
         margin: 'auto',
@@ -97,7 +96,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         marginTop: 10,
         marginBottom: 5,
-        color: textColor,
     },
 });
 
