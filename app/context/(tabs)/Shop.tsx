@@ -122,9 +122,9 @@ export default function Shop() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Shop</Text>
+        <Text style={[styles.title, { color: colors.text, marginTop: 20 }]}>Shop</Text>
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
-          <Text style={{ color: "white" }}>Close</Text>
+          <Text style={{ color: colors.text }}>Close</Text>
         </Pressable>
       </View>
 
@@ -148,7 +148,7 @@ export default function Shop() {
             ]}
           >
             <View style={styles.cardRow}>
-              <Text style={styles.name}>{item.name}</Text>
+              <Text style={[styles.name, {color: colors.text}]}>{item.name}</Text>
               <Text
                 style={styles.price}
               >{`$${(item.amountCents / 100).toFixed(2)}`}</Text>
