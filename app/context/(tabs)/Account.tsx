@@ -309,6 +309,10 @@ export default function Account() {
               colorScheme === "dark"
                 ? "rgba(255, 255, 255, 0.08)"
                 : "rgba(10, 126, 164, 0.15)",
+            backgroundColor:
+                      colorScheme === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(255, 255, 255, 0.9)"
           },
         ]}
       >
@@ -338,7 +342,7 @@ export default function Account() {
               opacity: isDisabled ? 0.55 : 1,
               borderColor: colors.tint,
               backgroundColor:
-                action === "unfollow" ? "transparent" : colors.tint,
+                action === "unfollow" ? "transparent" : "#5f6b7a",
             },
           ]}
         >
