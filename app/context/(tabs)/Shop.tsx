@@ -1,17 +1,14 @@
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
-import backend from "@/constants/backend";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import buyBadgeCall from "@/scripts/buyBadgeCall";
-import getBadgesCall from "@/scripts/getBadges";
 import redeemPointsCall from "@/scripts/redeemPointsCall";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Alert,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -50,17 +47,6 @@ export default function Shop() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
-  const [badges, setBadges] = useState<any>(null); // Placeholder for badges, can be set with getBadgesCall if needed
-
-  useEffect(() => {
-    // Preload any assets or data for the shop here if needed
-    const preloadShopData = async () => {
-      // Example: await fetchShopItems();
-      await getBadgesCall().then((badges) => setBadges(badges)).catch((err) => console.error("Failed to fetch badges:", err)); // Preload badges if necessary
-      console.log("Shop data preloaded");
-    }
-    preloadShopData();
-  }, []);
 
   const handlePurchase = async (item: GiftCard) => {
     const costPoints = Math.round(item.amountCents); // 1 point = 1 cent
@@ -162,7 +148,7 @@ export default function Shop() {
             ]}
           >
             <View style={styles.cardRow}>
-              <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
+              <Text style={[styles.name, {color: colors.text}]}>{item.name}</Text>
               <Text
                 style={styles.price}
               >{`$${(item.amountCents / 100).toFixed(2)}`}</Text>
@@ -189,8 +175,8 @@ export default function Shop() {
       <Text style={[styles.title, { color: colors.text }]}>Badge Shop</Text>
 
       <FlatList
-        data={badges}
-        keyExtractor={(i) => i._id}
+        data={AVAILABLE_BADGES}
+        keyExtractor={(i) => i.id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <View
@@ -207,15 +193,9 @@ export default function Shop() {
               <Text style={[styles.name, { color: colors.text }]}>
                 {item.name}
               </Text>
-              <View style={{ flexDirection: "column", alignItems: "center", gap: 8 }}>
-                <Text style={[styles.price, { color: colors.text }]}>
-                  {item.cost} pts
-                </Text>
-                <Image
-                  source={{ uri: `${backend}badges/${item.name}` }}
-                  style={{ width: 50, height: 50, borderRadius: 8 }}
-                />
-              </View>
+              <Text style={[styles.price, { color: colors.text }]}>
+                {item.cost} pts
+              </Text>
             </View>
 
             <Pressable

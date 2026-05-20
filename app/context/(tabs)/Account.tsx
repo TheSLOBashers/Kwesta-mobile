@@ -5,15 +5,13 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
 
 import Devices from "@/components/Devices";
 import LogOutButton from "@/components/LogOutButton";
-import SafeImage from "@/components/Safe-Image";
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
-import backend from "@/constants/backend";
 import { Colors } from "@/constants/theme";
 import blockDeviceCall from "@/scripts/blockDeviceCall";
 import followUserCall from "@/scripts/followUserCall";
@@ -312,9 +310,9 @@ export default function Account() {
                 ? "rgba(255, 255, 255, 0.08)"
                 : "rgba(10, 126, 164, 0.15)",
             backgroundColor:
-              colorScheme === "dark"
-                ? "rgba(255, 255, 255, 0.05)"
-                : "rgba(255, 255, 255, 0.9)"
+                      colorScheme === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(255, 255, 255, 0.9)"
           },
         ]}
       >
@@ -387,7 +385,7 @@ export default function Account() {
       style={[styles.screen, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.container}
     >
-      <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 30, fontSize: 32 }]}>Account</Text>
+      <Text style={[styles.sectionTitle, {color: colors.text, marginTop: 30, fontSize: 32}]}>Account</Text>
       <View
         style={[
           styles.heroCard,
@@ -441,36 +439,6 @@ export default function Account() {
           <ProfileContainerCard count={badges.length} label="Badges" />
           <ProfileContainerCard count={eventRsvps.length} label="RSVPS" />
         </View>
-      </View>
-
-      <View style={[styles.listContent, styles.activityCard,
-      {
-        borderColor:
-          colorScheme === "dark"
-            ? "rgba(255, 255, 255, 0.08)"
-            : "rgba(10, 126, 164, 0.15)",
-        backgroundColor:
-          colorScheme === "dark"
-            ? "rgba(255, 255, 255, 0.05)"
-            : "rgba(255, 255, 255, 0.9)",
-      },]}>
-        <Text style={[styles.sectionTitle, { color: colors.text },]}>
-          Badges
-        </Text>
-        {loadingBadges ? (
-          <View style={styles.loadingState}>
-            <ActivityIndicator size="small" color={colors.tint} />
-            <Text style={[styles.metaText, { color: colors.text }]}>
-              Loading badges...
-            </Text>
-          </View>
-        ) : (
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 10 }}>
-            {badges.map((badge: string) => (
-              <SafeImage uri={`${backend}badges/${badge}`} key={badge} />
-            ))}
-          </View>
-        )}
       </View>
 
       <View style={styles.sectionGap}>
@@ -639,7 +607,7 @@ export default function Account() {
         )}
       </View>
 
-      <View style={[styles.sectionGap, { marginBottom: 0 }]}>
+      <View style={[styles.sectionGap, {marginBottom: 0}]}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Comments
@@ -834,7 +802,7 @@ export default function Account() {
         )}
 
         {!devicesError ? (
-          <Devices devices={devices} handleBlock={handleBlock} colorScheme={colorScheme} />
+          <Devices devices={devices} handleBlock={handleBlock} colorScheme={colorScheme}/>
         ) : null}
       </View>
 
