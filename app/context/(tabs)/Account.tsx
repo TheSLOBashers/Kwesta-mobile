@@ -5,13 +5,16 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
+
 
 import Devices from "@/components/Devices";
 import LogOutButton from "@/components/LogOutButton";
+import SafeImage from "@/components/Safe-Image";
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
+import backend from "@/constants/backend";
 import { Colors } from "@/constants/theme";
 import blockDeviceCall from "@/scripts/blockDeviceCall";
 import followUserCall from "@/scripts/followUserCall";
@@ -29,6 +32,7 @@ import getUserProfileCall, {
 import unfollowUserCall from "@/scripts/unfollowUserCall";
 import { useColorScheme } from "react-native";
 
+
 type AccountItem = {
   id: string;
   type: string;
@@ -38,33 +42,41 @@ type AccountItem = {
   comment?: string;
 };
 
+
 const toCount = (value: unknown) => {
   if (Array.isArray(value)) {
     return value.length;
   }
 
+
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
   }
+
 
   if (typeof value === "string") {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
   }
 
+
   return 0;
 };
+
 
 const formatRelativeDate = (isoDate?: string) => {
   if (!isoDate) {
     return "Recently";
   }
 
+
   const parsed = new Date(isoDate);
+
 
   if (Number.isNaN(parsed.getTime())) {
     return "Recently";
   }
+
 
   return parsed.toLocaleDateString(undefined, {
     month: "short",
@@ -72,16 +84,20 @@ const formatRelativeDate = (isoDate?: string) => {
   });
 };
 
+
 const formatLocation = (location: unknown) => {
   if (typeof location === "string") {
     return location;
   }
 
+
   if (!location || typeof location !== "object") {
     return "Location unavailable";
   }
 
+
   const maybeLocation = location as { lat?: unknown; lng?: unknown };
+
 
   if (
     typeof maybeLocation.lat === "number" &&
@@ -90,8 +106,10 @@ const formatLocation = (location: unknown) => {
     return `Lat ${maybeLocation.lat.toFixed(3)}, Lng ${maybeLocation.lng.toFixed(3)}`;
   }
 
+
   return "Location unavailable";
 };
+
 
 export default function Account() {
   const { username, token, setUsernameAs, setTokenAs, setMod, setUserAs } =
@@ -100,17 +118,21 @@ export default function Account() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
+
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [usingMockData, setUsingMockData] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [history, setHistory] = useState<PointRedemptionHistoryEntry[]>([]);
 
+
   const [devices, setDevices] = useState<any[]>([]);
   const [loadingDevices, setLoadingDevices] = useState(false);
   const [devicesError, setDevicesError] = useState<string | null>(null);
 
+
   const [badges, setBadges] = useState<string[]>([]);
   const [loadingBadges, setLoadingBadges] = useState(false);
+
 
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [myPosts, setMyPosts] = useState<AccountItem[]>([]);
@@ -120,12 +142,14 @@ export default function Account() {
     null,
   );
 
+
   const loadRedemptionHistory = useCallback(async () => {
     const result = await getPointRedemptionHistory(token);
     setHistory(result.entries);
     setUsingMockData(result.usingMockData);
     setHistoryError(result.error);
   }, [token]);
+
 
   const loadDevices = useCallback(async () => {
     try {
@@ -141,6 +165,7 @@ export default function Account() {
     }
   }, [token]);
 
+
   const loadBadges = useCallback(async () => {
     setLoadingBadges(true);
     try {
@@ -153,8 +178,10 @@ export default function Account() {
     }
   }, [token]);
 
+
   const loadHighlights = useCallback(async () => {
     setLoadingHighlights(true);
+
 
     try {
       if (!token) {
@@ -164,11 +191,13 @@ export default function Account() {
         return;
       }
 
+
       const [profileResult, postsResult, joinedResult] = await Promise.all([
         getUserProfileCall(token),
         getMyPostsCall(token),
         getJoinedPostsCall(token),
       ]);
+
 
       setProfileData(profileResult);
       setMyPosts(Array.isArray(postsResult) ? postsResult : []);
@@ -181,6 +210,7 @@ export default function Account() {
       setLoadingHighlights(false);
     }
   }, [token]);
+
 
   useEffect(() => {
     const load = async () => {
@@ -195,6 +225,7 @@ export default function Account() {
       setLoadingHistory(false);
     };
 
+
     load();
   }, [
     loadBadges,
@@ -204,37 +235,45 @@ export default function Account() {
     refreshUserPoints,
   ]);
 
+
   const handleRefreshHistory = useCallback(async () => {
     await Promise.all([loadRedemptionHistory(), refreshUserPoints()]);
   }, [loadRedemptionHistory, refreshUserPoints]);
+
 
   const handleFollowBack = useCallback(
     async (userId: string) => {
       setSocialActionUserId(userId);
       const didFollow = await followUserCall(token, userId);
 
+
       if (didFollow) {
         await loadHighlights();
       }
+
 
       setSocialActionUserId(null);
     },
     [loadHighlights, token],
   );
+
 
   const handleUnfollow = useCallback(
     async (userId: string) => {
       setSocialActionUserId(userId);
       const didUnfollow = await unfollowUserCall(token, userId);
 
+
       if (didUnfollow) {
         await loadHighlights();
       }
+
 
       setSocialActionUserId(null);
     },
     [loadHighlights, token],
   );
+
 
   async function handleBlock(device: any) {
     blockDeviceCall(token, device)
@@ -250,12 +289,15 @@ export default function Account() {
       });
   }
 
+
   const formatDate = (isoDate: string) => {
     const parsed = new Date(isoDate);
+
 
     if (Number.isNaN(parsed.getTime())) {
       return "Unknown date";
     }
+
 
     return parsed.toLocaleDateString(undefined, {
       month: "short",
@@ -263,6 +305,7 @@ export default function Account() {
       year: "numeric",
     });
   };
+
 
   const followerCount = toCount(
     profileData?.followersCount ?? profileData?.followers,
@@ -299,6 +342,7 @@ export default function Account() {
     const isDisabled =
       isLoading || (action === "follow" && followingIds.has(user.id));
 
+
     return (
       <View
         key={user.id}
@@ -310,9 +354,9 @@ export default function Account() {
                 ? "rgba(255, 255, 255, 0.08)"
                 : "rgba(10, 126, 164, 0.15)",
             backgroundColor:
-                      colorScheme === "dark"
-                        ? "rgba(255, 255, 255, 0.05)"
-                        : "rgba(255, 255, 255, 0.9)"
+              colorScheme === "dark"
+                ? "rgba(255, 255, 255, 0.05)"
+                : "rgba(255, 255, 255, 0.9)"
           },
         ]}
       >
@@ -359,6 +403,7 @@ export default function Account() {
     );
   };
 
+
   const ProfileContainerCard = ({ count, label }: { count: number | null; label: string }) => {
     return (
       <View style={[styles.heroMetaItem, {
@@ -380,12 +425,13 @@ export default function Account() {
     );
   }
 
+
   return (
     <ScrollView
       style={[styles.screen, { backgroundColor: colors.background }]}
       contentContainerStyle={styles.container}
     >
-      <Text style={[styles.sectionTitle, {color: colors.text, marginTop: 30, fontSize: 32}]}>Account</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 30, fontSize: 32 }]}>Account</Text>
       <View
         style={[
           styles.heroCard,
@@ -424,6 +470,7 @@ export default function Account() {
             </Text>
           </View>
 
+
           <Pressable
             onPress={loadHighlights}
             style={[styles.followButton, { borderColor: colors.tint }]}
@@ -434,12 +481,45 @@ export default function Account() {
           </Pressable>
         </View>
 
+
         <View style={[styles.heroMetaRow]}>
           <ProfileContainerCard count={points} label="Points" />
           <ProfileContainerCard count={badges.length} label="Badges" />
           <ProfileContainerCard count={eventRsvps.length} label="RSVPS" />
         </View>
       </View>
+
+
+      <View style={[styles.listContent, styles.activityCard,
+      {
+        borderColor:
+          colorScheme === "dark"
+            ? "rgba(255, 255, 255, 0.08)"
+            : "rgba(10, 126, 164, 0.15)",
+        backgroundColor:
+          colorScheme === "dark"
+            ? "rgba(255, 255, 255, 0.05)"
+            : "rgba(255, 255, 255, 0.9)",
+      },]}>
+        <Text style={[styles.sectionTitle, { color: colors.text },]}>
+          Badges
+        </Text>
+        {loadingBadges ? (
+          <View style={styles.loadingState}>
+            <ActivityIndicator size="small" color={colors.tint} />
+            <Text style={[styles.metaText, { color: colors.text }]}>
+              Loading badges...
+            </Text>
+          </View>
+        ) : (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 10 }}>
+            {badges.map((badge: string) => (
+              <SafeImage uri={`${backend}badges/${badge}`} key={badge} />
+            ))}
+          </View>
+        )}
+      </View>
+
 
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
@@ -450,6 +530,7 @@ export default function Account() {
             {followerUsers.length}
           </Text>
         </View>
+
 
         {followerUsers.length > 0 ? (
           <View style={styles.socialList}>
@@ -469,6 +550,7 @@ export default function Account() {
         )}
       </View>
 
+
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -478,6 +560,7 @@ export default function Account() {
             {followingUsers.length}
           </Text>
         </View>
+
 
         {followingUsers.length > 0 ? (
           <View style={styles.socialList}>
@@ -497,6 +580,7 @@ export default function Account() {
         )}
       </View>
 
+
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -506,6 +590,7 @@ export default function Account() {
             {eventRsvps.length}
           </Text>
         </View>
+
 
         {eventRsvps.length > 0 ? (
           <View style={styles.listContent}>
@@ -552,6 +637,7 @@ export default function Account() {
         )}
       </View>
 
+
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -561,6 +647,7 @@ export default function Account() {
             {questJoins.length}
           </Text>
         </View>
+
 
         {questJoins.length > 0 ? (
           <View style={styles.listContent}>
@@ -607,7 +694,8 @@ export default function Account() {
         )}
       </View>
 
-      <View style={[styles.sectionGap, {marginBottom: 0}]}>
+
+      <View style={[styles.sectionGap, { marginBottom: 0 }]}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Comments
@@ -618,12 +706,14 @@ export default function Account() {
         </View>
       </View>
 
+
       <View style={[styles.sectionGap, { marginTop: 0, marginLeft: 8 }]}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
             Recent comments
           </Text>
         </View>
+
 
         {loadingHighlights ? (
           <View style={styles.loadingState}>
@@ -677,6 +767,7 @@ export default function Account() {
         )}
       </View>
 
+
       <View style={styles.sectionHeader}>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>
           Redemption History
@@ -699,6 +790,7 @@ export default function Account() {
         </Pressable>
       </View>
 
+
       {usingMockData && (
         <Text
           style={[
@@ -710,6 +802,7 @@ export default function Account() {
         </Text>
       )}
 
+
       {historyError && (
         <Text
           style={[
@@ -720,6 +813,7 @@ export default function Account() {
           {historyError}
         </Text>
       )}
+
 
       {loadingHistory ? (
         <View style={styles.loadingState}>
@@ -777,6 +871,7 @@ export default function Account() {
         </Text>
       )}
 
+
       <View style={styles.sectionGap}>
         <View style={styles.sectionHeader}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>
@@ -790,6 +885,7 @@ export default function Account() {
           )}
         </View>
 
+
         {devicesError && (
           <Text
             style={[
@@ -801,10 +897,12 @@ export default function Account() {
           </Text>
         )}
 
+
         {!devicesError ? (
-          <Devices devices={devices} handleBlock={handleBlock} colorScheme={colorScheme}/>
+          <Devices devices={devices} handleBlock={handleBlock} colorScheme={colorScheme} />
         ) : null}
       </View>
+
 
       <LogOutButton
         setUsernameAs={setUsernameAs}
@@ -816,6 +914,7 @@ export default function Account() {
     </ScrollView>
   );
 }
+
 
 const styles = StyleSheet.create({
   screen: {
@@ -1092,3 +1191,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
+
+
+
