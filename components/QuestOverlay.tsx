@@ -1,137 +1,177 @@
-import { useAuth } from '@/components/auth-context';
+import { useAuth } from "@/components/auth-context";
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
-import { Appearance, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+    Appearance,
+    Dimensions,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
-    open: boolean;
-    close: () => void;
-    quests: any;
-    setQuests: (comments: any) => void;
-    onPointsChanged: () => void;
-    onSelectQuest: (comment: any) => void
+  open: boolean;
+  close: () => void;
+  quests: any;
+  setQuests: (comments: any) => void;
+  onPointsChanged: () => void;
+  onSelectQuest: (comment: any) => void;
 }
 
 const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const textColor = Appearance.getColorScheme() === "light" ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
-    image: {
-        height: 20,
-        width: 20,
-        resizeMode: 'stretch',
-        marginRight: 10
-    },
-    inline: {
-        display: "flex",
-        flexDirection: "row",
-        marginBottom: 10
-    }
+  image: {
+    height: 20,
+    width: 20,
+    resizeMode: "stretch",
+    marginRight: 10,
+  },
+  inline: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
 });
 
-export default function QuestOverlay({ close, quests, setQuests, onPointsChanged, onSelectQuest, open }: Props) {
-    const scrollRef = useRef<ScrollView>(null);
-    const [active, setActive] = useState(0);
-    const { token } = useAuth();
+export default function QuestOverlay({
+  close,
+  quests,
+  setQuests,
+  onPointsChanged,
+  onSelectQuest,
+  open,
+}: Props) {
+  const scrollRef = useRef<ScrollView>(null);
+  const [active, setActive] = useState(0);
+  const { token } = useAuth();
 
-    useEffect(() => {
-        if (!onSelectQuest) return;
-        onSelectQuest(quests[active] ?? null);
-    }, [active, quests]);
+  useEffect(() => {
+    if (!onSelectQuest) return;
+    onSelectQuest(quests[active] ?? null);
+  }, [active, quests]);
 
-    function handleJoin(eventId: any) {
-        joinQuest(eventId, token)
-            .then(async () => {
-                // Update the local state to reflect the change
-                setQuests((prevEvents : any) =>
-                prevEvents.map((e: any) =>
-                    e.id === eventId ? { ...e, joined: true } : e
-                )
-                );
-                if (onPointsChanged) {
-                await onPointsChanged();
-                }
-                alert("Successfully joined quest!");
-            })
-            .catch(error => {
-                alert("Error joining quest: " + error.message);
-            });
-    }
+  function handleJoin(eventId: any) {
+    joinQuest(eventId, token)
+      .then(async () => {
+        // Update the local state to reflect the change
+        setQuests((prevEvents: any) =>
+          prevEvents.map((e: any) =>
+            e.id === eventId ? { ...e, joined: true } : e,
+          ),
+        );
+        if (onPointsChanged) {
+          await onPointsChanged();
+        }
+        alert("Successfully joined quest!");
+      })
+      .catch((error) => {
+        alert("Error joining quest: " + error.message);
+      });
+  }
 
-    function handleUnjoin(eventId : any) {
-        unjoinQuest(eventId, token)
-        .then(() => {
-            setQuests((prevEvents: any) =>
-            prevEvents.map((e: any) =>
-                e.id === eventId ? { ...e, joined: false } : e
-            )
-            );
-            alert("Successfully unjoined quest!");
-        })
-        .catch(error => {
-            alert("Error joining quest: " + error.message);
-        });
-    }
+  function handleUnjoin(eventId: any) {
+    unjoinQuest(eventId, token)
+      .then(() => {
+        setQuests((prevEvents: any) =>
+          prevEvents.map((e: any) =>
+            e.id === eventId ? { ...e, joined: false } : e,
+          ),
+        );
+        alert("Successfully unjoined quest!");
+      })
+      .catch((error) => {
+        alert("Error joining quest: " + error.message);
+      });
+  }
 
-    return (
-        <View style={styles.backdrop}>
-            {open && (
-                <>
-                <Pressable style={styles.backdrop} onPress={close} />
-            
-                    <View style={styles.overlay} pointerEvents="box-none">
-                        <ScrollView
-                            testID="quest-scroll"
-                            ref={scrollRef}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.Slider}
-                            snapToInterval={CARD_WIDTH + CARD_MARGIN}
-                            snapToAlignment="center"
-                            decelerationRate="fast"
+  return (
+    <View style={styles.backdrop}>
+      {open && (
+        <>
+          <Pressable style={styles.backdrop} onPress={close} />
 
-                            onScroll={(e) => {
-                                const x = e.nativeEvent.contentOffset.x;
+          <View style={styles.overlay} pointerEvents="box-none">
+            <ScrollView
+              testID="quest-scroll"
+              ref={scrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.Slider}
+              snapToInterval={CARD_WIDTH + CARD_MARGIN}
+              snapToAlignment="center"
+              decelerationRate="fast"
+              onScroll={(e) => {
+                const x = e.nativeEvent.contentOffset.x;
 
-                                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-                                setActive(index);
-                            }}
-                            scrollEventThrottle={16}
-                        >
-                            {quests.map((q: any, i: any) => (
-                                    <View key={`${q.id}-${i}`} style={[styles.Card, { transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                        <Text style={styles.author}>{q.authorName}</Text>
-                                        <Text style={{color: textColor, fontSize: 17, marginTop: 7, marginBottom: 30}}>{q.description}</Text>
-                                        {q.joined ? (
-                                            <Pressable onPress={() => handleUnjoin(q.id)}>
-                                                <View style={imageStyle.inline}>
-                                                    <Image style={imageStyle.image}
-                                                    source={require("../assets/images/exit_sign.png")}/>
-                                                    <Text style={{color: textColor}}>Unjoin Quest</Text>
-                                                </View>
-                                            </Pressable>
-                                        ) : (
-                                            <Pressable onPress={() => handleJoin(q.id)}>
-                                                <View style={imageStyle.inline}>
-                                                    <Image style={imageStyle.image}
-                                                      source={require("../assets/images/enter_sign.png")}/>
-                                                    <Text style={{color: textColor}}>Join Quest</Text>
-                                                </View>
-                                            </Pressable>
-                                        )}
-                                    </View>
-                            ))}
-                        </ScrollView>
-                    </View>
-                </>
-            )}
-        </View>
-    );
+                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                setActive(index);
+              }}
+              scrollEventThrottle={16}
+            >
+              {quests.map((q: any, i: any) => (
+                <View
+                  key={`${q.id}-${i}`}
+                  style={[
+                    styles.Card,
+                    { transform: [{ scale: i === active ? 1 : 0.92 }] },
+                  ]}
+                >
+                  <Text style={styles.author}>{q.authorName}</Text>
+                  <Text
+                    style={{
+                      color: textColor,
+                      fontSize: 17,
+                      marginTop: 7,
+                      marginBottom: 30,
+                    }}
+                  >
+                    {q.description}
+                  </Text>
+                  {q.joined ? (
+                    <Pressable
+                      onPress={() => handleUnjoin(q.id)}
+                      testID="unjoinButton"
+                    >
+                      <View style={imageStyle.inline}>
+                        <Image
+                          style={imageStyle.image}
+                          source={require("../assets/images/exit_sign.png")}
+                        />
+                        <Text style={{ color: textColor }}>Unjoin Quest</Text>
+                      </View>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      onPress={() => handleJoin(q.id)}
+                      testID="joinButton"
+                    >
+                      <View style={imageStyle.inline}>
+                        <Image
+                          style={imageStyle.image}
+                          source={require("../assets/images/enter_sign.png")}
+                        />
+                        <Text style={{ color: textColor }}>Join Quest</Text>
+                      </View>
+                    </Pressable>
+                  )}
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </>
+      )}
+    </View>
+  );
 }
 
 /*

@@ -30,20 +30,20 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === 'light' ? "black" : "white";
+const textColor = Appearance.getColorScheme() === "light" ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
-    image: {
-        height: 20,
-        width: 20,
-        resizeMode: 'stretch',
-        marginRight: 10
-    },
-    inline: {
-        display: "flex",
-        flexDirection: "row",
-        marginBottom: 10
-    }
+  image: {
+    height: 20,
+    width: 20,
+    resizeMode: "stretch",
+    marginRight: 10,
+  },
+  inline: {
+    display: "flex",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
 });
 
 export default function CommentOverlay({
@@ -176,32 +176,67 @@ export default function CommentOverlay({
                       <Text style={styles.author}>{c.authorName}</Text>
                     </Pressable>
 
-                    <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
-                    <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{c.comment}</Text>
+                    <Text style={{ color: midTextColor, marginBottom: 7 }}>
+                      {formattedDate}
+                    </Text>
+                    <Text
+                      style={{
+                        color: textColor,
+                        fontSize: 17,
+                        marginBottom: 30,
+                      }}
+                    >
+                      {c.comment}
+                    </Text>
 
                     <Pressable
                       onPress={() => handleLike(c.id)}
                       disabled={c.likedByUser}
+                      testID="likeButton"
                     >
                       <View style={imageStyle.inline}>
-                        <Image style={imageStyle.image}
-                          source={c.likedByUser ? require("../assets/images/heart_filled.png") : (Appearance.getColorScheme() === 'light' ? require("../assets/images/heart_empty_black.png") : require("../assets/images/heart_empty_white.png"))}/>
-                        <Text style={{color: textColor}}>{c.likes || 0}</Text>
+                        <Image
+                          style={imageStyle.image}
+                          source={
+                            c.likedByUser
+                              ? require("../assets/images/heart_filled.png")
+                              : Appearance.getColorScheme() === "light"
+                                ? require("../assets/images/heart_empty_black.png")
+                                : require("../assets/images/heart_empty_white.png")
+                          }
+                        />
+                        <Text style={{ color: textColor }}>{c.likes || 0}</Text>
                       </View>
                     </Pressable>
 
                     {c.flaggedByUser ? (
-                      <Pressable onPress={() => handleUnflag(c.id)}>
+                      <Pressable
+                        onPress={() => handleUnflag(c.id)}
+                        testID="unflagButton"
+                      >
                         <View style={imageStyle.inline}>
-                          <Image style={imageStyle.image} source={require("../assets/images/flag_filled.png")}/>
-                          <Text style={{color: textColor}}>Unflag</Text>
+                          <Image
+                            style={imageStyle.image}
+                            source={require("../assets/images/flag_filled.png")}
+                          />
+                          <Text style={{ color: textColor }}>Unflag</Text>
                         </View>
                       </Pressable>
                     ) : (
-                      <Pressable onPress={() => handleFlag(c.id)}>
+                      <Pressable
+                        onPress={() => handleFlag(c.id)}
+                        testID="flagButton"
+                      >
                         <View style={imageStyle.inline}>
-                          <Image style={imageStyle.image} source={Appearance.getColorScheme() === 'light' ? require("../assets/images/flag_empty_black.png") : require("../assets/images/flag_empty_white.png")}/>
-                          <Text style={{color: textColor}}>Flag</Text>
+                          <Image
+                            style={imageStyle.image}
+                            source={
+                              Appearance.getColorScheme() === "light"
+                                ? require("../assets/images/flag_empty_black.png")
+                                : require("../assets/images/flag_empty_white.png")
+                            }
+                          />
+                          <Text style={{ color: textColor }}>Flag</Text>
                         </View>
                       </Pressable>
                     )}
@@ -222,7 +257,7 @@ export default function CommentOverlay({
         <View style={styles.popupOverlay}>
           <View style={styles.popup}>
             <Pressable onPress={() => setShowProfile(false)}>
-              <Text style={{color: textColor, marginBottom: 5}}>Close</Text>
+              <Text style={{ color: textColor, marginBottom: 5 }}>Close</Text>
             </Pressable>
 
             <UserProfile userName={selectedUser} />

@@ -1,3 +1,11 @@
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import React from "react";
+import CommentOverlay from "../../components/CommentOverlay";
+
+import flagComment from "@/scripts/flagComment";
+import likeComment from "@/scripts/likeComment";
+import unflagComment from "@/scripts/unflagComment";
+
 jest.mock("@/scripts/likeComment", () => ({
   __esModule: true,
   default: jest.fn(),
@@ -19,14 +27,9 @@ jest.mock("@/components/auth-context", () => ({
   }),
 }));
 
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
-import React from "react";
-import CommentOverlay from "../../components/CommentOverlay";
-
-import flagComment from "@/scripts/flagComment";
-import likeComment from "@/scripts/likeComment";
-import unflagComment from "@/scripts/unflagComment";
-
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
+);
 global.alert = jest.fn();
 
 describe("CommentOverlay", () => {
@@ -69,7 +72,7 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-      />
+      />,
     );
 
     expect(getByText("Bob")).toBeTruthy();
@@ -79,47 +82,47 @@ describe("CommentOverlay", () => {
   it("calls likeComment successfully", async () => {
     (likeComment as jest.Mock).mockResolvedValue({});
 
-    const { getAllByText } = render(
-        <CommentOverlay
+    const { getAllByTestId } = render(
+      <CommentOverlay
         open={true}
         close={close}
         comments={mockComments}
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        />
+      />,
     );
 
-    const likeButtons = getAllByText("Like Comment");
+    const likeButtons = getAllByTestId("likeButton");
     fireEvent.press(likeButtons[0]);
 
     await waitFor(() => {
-        expect(likeComment).toHaveBeenCalledWith("c1", "test-token");
-        expect(setComments).toHaveBeenCalled();
-        expect(onPointsChanged).toHaveBeenCalled();
+      expect(likeComment).toHaveBeenCalledWith("c1", "test-token");
+      expect(setComments).toHaveBeenCalled();
+      expect(onPointsChanged).toHaveBeenCalled();
     });
   });
 
   it("handles likeComment error", async () => {
     (likeComment as jest.Mock).mockRejectedValue(new Error("fail"));
 
-    const { getAllByText } = render(
-        <CommentOverlay
+    const { getAllByTestId } = render(
+      <CommentOverlay
         open={true}
         close={close}
         comments={mockComments}
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        />
+      />,
     );
 
-    const likeButtons = getAllByText("Like Comment")
+    const likeButtons = getAllByTestId("likeButton");
     fireEvent.press(likeButtons[0]);
 
     await waitFor(() => {
       expect(global.alert).toHaveBeenCalledWith(
-        expect.stringContaining("Error liking comment")
+        expect.stringContaining("Error liking comment"),
       );
     });
   });
@@ -127,7 +130,7 @@ describe("CommentOverlay", () => {
   it("calls flagComment successfully", async () => {
     (flagComment as jest.Mock).mockResolvedValue({});
 
-    const { getAllByText } = render(
+    const { getAllByTestId } = render(
       <CommentOverlay
         open={true}
         close={close}
@@ -135,17 +138,17 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-      />
+      />,
     );
 
-    const flagButtons = getAllByText("Flag comment");
+    const flagButtons = getAllByTestId("flagButton");
     fireEvent.press(flagButtons[0]);
 
     await waitFor(() => {
       expect(flagComment).toHaveBeenCalledWith("c1", "test-token");
       expect(setComments).toHaveBeenCalled();
       expect(global.alert).toHaveBeenCalledWith(
-        "Successfully flagged comment!"
+        "Successfully flagged comment!",
       );
     });
   });
@@ -153,7 +156,7 @@ describe("CommentOverlay", () => {
   it("handles flagComment error", async () => {
     (flagComment as jest.Mock).mockRejectedValue(new Error("fail"));
 
-    const { getAllByText } = render(
+    const { getAllByTestId } = render(
       <CommentOverlay
         open={true}
         close={close}
@@ -161,27 +164,25 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-      />
+      />,
     );
 
-    const flagButtons = getAllByText("Flag comment");
+    const flagButtons = getAllByTestId("flagButton");
     fireEvent.press(flagButtons[0]);
 
     await waitFor(() => {
       expect(global.alert).toHaveBeenCalledWith(
-        expect.stringContaining("Error flagging comment")
+        expect.stringContaining("Error flagging comment"),
       );
     });
   });
 
   it("calls unflagComment successfully", async () => {
-    const flagged = [
-      { ...mockComments[0], flaggedByUser: true },
-    ];
+    const flagged = [{ ...mockComments[0], flaggedByUser: true }];
 
     (unflagComment as jest.Mock).mockResolvedValue({});
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <CommentOverlay
         open={true}
         close={close}
@@ -189,16 +190,16 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-      />
+      />,
     );
 
-    fireEvent.press(getByText("Unflag comment"));
+    fireEvent.press(getByTestId("unflagButton"));
 
     await waitFor(() => {
       expect(unflagComment).toHaveBeenCalledWith("c1", "test-token");
       expect(setComments).toHaveBeenCalled();
       expect(global.alert).toHaveBeenCalledWith(
-        "Successfully unflagged comment!"
+        "Successfully unflagged comment!",
       );
     });
   });
@@ -206,11 +207,9 @@ describe("CommentOverlay", () => {
   it("handles unflagComment error", async () => {
     (unflagComment as jest.Mock).mockRejectedValue(new Error("fail"));
 
-    const flagged = [
-      { ...mockComments[0], flaggedByUser: true },
-    ];
+    const flagged = [{ ...mockComments[0], flaggedByUser: true }];
 
-    const { getByText } = render(
+    const { getByTestId } = render(
       <CommentOverlay
         open={true}
         close={close}
@@ -218,14 +217,14 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-      />
+      />,
     );
 
-    fireEvent.press(getByText("Unflag comment"));
+    fireEvent.press(getByTestId("unflagButton"));
 
     await waitFor(() => {
       expect(global.alert).toHaveBeenCalledWith(
-        expect.stringContaining("Error unflagging comment")
+        expect.stringContaining("Error unflagging comment"),
       );
     });
   });
@@ -239,7 +238,7 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-      />
+      />,
     );
 
     const scroll = getByTestId("comment-scroll");
