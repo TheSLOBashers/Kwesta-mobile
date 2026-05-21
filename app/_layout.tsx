@@ -1,4 +1,5 @@
 import { PointsProvider } from '@/components/points-context';
+import NotificationTracker from '@/components/notification-tracker';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
@@ -17,12 +18,13 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AuthProvider>
         <PointsProvider>
-      <Stack>
-        <Stack.Screen name="context" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-      </PointsProvider>
+          <NotificationTracker />
+          <Stack>
+            <Stack.Screen name="context" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          </Stack>
+          <StatusBar style="auto" />
+        </PointsProvider>
       </AuthProvider>
     </ThemeProvider>
   );
