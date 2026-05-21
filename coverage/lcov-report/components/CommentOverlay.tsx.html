@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76% </span>
+                <span class="strong">75.92% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>38/50</span>
+                <span class='fraction'>41/54</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">55.88% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>15/30</span>
+                <span class='fraction'>19/34</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">64% </span>
+                <span class="strong">65.38% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>16/25</span>
+                <span class='fraction'>17/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">77.55% </span>
+                <span class="strong">76.92% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>38/49</span>
+                <span class='fraction'>40/52</span>
             </div>
         
             
@@ -332,7 +332,20 @@
 <a name='L267'></a><a href='#L267'>267</a>
 <a name='L268'></a><a href='#L268'>268</a>
 <a name='L269'></a><a href='#L269'>269</a>
-<a name='L270'></a><a href='#L270'>270</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L270'></a><a href='#L270'>270</a>
+<a name='L271'></a><a href='#L271'>271</a>
+<a name='L272'></a><a href='#L272'>272</a>
+<a name='L273'></a><a href='#L273'>273</a>
+<a name='L274'></a><a href='#L274'>274</a>
+<a name='L275'></a><a href='#L275'>275</a>
+<a name='L276'></a><a href='#L276'>276</a>
+<a name='L277'></a><a href='#L277'>277</a>
+<a name='L278'></a><a href='#L278'>278</a>
+<a name='L279'></a><a href='#L279'>279</a>
+<a name='L280'></a><a href='#L280'>280</a>
+<a name='L281'></a><a href='#L281'>281</a>
+<a name='L282'></a><a href='#L282'>282</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,6 +401,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-yes">9x</span>
@@ -396,8 +410,16 @@
 <span class="cline-any cline-yes">9x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
-<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -472,6 +494,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -627,6 +651,7 @@ interface Props {
   setComments: (comments: any) =&gt; void;
   onPointsChanged: () =&gt; void;
   onSelectComment: (comment: any) =&gt; void;
+  selectedComment: any;
 }
 &nbsp;
 const styles = overlayStyle.styles;
@@ -655,6 +680,7 @@ export default function CommentOverlay({
   setComments,
   onPointsChanged,
   onSelectComment,
+  selectedComment,
   open,
 }: Props) {
   const scrollRef = useRef&lt;ScrollView&gt;(null);
@@ -665,9 +691,17 @@ export default function CommentOverlay({
   const [showProfile, setShowProfile] = useState(false);
 &nbsp;
   useEffect(() =&gt; {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!onSelectComment) <span class="cstat-no" title="statement not covered" >return;</span>
-    onSelectComment(comments[active] ?? <span class="branch-1 cbranch-no" title="branch not covered" >null)</span>;
-  }, [active, comments]);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!selectedComment || !scrollRef.current) <span class="cstat-no" title="statement not covered" >return;</span>
+&nbsp;
+    const index = comments.findIndex((c: any) =&gt; c.id === selectedComment.id);
+&nbsp;
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (index !== -1 &amp;&amp; index !== active) {
+<span class="cstat-no" title="statement not covered" >      scrollRef.current.scrollTo({</span>
+        x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
+        animated: true,
+      });
+    }
+  }, [selectedComment]);
 &nbsp;
   function handleLike(commentId: any) {
     likeComment(commentId, token)
@@ -739,10 +773,12 @@ export default function CommentOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onScroll={(e) =&gt; {
+              onMomentumScrollEnd={(e) =&gt; {
                 const x = e.nativeEvent.contentOffset.x;
                 const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+&nbsp;
                 setActive(index);
+                onSelectComment(comments[index]);
               }}
               scrollEventThrottle={16}
             &gt;
@@ -877,7 +913,7 @@ export default function CommentOverlay({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-20T21:13:36.974Z
+                at 2026-05-21T05:16:44.081Z
             </div>
         <script src="../prettify.js"></script>
         <script>
