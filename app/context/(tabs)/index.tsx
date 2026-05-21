@@ -28,22 +28,48 @@ import {
 } from "react-native";
 
 function UserFeed() {
+  type MapItem = {
+    id: string;
+    createdAt: string;
+  };
+  type CommentItem = MapItem & {
+    authorId: string;
+    authorName: string;
+    comment: string;
+    location: { lat: number; lng: number };
+    likes: number;
+    likedByUser: boolean;
+    flaggedByUser: boolean;
+  };
+  type EventItem = MapItem & {
+    description: string;
+    location: any;
+    joined: boolean;
+  };
+  type QuestItem = MapItem & {
+    description: string;
+    points: number;
+    location: any;
+    joined: boolean;
+  };
+
   const { user, username, token } = useAuth();
   const { refreshUserPoints, points } = usePoints();
-  const [comments, setComments] = useState<any>([]);
-  const [events, setEvents] = useState<any>([]);
-  const [quests, setQuests] = useState<any>([]);
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [quests, setQuests] = useState<QuestItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<any>(null);
   const [locationAllowed, setLocationAllowed] = useState(false);
   const [clickedLocation, setclickedLocation] = useState({ lat: 0, lng: 0 });
   const [showClickMarkers, setShowClickMarkers] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
-  const [selectedQuestId, setselectedQuestId] = useState(null);
-  const [selectedEventId, setsselectedEventId] = useState(null);
+  const [selectedQuestId, setSelectedQuestId] = useState(null);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [activeOverlay, setActiveOverlay] = useState<
     "comments" | "events" | "quests" | "leaderboard" | null
   >(null);
+  const [lastSync, setLastSync] = useState<string | null>(null);
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
@@ -60,36 +86,92 @@ function UserFeed() {
     [events, selectedEventId],
   );
 
-  const fetchAll = async () => {
+  const fetchInitial = async () => {
     if (!location) return;
+
     setLoading(true);
 
-    const commentData = await getCommentsByAreaCall(
-      token,
-      location.latitude,
-      location.longitude,
-      1,
-    );
-    const eventData = await getEventsByAreaCall(
-      token,
-      location.latitude,
-      location.longitude,
-      10,
-    );
-    const questData = await getQuestsByAreaCall(
-      token,
-      location.latitude,
-      location.longitude,
-      10,
-    );
+    const [commentData, eventData, questData] = await Promise.all([
+      getCommentsByAreaCall(token, location.latitude, location.longitude, 1),
+      getEventsByAreaCall(token, location.latitude, location.longitude, 10),
+      getQuestsByAreaCall(token, location.latitude, location.longitude, 10),
+    ]);
+
     setComments(commentData);
     setEvents(eventData);
     setQuests(questData);
+
+    const all = [...commentData, ...eventData, ...questData];
+
+    if (all.length > 0) {
+      const newest = all.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      )[all.length - 1];
+
+      setLastSync(newest.createdAt);
+    }
+
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchAll();
+    if (!location || !lastSync) return;
+
+    const interval = setInterval(async () => {
+      const [commentData, eventData, questData] = await Promise.all([
+        getCommentsByAreaCall(
+          token,
+          location.latitude,
+          location.longitude,
+          1,
+          lastSync,
+        ),
+        getEventsByAreaCall(
+          token,
+          location.latitude,
+          location.longitude,
+          10,
+          lastSync,
+        ),
+        getQuestsByAreaCall(
+          token,
+          location.latitude,
+          location.longitude,
+          10,
+          lastSync,
+        ),
+      ]);
+
+      if (commentData.length) {
+        setComments((prev) => [...prev, ...commentData]);
+      }
+
+      if (eventData.length) {
+        setEvents((prev) => [...prev, ...eventData]);
+      }
+
+      if (questData.length) {
+        setQuests((prev) => [...prev, ...questData]);
+      }
+
+      const allNew = [...commentData, ...eventData, ...questData];
+
+      if (allNew.length > 0) {
+        const newest = allNew.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+        )[allNew.length - 1];
+
+        setLastSync(newest.createdAt);
+      }
+    }, 15000); // 15s
+
+    return () => clearInterval(interval);
+  }, [location]);
+
+  useEffect(() => {
+    fetchInitial();
   }, [location]);
 
   useEffect(() => {
@@ -226,6 +308,7 @@ function UserFeed() {
         setComments={setComments}
         onPointsChanged={refreshUserPoints}
         onSelectComment={(c) => setSelectedCommentId(c?.id ?? null)}
+        selectedComment={selectedComment}
         open={true}
         close={() => setActiveOverlay(null)}
       />
@@ -238,7 +321,8 @@ function UserFeed() {
         events={events}
         setEvents={setEvents}
         onPointsChanged={refreshUserPoints}
-        onSelectEvent={(e) => setsselectedEventId(e?.id ?? null)}
+        onSelectEvent={(e) => setSelectedEventId(e?.id ?? null)}
+        selectedEvent={selectedEvent}
         open={true}
         close={() => setActiveOverlay(null)}
       />
@@ -251,7 +335,8 @@ function UserFeed() {
         quests={quests}
         setQuests={setQuests}
         onPointsChanged={refreshUserPoints}
-        onSelectQuest={(q) => setselectedQuestId(q?.id ?? null)}
+        onSelectQuest={(q) => setSelectedQuestId(q?.id ?? null)}
+        selectedQuest={selectedQuest}
         open={true}
         close={() => setActiveOverlay(null)}
       />
@@ -262,11 +347,15 @@ function UserFeed() {
     <View style={styles.container}>
       <MapSection
         comments={comments}
-        selectedComment={selectedComment}
+        selectedCommentId={selectedCommentId}
         quests={quests}
-        selectedQuest={selectedQuest}
+        selectedQuestId={selectedQuestId}
         events={events}
-        selectedEvent={selectedEvent}
+        selectedEventId={selectedEventId}
+        setSelectedCommentId={setSelectedCommentId}
+        setSelectedEventId={setSelectedEventId}
+        setSelectedQuestId={setSelectedQuestId}
+        setActiveOverlay={setActiveOverlay}
         setclickedLocation={setclickedLocation}
         showClickMarkers={showClickMarkers}
         clickedLocation={clickedLocation}
@@ -286,7 +375,7 @@ function UserFeed() {
         events={events}
         setEvents={setEvents}
         onPointsChanged={refreshUserPoints}
-        onSelectEvent={(event: any) => setsselectedEventId(event?.id ?? null)}
+        onSelectEvent={(event: any) => setSelectedEventId(event?.id ?? null)}
         activeOverlay={activeOverlay}
         setActiveOverlay={setActiveOverlay}
       />
@@ -294,7 +383,7 @@ function UserFeed() {
         quests={quests}
         setQuests={setQuests}
         onPointsChanged={refreshUserPoints}
-        onSelectQuest={(event: any) => setselectedQuestId(event?.id ?? null)}
+        onSelectQuest={(event: any) => setSelectedQuestId(event?.id ?? null)}
         activeOverlay={activeOverlay}
         setActiveOverlay={setActiveOverlay}
       />
@@ -321,7 +410,7 @@ function UserFeed() {
         open={activeOverlay === "leaderboard"}
         close={() => setActiveOverlay(null)}
       />
-      <TouchableOpacity style={styles.refreshButton} onPress={fetchAll}>
+      <TouchableOpacity style={styles.refreshButton} onPress={fetchInitial}>
         <Text style={styles.refreshText}>{loading ? "…" : "↻"}</Text>
       </TouchableOpacity>
       {overlay}

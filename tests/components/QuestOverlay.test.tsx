@@ -45,13 +45,14 @@ describe("QuestOverlay", () => {
   const close = jest.fn();
   const onPointsChanged = jest.fn();
   const onSelectQuest = jest.fn();
+  const selectedQuest = mockQuests[0];
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("renders quests and triggers onSelectQuest effect", () => {
-    const { getByText } = render(
+  it("calls onSelectQuest after scroll snap", async () => {
+    const { getByTestId } = render(
       <QuestOverlay
         open={true}
         close={close}
@@ -59,11 +60,27 @@ describe("QuestOverlay", () => {
         setQuests={setQuests}
         onPointsChanged={onPointsChanged}
         onSelectQuest={onSelectQuest}
+        selectedQuest={mockQuests[0]}
       />,
     );
 
-    expect(getByText("Bob")).toBeTruthy();
-    expect(onSelectQuest).toHaveBeenCalled();
+    const scroll = getByTestId("quest-scroll");
+
+    fireEvent.scroll(scroll, {
+      nativeEvent: {
+        contentOffset: { x: 500 },
+      },
+    });
+
+    fireEvent(scroll, "momentumScrollEnd", {
+      nativeEvent: {
+        contentOffset: { x: 500 },
+      },
+    });
+
+    await waitFor(() => {
+      expect(onSelectQuest).toHaveBeenCalled();
+    });
   });
 
   it("calls joinQuest successfully", async () => {
@@ -77,6 +94,7 @@ describe("QuestOverlay", () => {
         setQuests={setQuests}
         onPointsChanged={onPointsChanged}
         onSelectQuest={onSelectQuest}
+        selectedQuest={selectedQuest}
       />,
     );
 
@@ -102,6 +120,7 @@ describe("QuestOverlay", () => {
         setQuests={setQuests}
         onPointsChanged={onPointsChanged}
         onSelectQuest={onSelectQuest}
+        selectedQuest={selectedQuest}
       />,
     );
 
@@ -127,6 +146,7 @@ describe("QuestOverlay", () => {
         setQuests={setQuests}
         onPointsChanged={onPointsChanged}
         onSelectQuest={onSelectQuest}
+        selectedQuest={selectedQuest}
       />,
     );
 
@@ -152,6 +172,7 @@ describe("QuestOverlay", () => {
         setQuests={setQuests}
         onPointsChanged={onPointsChanged}
         onSelectQuest={onSelectQuest}
+        selectedQuest={selectedQuest}
       />,
     );
 
@@ -173,6 +194,7 @@ describe("QuestOverlay", () => {
         setQuests={setQuests}
         onPointsChanged={onPointsChanged}
         onSelectQuest={onSelectQuest}
+        selectedQuest={selectedQuest}
       />,
     );
 

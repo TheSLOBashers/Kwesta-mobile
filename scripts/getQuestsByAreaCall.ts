@@ -1,18 +1,25 @@
 import backend from "@/constants/backend";
 
-const getQuestsByAreaCall = async (token: string | null, lat: number, lng: number, radius: number) => {
+const getQuestsByAreaCall = async (
+  token: string | null,
+  lat: number,
+  lng: number,
+  radius: number,
+  since?: string | null,
+) => {
   try {
-    const response = await fetch(
-      `${backend}quests/area?lat=${lat}&lng=${lng}&radius=${radius}`,
-      {
-        method: "GET", // Specify the method
-        headers: {
-          "Content-Type": "application/json", // Indicate the content type
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
-    
+    const url = since
+      ? `${backend}quests/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${since}`
+      : `${backend}quests/area?lat=${lat}&lng=${lng}&radius=${radius}`;
+
+    const response = await fetch(url, {
+      method: "GET", // Specify the method
+      headers: {
+        "Content-Type": "application/json", // Indicate the content type
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     if (!response.ok) {
       throw new Error("Failed to fetch quests");
     }
@@ -22,16 +29,17 @@ const getQuestsByAreaCall = async (token: string | null, lat: number, lng: numbe
     const questsArray = data.quests || [];
 
     return questsArray.map((q: any) => ({
-        id: q._id,
-        authorId: q.authorId,
-        authorName: q.authorName,
-        date: q.date,
-        description: q.description,
-        location: q.location,
-        flag: q.flag,
-        points: q.points,
-        time: q.time,
-        joined: q.joined || false
+      id: q._id,
+      authorId: q.authorId,
+      authorName: q.authorName,
+      date: q.date,
+      description: q.description,
+      location: q.location,
+      flag: q.flag,
+      points: q.points,
+      time: q.time,
+      joined: q.joined || false,
+      createdAt: q.createdAt,
     }));
   } catch (err) {
     console.error("Error fetching quests:", err);
