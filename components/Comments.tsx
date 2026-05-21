@@ -1,4 +1,3 @@
-
 import React from "react";
 
 import OpenButton from "./OpenButton";
@@ -14,10 +13,16 @@ interface Props {
   setActiveOverlay: (v: any) => void;
 }
 
-function Comments({ comments, setComments, onPointsChanged, onSelectComment, activeOverlay, setActiveOverlay }: Props) {
-
+function Comments({
+  comments,
+  setComments,
+  onPointsChanged,
+  onSelectComment,
+  activeOverlay,
+  setActiveOverlay,
+}: Props) {
   const isOpen = activeOverlay === "comments";
-  
+
   return (
     <>
       <OpenButton
@@ -32,7 +37,10 @@ function Comments({ comments, setComments, onPointsChanged, onSelectComment, act
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    top: 0, left: 0, right: 0, bottom: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     width: 0,
     zIndex: 1000,
   },

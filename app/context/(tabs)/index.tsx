@@ -39,8 +39,8 @@ function UserFeed() {
   const [clickedLocation, setclickedLocation] = useState({ lat: 0, lng: 0 });
   const [showClickMarkers, setShowClickMarkers] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
-  const [selectedQuestId, setselectedQuestId] = useState(null);
-  const [selectedEventId, setsselectedEventId] = useState(null);
+  const [selectedQuestId, setSelectedQuestId] = useState(null);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [activeOverlay, setActiveOverlay] = useState<
     "comments" | "events" | "quests" | "leaderboard" | null
   >(null);
@@ -226,6 +226,7 @@ function UserFeed() {
         setComments={setComments}
         onPointsChanged={refreshUserPoints}
         onSelectComment={(c) => setSelectedCommentId(c?.id ?? null)}
+        selectedComment={selectedComment}
         open={true}
         close={() => setActiveOverlay(null)}
       />
@@ -238,7 +239,8 @@ function UserFeed() {
         events={events}
         setEvents={setEvents}
         onPointsChanged={refreshUserPoints}
-        onSelectEvent={(e) => setsselectedEventId(e?.id ?? null)}
+        onSelectEvent={(e) => setSelectedEventId(e?.id ?? null)}
+        selectedEvent={selectedEvent}
         open={true}
         close={() => setActiveOverlay(null)}
       />
@@ -251,7 +253,8 @@ function UserFeed() {
         quests={quests}
         setQuests={setQuests}
         onPointsChanged={refreshUserPoints}
-        onSelectQuest={(q) => setselectedQuestId(q?.id ?? null)}
+        onSelectQuest={(q) => setSelectedQuestId(q?.id ?? null)}
+        selectedQuest={selectedQuest}
         open={true}
         close={() => setActiveOverlay(null)}
       />
@@ -262,11 +265,15 @@ function UserFeed() {
     <View style={styles.container}>
       <MapSection
         comments={comments}
-        selectedComment={selectedComment}
+        selectedCommentId={selectedCommentId}
         quests={quests}
-        selectedQuest={selectedQuest}
+        selectedQuestId={selectedQuestId}
         events={events}
-        selectedEvent={selectedEvent}
+        selectedEventId={selectedEventId}
+        setSelectedCommentId={setSelectedCommentId}
+        setSelectedEventId={setSelectedEventId}
+        setSelectedQuestId={setSelectedQuestId}
+        setActiveOverlay={setActiveOverlay}
         setclickedLocation={setclickedLocation}
         showClickMarkers={showClickMarkers}
         clickedLocation={clickedLocation}
@@ -286,7 +293,7 @@ function UserFeed() {
         events={events}
         setEvents={setEvents}
         onPointsChanged={refreshUserPoints}
-        onSelectEvent={(event: any) => setsselectedEventId(event?.id ?? null)}
+        onSelectEvent={(event: any) => setSelectedEventId(event?.id ?? null)}
         activeOverlay={activeOverlay}
         setActiveOverlay={setActiveOverlay}
       />
@@ -294,7 +301,7 @@ function UserFeed() {
         quests={quests}
         setQuests={setQuests}
         onPointsChanged={refreshUserPoints}
-        onSelectQuest={(event: any) => setselectedQuestId(event?.id ?? null)}
+        onSelectQuest={(event: any) => setSelectedQuestId(event?.id ?? null)}
         activeOverlay={activeOverlay}
         setActiveOverlay={setActiveOverlay}
       />
