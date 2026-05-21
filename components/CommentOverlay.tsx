@@ -24,6 +24,7 @@ interface Props {
   setComments: (comments: any) => void;
   onPointsChanged: () => void;
   onSelectComment: (comment: any) => void;
+  selectedComment: any;
 }
 
 const styles = overlayStyle.styles;
@@ -52,6 +53,7 @@ export default function CommentOverlay({
   setComments,
   onPointsChanged,
   onSelectComment,
+  selectedComment,
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
@@ -62,9 +64,17 @@ export default function CommentOverlay({
   const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
-    if (!onSelectComment) return;
-    onSelectComment(comments[active] ?? null);
-  }, [active, comments]);
+    if (!selectedComment || !scrollRef.current) return;
+
+    const index = comments.findIndex((c: any) => c.id === selectedComment.id);
+
+    if (index !== -1 && index !== active) {
+      scrollRef.current.scrollTo({
+        x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
+        animated: true,
+      });
+    }
+  }, [selectedComment]);
 
   function handleLike(commentId: any) {
     likeComment(commentId, token)
@@ -136,10 +146,12 @@ export default function CommentOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onScroll={(e) => {
+              onMomentumScrollEnd={(e) => {
                 const x = e.nativeEvent.contentOffset.x;
                 const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
                 setActive(index);
+                onSelectComment(comments[index]);
               }}
               scrollEventThrottle={16}
             >

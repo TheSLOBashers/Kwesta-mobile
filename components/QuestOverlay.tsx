@@ -3,14 +3,14 @@ import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Appearance,
-    Dimensions,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Appearance,
+  Dimensions,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
@@ -21,6 +21,7 @@ interface Props {
   setQuests: (comments: any) => void;
   onPointsChanged: () => void;
   onSelectQuest: (comment: any) => void;
+  selectedQuest: any;
 }
 
 const styles = overlayStyle.styles;
@@ -49,6 +50,7 @@ export default function QuestOverlay({
   setQuests,
   onPointsChanged,
   onSelectQuest,
+  selectedQuest,
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
@@ -56,9 +58,17 @@ export default function QuestOverlay({
   const { token } = useAuth();
 
   useEffect(() => {
-    if (!onSelectQuest) return;
-    onSelectQuest(quests[active] ?? null);
-  }, [active, quests]);
+    if (!selectedQuest || !scrollRef.current) return;
+
+    const index = quests.findIndex((q: any) => q.id === selectedQuest.id);
+
+    if (index !== -1 && index !== active) {
+      scrollRef.current.scrollTo({
+        x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
+        animated: true,
+      });
+    }
+  }, [selectedQuest]);
 
   function handleJoin(eventId: any) {
     joinQuest(eventId, token)
@@ -110,11 +120,12 @@ export default function QuestOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onScroll={(e) => {
+              onMomentumScrollEnd={(e) => {
                 const x = e.nativeEvent.contentOffset.x;
-
                 const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
                 setActive(index);
+                onSelectQuest(quests[index]);
               }}
               scrollEventThrottle={16}
             >
