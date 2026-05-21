@@ -1,19 +1,24 @@
+
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
+import backend from "@/constants/backend";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import buyBadgeCall from "@/scripts/buyBadgeCall";
+import getBadgesCall from "@/scripts/getBadges";
 import redeemPointsCall from "@/scripts/redeemPointsCall";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
+  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from "react-native";
+
 
 type GiftCard = {
   id: string;
@@ -21,11 +26,13 @@ type GiftCard = {
   amountCents: number; // cents
 };
 
+
 type BadgeItem = {
   id: string;
   name: string;
   cost: number;
 };
+
 
 const AVAILABLE_GIFTCARDS: GiftCard[] = [
   { id: "mcdo-10", name: "McDonald's $10", amountCents: 1000 },
@@ -34,11 +41,13 @@ const AVAILABLE_GIFTCARDS: GiftCard[] = [
   { id: "chipotle-15", name: "Chipotle $15", amountCents: 1500 },
 ];
 
+
 const AVAILABLE_BADGES: BadgeItem[] = [
   { id: "founding_member", name: "Founding Member", cost: 3 },
   { id: "kwester", name: "Kwester", cost: 4 },
   { id: "basher", name: "Basher", cost: 5 },
 ];
+
 
 export default function Shop() {
   const { token } = useAuth();
@@ -47,9 +56,23 @@ export default function Shop() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
+  const [badges, setBadges] = useState<any>(null); // Placeholder for badges, can be set with getBadgesCall if needed
+
+
+  useEffect(() => {
+    // Preload any assets or data for the shop here if needed
+    const preloadShopData = async () => {
+      // Example: await fetchShopItems();
+      await getBadgesCall().then((badges) => setBadges(badges)).catch((err) => console.error("Failed to fetch badges:", err)); // Preload badges if necessary
+      console.log("Shop data preloaded");
+    }
+    preloadShopData();
+  }, []);
+
 
   const handlePurchase = async (item: GiftCard) => {
     const costPoints = Math.round(item.amountCents); // 1 point = 1 cent
+
 
     if ((points ?? 0) < costPoints) {
       Alert.alert(
@@ -58,6 +81,7 @@ export default function Shop() {
       );
       return;
     }
+
 
     Alert.alert(
       "Confirm Purchase",
@@ -86,6 +110,7 @@ export default function Shop() {
     );
   };
 
+
   const handleBadgePurchase = async (item: BadgeItem) => {
     if ((points ?? 0) < item.cost) {
       Alert.alert(
@@ -94,6 +119,7 @@ export default function Shop() {
       );
       return;
     }
+
 
     Alert.alert(
       "Confirm Purchase",
@@ -119,6 +145,7 @@ export default function Shop() {
     );
   };
 
+
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <View style={styles.header}>
@@ -128,9 +155,11 @@ export default function Shop() {
         </Pressable>
       </View>
 
+
       <Text style={[styles.balance, { color: colors.text }]}>
         Your points: {points ?? 0}
       </Text>
+
 
       <FlatList
         data={AVAILABLE_GIFTCARDS}
@@ -148,7 +177,7 @@ export default function Shop() {
             ]}
           >
             <View style={styles.cardRow}>
-              <Text style={[styles.name, {color: colors.text}]}>{item.name}</Text>
+              <Text style={[styles.name, { color: colors.text }]}>{item.name}</Text>
               <Text
                 style={styles.price}
               >{`$${(item.amountCents / 100).toFixed(2)}`}</Text>
@@ -171,12 +200,14 @@ export default function Shop() {
         )}
       />
 
+
       {/* Badge Shop Code */}
       <Text style={[styles.title, { color: colors.text }]}>Badge Shop</Text>
 
+
       <FlatList
-        data={AVAILABLE_BADGES}
-        keyExtractor={(i) => i.id}
+        data={badges}
+        keyExtractor={(i) => i._id}
         contentContainerStyle={styles.list}
         renderItem={({ item }) => (
           <View
@@ -193,10 +224,17 @@ export default function Shop() {
               <Text style={[styles.name, { color: colors.text }]}>
                 {item.name}
               </Text>
-              <Text style={[styles.price, { color: colors.text }]}>
-                {item.cost} pts
-              </Text>
+              <View style={{ flexDirection: "column", alignItems: "center", gap: 8 }}>
+                <Text style={[styles.price, { color: colors.text }]}>
+                  {item.cost} pts
+                </Text>
+                <Image
+                  source={{ uri: `${backend}badges/${item.name}` }}
+                  style={{ width: 50, height: 50, borderRadius: 8 }}
+                />
+              </View>
             </View>
+
 
             <Pressable
               onPress={() => handleBadgePurchase(item)}
@@ -218,6 +256,7 @@ export default function Shop() {
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   screen: { flex: 1, padding: 20, paddingTop: 40 },
