@@ -9,7 +9,7 @@ const getQuestsByAreaCall = async (
 ) => {
   try {
     const url = since
-      ? `${backend}quests/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${since}`
+      ? `${backend}quests/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${encodeURIComponent(since)}`
       : `${backend}quests/area?lat=${lat}&lng=${lng}&radius=${radius}`;
 
     const response = await fetch(url, {

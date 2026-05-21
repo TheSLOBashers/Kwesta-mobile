@@ -1,4 +1,3 @@
-import { useFocusEffect } from "expo-router";
 import React, { useEffect, useState } from "react";
 
 import { useAuth } from '@/components/auth-context';
@@ -14,13 +13,30 @@ import updateQuestCall from "@/scripts/updateQuestCall";
 import deleteCommentCall from "@/scripts/deleteCommentCall";
 import deleteEventCall from "@/scripts/deleteEventCall";
 import deleteQuestCall from "@/scripts/deleteQuestCall";
-import getMyPostsCall from "@/scripts/getMyPostsCall";
+
+import { useCommentStore } from "@/stores/commentStore";
+import { useEventStore } from "@/stores/eventStore";
+import { useQuestStore } from "@/stores/questStore";
 
 function MyPosts() {
     const { user, username, token, loading: authLoading, moderator } = useAuth();
     const [loading, setLoading] = useState(true);
 
-    const [myPosts, setMyPosts] = useState<any[]>([]);
+    const comments = useCommentStore((s) => s.comments);
+    const events = useEventStore((s) => s.events);
+    const quests = useQuestStore((s) => s.quests);
+    const myPosts = [
+        ...comments.map(c => ({ ...c, type: "comment" })),
+        ...events.map(e => ({ ...e, type: "event" })),
+        ...quests.map(q => ({ ...q, type: "quest" })),
+    ];
+
+    const updateComment = useCommentStore((s) => s.updateComment);
+    const updateEvent = useEventStore((s) => s.updateEvent);
+    const updateQuest = useQuestStore((s) => s.updateQuest);
+    const deleteComment = useCommentStore((s) => s.deleteComment);
+    const deleteEvent = useEventStore((s) => s.deleteEvent);
+    const deleteQuest = useQuestStore((s) => s.deleteQuest);
 
     const [editingPost, setEditingPost] = useState<any>(null);
 
@@ -28,32 +44,38 @@ function MyPosts() {
 
     const isMod = (moderator==="True")
 
-    const fetchAll = async () => {
-        setLoading(true);
+    // const fetchAll = async () => {
+    //     setLoading(true);
 
-        try {
-            const data = await getMyPostsCall(token);
+    //     try {
+    //         const data = await getMyPostsCall(token);
 
-            setMyPosts(data);
-        } catch (e) {
-            console.log("ERROR:", e);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         setMyPosts(data);
+    //     } catch (e) {
+    //         console.log("ERROR:", e);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     if (authLoading) return;
+    //     if (!token) return;
+
+    //     fetchAll();
+    // }, [user, token, authLoading]);
+
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         fetchAll();
+    //     }, [])
+    // );
 
     useEffect(() => {
-        if (authLoading) return;
-        if (!token) return;
-
-        fetchAll();
-    }, [user, token, authLoading]);
-
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchAll();
-        }, [])
-    );
+        if (comments || events || quests) {
+            setLoading(false);
+        }
+    }, [comments, events, quests]);
 
     async function handleEditSubmit(data: any) {
         if (!editingPost) return;
@@ -62,24 +84,18 @@ function MyPosts() {
 
         if (editingPost.type === "comment") {
             updated = await updateCommentCall(editingPost.id, data, token);
+            updateComment(editingPost.id, data);
         } 
         else if (editingPost.type === "event") {
             updated = await updateEventCall(editingPost.id, data, token);
+            updateEvent(editingPost.id, data);
         } 
         else if (editingPost.type === "quest") {
             updated = await updateQuestCall(editingPost.id, data, token);
+            updateQuest(editingPost.id, data);
         }
 
         if (!updated) return;
-
-        setMyPosts((prev) =>
-            prev.map((p) =>
-                p.id === editingPost.id
-                    ? { ...p, ...updated }
-                    : p
-            )
-        );
-
         setEditingPost(null);
     }
 
@@ -101,15 +117,14 @@ function MyPosts() {
                     try {
                         if (item.type === "comment") {
                             await deleteCommentCall(item.id, token);
+                            deleteComment(item.id);
                         } else if (item.type === "event") {
                             await deleteEventCall(item.id, token);
+                            deleteEvent(item.id);
                         } else if (item.type === "quest") {
                             await deleteQuestCall(item.id, token);
+                            deleteQuest(item.id);
                         }
-
-                        setMyPosts(prev =>
-                            prev.filter(p => p.id !== item.id)
-                        );
                     } catch (e) {
                         console.log("Delete failed:", e);
                     }
@@ -121,7 +136,14 @@ function MyPosts() {
 
     const filteredPosts = myPosts.filter(p => p.type === activeTab);
 
-    if (myPosts.length === 0) {
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <Text>Loading session...</Text>
+            </View>
+        );
+    }
+    if (!comments.length && !events.length && !quests.length) {
         return (
             <View style={styles.empty}>
                 <Text style={styles.emptyTitle}>

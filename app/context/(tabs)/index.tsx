@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import AddButtonOverlay from "@/components/AddButtonOverlay";
 import CommentOverlay from "@/components/CommentOverlay";
@@ -27,37 +27,37 @@ import {
   View,
 } from "react-native";
 
+import { useCommentStore } from "@/stores/commentStore";
+import { useEventStore } from "@/stores/eventStore";
+import { useQuestStore } from "@/stores/questStore";
+
 function UserFeed() {
   type MapItem = {
     id: string;
     createdAt: string;
   };
-  type CommentItem = MapItem & {
-    authorId: string;
-    authorName: string;
-    comment: string;
-    location: { lat: number; lng: number };
-    likes: number;
-    likedByUser: boolean;
-    flaggedByUser: boolean;
-  };
-  type EventItem = MapItem & {
-    description: string;
-    location: any;
-    joined: boolean;
-  };
-  type QuestItem = MapItem & {
-    description: string;
-    points: number;
-    location: any;
-    joined: boolean;
-  };
 
   const { user, username, token } = useAuth();
   const { refreshUserPoints, points } = usePoints();
-  const [comments, setComments] = useState<CommentItem[]>([]);
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [quests, setQuests] = useState<QuestItem[]>([]);
+
+  const comments = useCommentStore((s) => s.comments);
+  const setComments = useCommentStore((s) => s.setComments);
+  const addComment = useCommentStore((s) => s.addComment);
+  const mergeComments = useCommentStore((s) => s.mergeComments);
+  const updateComment = useCommentStore((s) => s.updateComment);
+
+  const events = useEventStore((s) => s.events);
+  const setEvents = useEventStore((s) => s.setEvents);
+  const addEvent = useEventStore((s) => s.addEvent);
+  const mergeEvents = useEventStore((s) => s.mergeEvents);
+  const updateEvent = useEventStore((s) => s.updateEvent);
+  
+  const quests = useQuestStore((s) => s.quests);
+  const setQuests = useQuestStore((s) => s.setQuests);
+  const addQuest = useQuestStore((s) => s.addQuest);
+  const mergeQuests = useQuestStore((s) => s.mergeQuests);
+  const updateQuest = useQuestStore((s) => s.updateQuest);
+
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<any>(null);
   const [locationAllowed, setLocationAllowed] = useState(false);
@@ -70,6 +70,17 @@ function UserFeed() {
     "comments" | "events" | "quests" | "leaderboard" | null
   >(null);
   const [lastSync, setLastSync] = useState<string | null>(null);
+
+  const tokenRef = useRef(token);
+  const lastSyncRef = useRef(lastSync);
+
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
+
+  useEffect(() => {
+    lastSyncRef.current = lastSync;
+  }, [lastSync]);
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
@@ -97,9 +108,62 @@ function UserFeed() {
       getQuestsByAreaCall(token, location.latitude, location.longitude, 10),
     ]);
 
-    setComments(commentData);
-    setEvents(eventData);
-    setQuests(questData);
+    setComments(
+      commentData.map((c: any) => ({
+        id: c.id,
+        createdAt: c.createdAt ?? c.date,
+        authorId: c.author,
+        authorName: c.authorName ?? "Unknown",
+
+        comment: c.comment,
+
+        location: c.location,
+
+        likes: c.likes ?? 0,
+        likedByUser: c.likedByUser ?? false,
+        flaggedByUser: c.flaggedByUser ?? false,
+
+        date: c.date,
+      }))
+    );
+    setEvents(
+      eventData.map((e: any) => ({
+        id: e.id,
+        createdAt: e.createdAt ?? e.date,
+
+        description: e.description,
+        location: e.location,
+
+        joined: e.joined ?? false,
+
+        authorId: e.author,
+        authorName: e.authorName ?? "Unknown",
+
+        date: e.date,
+        time: e.time,
+        image: e.image,
+        flag: e.flag,
+      }))
+    );
+    setQuests(
+      questData.map((q: any) => ({
+        id: q.id,
+        createdAt: q.createdAt ?? q.date,
+
+        description: q.description,
+        location: q.location,
+
+        joined: q.joined ?? false,
+
+        authorId: q.author,
+        authorName: q.authorName ?? "Unknown",
+
+        date: q.date,
+        time: q.time,
+        image: q.image,
+        flag: q.flag,
+      }))
+    );
 
     const all = [...commentData, ...eventData, ...questData];
 
@@ -116,44 +180,37 @@ function UserFeed() {
   };
 
   useEffect(() => {
-    if (!location || !lastSync) return;
+    if (!location) return;
 
     const interval = setInterval(async () => {
+      const since = lastSyncRef.current;
       const [commentData, eventData, questData] = await Promise.all([
         getCommentsByAreaCall(
-          token,
+          tokenRef.current,
           location.latitude,
           location.longitude,
           1,
-          lastSync,
+          since,
         ),
         getEventsByAreaCall(
-          token,
+          tokenRef.current,
           location.latitude,
           location.longitude,
           10,
-          lastSync,
+          since,
         ),
         getQuestsByAreaCall(
-          token,
+          tokenRef.current,
           location.latitude,
           location.longitude,
           10,
-          lastSync,
+          since,
         ),
       ]);
 
-      if (commentData.length) {
-        setComments((prev) => [...prev, ...commentData]);
-      }
-
-      if (eventData.length) {
-        setEvents((prev) => [...prev, ...eventData]);
-      }
-
-      if (questData.length) {
-        setQuests((prev) => [...prev, ...questData]);
-      }
+      mergeComments(commentData);
+      mergeEvents(eventData);
+      mergeQuests(questData);
 
       const allNew = [...commentData, ...eventData, ...questData];
 
@@ -194,19 +251,23 @@ function UserFeed() {
       return;
     }
 
-    const commentWithUsername = {
-      comment: newComment.comment,
+    addComment({
       id: newComment._id,
+      createdAt: newComment.createdAt ?? newComment.date,
+
       authorId: newComment.author,
-      authorName: username,
+      authorName: username ?? "Unknown",
+
+      comment: newComment.comment,
+
       likes: newComment.likes || 0,
       likedByUser: newComment.likedByUser ?? false,
       flaggedByUser: newComment.flaggedByUser ?? false,
-      location: newComment.location || { lat: 0, lng: 0 },
-      date: newComment.date,
-    };
 
-    setComments((prev: any) => [commentWithUsername, ...prev]);
+      location: newComment.location || { lat: 0, lng: 0 },
+
+      date: newComment.date,
+    });
   };
 
   const handleAddEvent = async (data: any) => {
@@ -215,21 +276,19 @@ function UserFeed() {
       return;
     }
 
-    setEvents((prev: any) => [
-      {
-        id: newEvent._id,
-        authorId: newEvent.author,
-        authorName: username,
-        date: newEvent.date,
-        time: newEvent.time,
-        description: newEvent.description,
-        location: newEvent.location,
-        joined: false,
-        image: newEvent.image,
-        flag: newEvent.flag,
-      },
-      ...prev,
-    ]);
+    addEvent({
+      id: newEvent._id,
+      authorId: newEvent.author,
+      authorName: username ?? "Unknown",
+      date: newEvent.date,
+      time: newEvent.time,
+      description: newEvent.description,
+      location: newEvent.location,
+      joined: false,
+      image: newEvent.image,
+      flag: newEvent.flag,
+      createdAt: newEvent.createdAt ?? new Date().toISOString(),
+    });
   };
 
   const handleAddQuest = async (data: any) => {
@@ -245,21 +304,24 @@ function UserFeed() {
       return;
     }
 
-    setQuests((prev: any) => [
-      {
-        id: newQuest._id,
-        authorId: newQuest.author,
-        authorName: username,
-        date: newQuest.date,
-        time: newQuest.time,
-        description: newQuest.description,
-        location: newQuest.location,
-        joined: false,
-        image: newQuest.image,
-        flag: newQuest.flag,
-      },
-      ...prev,
-    ]);
+    addQuest({
+      id: newQuest._id,
+      createdAt: newQuest.createdAt ?? newQuest.date,
+
+      authorId: newQuest.author,
+      authorName: username ?? "Unknown",
+
+      date: newQuest.date,
+      time: newQuest.time,
+
+      description: newQuest.description,
+      location: newQuest.location,
+
+      joined: false,
+
+      image: newQuest.image,
+      flag: newQuest.flag,
+    });
   };
 
   if (loading)

@@ -9,7 +9,7 @@ const getCommentsByAreaCall = async (
 ) => {
   try {
     const url = since
-      ? `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${since}`
+      ? `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${encodeURIComponent(since)}`
       : `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}`;
 
     const response = await fetch(url, {

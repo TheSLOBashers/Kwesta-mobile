@@ -9,7 +9,7 @@ const getEventsByAreaCall = async (
 ) => {
   try {
     const url = since
-      ? `${backend}events/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${since}`
+      ? `${backend}events/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${encodeURIComponent(since)}`
       : `${backend}events/area?lat=${lat}&lng=${lng}&radius=${radius}`;
 
     const response = await fetch(url, {
