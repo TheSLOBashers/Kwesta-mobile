@@ -15,7 +15,6 @@ import { usePoints } from "@/components/points-context";
 import addCommentCall from "@/scripts/addCommentCall";
 import addEventCall from "@/scripts/addEventCall";
 import addQuestCall from "@/scripts/addQuestCall";
-import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
 import getEventsByAreaCall from "@/scripts/getEventsByAreaCall";
 import getQuestsByAreaCall from "@/scripts/getQuestsByAreaCall";
 import * as Location from "expo-location";
@@ -30,6 +29,10 @@ import {
 import { useCommentStore } from "@/stores/commentStore";
 import { useEventStore } from "@/stores/eventStore";
 import { useQuestStore } from "@/stores/questStore";
+
+import getCommentsByAreaSnapshot from "@/scripts/getCommentsByAreaSnapshot";
+import getCommentsByAreaUpdates from "@/scripts/getCommentsByAreaUpdates";
+import { CommentItem } from "@/types/comment";
 
 function UserFeed() {
   type MapItem = {
@@ -74,6 +77,9 @@ function UserFeed() {
   const tokenRef = useRef(token);
   const lastSyncRef = useRef(lastSync);
 
+  const [commentLastSync, setCommentLastSync] = useState<string | null>(null);
+  const commentLastSyncRef = useRef(commentLastSync);
+
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
@@ -81,6 +87,9 @@ function UserFeed() {
   useEffect(() => {
     lastSyncRef.current = lastSync;
   }, [lastSync]);
+  useEffect(() => {
+    commentLastSyncRef.current = commentLastSync;
+  }, [commentLastSync]);
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
@@ -102,30 +111,11 @@ function UserFeed() {
 
     setLoading(true);
 
-    const [commentData, eventData, questData] = await Promise.all([
-      getCommentsByAreaCall(token, location.latitude, location.longitude, 1),
+    const [eventData, questData] = await Promise.all([
       getEventsByAreaCall(token, location.latitude, location.longitude, 10),
       getQuestsByAreaCall(token, location.latitude, location.longitude, 10),
     ]);
 
-    setComments(
-      commentData.map((c: any) => ({
-        id: c.id,
-        createdAt: c.createdAt ?? c.date,
-        authorId: c.author,
-        authorName: c.authorName ?? "Unknown",
-
-        comment: c.comment,
-
-        location: c.location,
-
-        likes: c.likes ?? 0,
-        likedByUser: c.likedByUser ?? false,
-        flaggedByUser: c.flaggedByUser ?? false,
-
-        date: c.date,
-      }))
-    );
     setEvents(
       eventData.map((e: any) => ({
         id: e.id,
@@ -165,7 +155,7 @@ function UserFeed() {
       }))
     );
 
-    const all = [...commentData, ...eventData, ...questData];
+    const all = [...eventData, ...questData];
 
     if (all.length > 0) {
       const newest = all.sort(
@@ -179,19 +169,76 @@ function UserFeed() {
     setLoading(false);
   };
 
+  const fetchCommentSnapshot = async () => {
+    if (!location) return;
+
+    const commentData = await getCommentsByAreaSnapshot(
+      token,
+      location.latitude,
+      location.longitude,
+      0.5
+    );
+
+    setComments(
+      commentData.map((c: any) => ({
+        id: c.id,
+        createdAt: c.createdAt ?? c.date,
+        authorId: c.author,
+        authorName: c.authorName ?? "Unknown",
+
+        comment: c.comment,
+
+        location: c.location,
+
+        likes: c.likes ?? 0,
+        likedByUser: c.likedByUser ?? false,
+        flaggedByUser: c.flaggedByUser ?? false,
+
+        date: c.date,
+      }))
+    );
+
+    // initialize lastSync for comments only
+    if (commentData.length > 0) {
+      const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
+        new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+      );
+
+      setCommentLastSync(newest.createdAt);
+    }
+  };
+  
+  const fetchCommentUpdates = async () => {
+    if (!location) return;
+
+    const since = commentLastSyncRef.current;
+
+    const commentData = await getCommentsByAreaUpdates(
+      tokenRef.current,
+      location.latitude,
+      location.longitude,
+      0.5,
+      since
+    );
+
+    mergeComments(commentData);
+
+    if (commentData.length > 0) {
+      const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
+        new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+      );
+
+      setCommentLastSync(newest.createdAt);
+    }
+  };
+
+  //quest and event interval
   useEffect(() => {
     if (!location) return;
 
     const interval = setInterval(async () => {
       const since = lastSyncRef.current;
-      const [commentData, eventData, questData] = await Promise.all([
-        getCommentsByAreaCall(
-          tokenRef.current,
-          location.latitude,
-          location.longitude,
-          1,
-          since,
-        ),
+      const [eventData, questData] = await Promise.all([
         getEventsByAreaCall(
           tokenRef.current,
           location.latitude,
@@ -208,17 +255,15 @@ function UserFeed() {
         ),
       ]);
 
-      mergeComments(commentData);
       mergeEvents(eventData);
       mergeQuests(questData);
 
-      const allNew = [...commentData, ...eventData, ...questData];
+      const allNew = [...eventData, ...questData];
 
       if (allNew.length > 0) {
-        const newest = allNew.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        )[allNew.length - 1];
+        const newest = allNew.reduce((max, c) =>
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+      );
 
         setLastSync(newest.createdAt);
       }
@@ -227,8 +272,25 @@ function UserFeed() {
     return () => clearInterval(interval);
   }, [location]);
 
+  //comment interval
+  useEffect(() => {
+    if (!location) return;
+
+    const interval = setInterval(() => {
+      fetchCommentUpdates();
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [location]);
+
+
   useEffect(() => {
     fetchInitial();
+  }, [location]);
+
+  useEffect(() => {
+    if (!location) return;
+    fetchCommentSnapshot();
   }, [location]);
 
   useEffect(() => {
