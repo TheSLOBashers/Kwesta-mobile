@@ -24,6 +24,9 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
+    //newer NotificationBehavior includes banner/list flags
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -48,6 +51,7 @@ function NotificationTracker() {
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | null = null;
     let intervalId: ReturnType<typeof setInterval> | null = null;
+    let cancelled = false;
 
     const resetState = () => {
       locationRef.current = null;
@@ -59,7 +63,20 @@ function NotificationTracker() {
       notificationsEnabledRef.current = false;
     };
 
+    const configureAndroidChannel = async () => {
+      if (Platform.OS !== "android") {
+        return;
+      }
+
+      await Notifications.setNotificationChannelAsync(NOTIFICATION_CHANNEL_ID, {
+        name: "Kwesta alerts",
+        importance: Notifications.AndroidImportance.HIGH,
+      });
+    };
+
     const ensureNotificationPermission = async () => {
+      await configureAndroidChannel();
+
       if (Platform.OS === "web") {
         notificationsEnabledRef.current = false;
         return;
@@ -73,16 +90,6 @@ function NotificationTracker() {
 
       const requested = await Notifications.requestPermissionsAsync();
       notificationsEnabledRef.current = requested.status === "granted";
-
-      if (Platform.OS === "android") {
-        await Notifications.setNotificationChannelAsync(
-          NOTIFICATION_CHANNEL_ID,
-          {
-            name: "Kwesta alerts",
-            importance: Notifications.AndroidImportance.HIGH,
-          },
-        );
-      }
     };
 
     const notify = async (title: string, body: string) => {
@@ -140,17 +147,19 @@ function NotificationTracker() {
         const currentNearbyComments = toKeySet(nearbyComments);
         const currentNearbyQuests = toKeySet(nearbyQuests);
         const currentFollowedEvents = new Set<string>(
-          allEvents
-            .filter((event) => {
-              const authorId = String(event.authorId ?? "");
-              return (
-                authorId.length > 0 &&
-                authorId !== currentUserId &&
-                followingIds.has(authorId)
-              );
-            })
-            .map((event) => String(event.id ?? ""))
-            .filter((id) => id.length > 0),
+          (allEvents as { id?: string | number; authorId?: string | number }[])
+            .filter(
+              (event: { id?: string | number; authorId?: string | number }) => {
+                const authorId = String(event.authorId ?? "");
+                return (
+                  authorId.length > 0 &&
+                  authorId !== currentUserId &&
+                  followingIds.has(authorId)
+                );
+              },
+            )
+            .map((event: { id?: string | number }) => String(event.id ?? ""))
+            .filter((id: string) => id.length > 0),
         );
 
         if (!hasPrimedRef.current) {
@@ -219,7 +228,7 @@ function NotificationTracker() {
     };
 
     const startTracking = async () => {
-      if (!token) {
+      if (!token || cancelled) {
         resetState();
         return;
       }
@@ -227,15 +236,21 @@ function NotificationTracker() {
       await ensureNotificationPermission();
 
       const permission = await Location.requestForegroundPermissionsAsync();
-      if (permission.status !== "granted") {
+      if (cancelled || permission.status !== "granted") {
         resetState();
         return;
       }
 
       const initialLocation = await Location.getCurrentPositionAsync({});
+      if (cancelled) {
+        return;
+      }
       locationRef.current = initialLocation.coords;
 
       await refreshNotifications();
+      if (cancelled) {
+        return;
+      }
 
       locationSubscription = await Location.watchPositionAsync(
         {
@@ -257,6 +272,7 @@ function NotificationTracker() {
     void startTracking();
 
     return () => {
+      cancelled = true;
       intervalId && clearInterval(intervalId);
       locationSubscription?.remove();
       resetState();
