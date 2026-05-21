@@ -1,18 +1,25 @@
 import backend from "@/constants/backend";
 
-const getCommentsByAreaCall = async (token: string | null, lat: number, lng: number, radius: number) => {
+const getCommentsByAreaCall = async (
+  token: string | null,
+  lat: number,
+  lng: number,
+  radius: number,
+  since?: string | null,
+) => {
   try {
-    const response = await fetch(
-      `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}`,
-      {
-        method: "GET", // Specify the method
-        headers: {
-          "Content-Type": "application/json", // Indicate the content type
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
-    
+    const url = since
+      ? `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${since}`
+      : `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}`;
+
+    const response = await fetch(url, {
+      method: "GET", // Specify the method
+      headers: {
+        "Content-Type": "application/json", // Indicate the content type
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
     if (!response.ok) {
       throw new Error("Failed to fetch comments");
     }
@@ -31,7 +38,8 @@ const getCommentsByAreaCall = async (token: string | null, lat: number, lng: num
       likes: c.likes || 0,
       flag: c.flag,
       likedByUser: c.likedByUser || false,
-      flaggedByUser: c.flaggedByUser || false
+      flaggedByUser: c.flaggedByUser || false,
+      createdAt: c.createdAt,
     }));
   } catch (err) {
     console.error("Error fetching comments:", err);
