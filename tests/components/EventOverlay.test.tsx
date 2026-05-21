@@ -45,14 +45,13 @@ describe("EventOverlay", () => {
   const close = jest.fn();
   const onPointsChanged = jest.fn();
   const onSelectEvent = jest.fn();
-  const selectedEvent = mockEvents[0];
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("calls onSelectEvent after scroll snap", async () => {
-    const { getByTestId } = render(
+  it("renders events and triggers onSelectEvent effect", () => {
+    const { getByText } = render(
       <EventOverlay
         open={true}
         close={close}
@@ -60,27 +59,11 @@ describe("EventOverlay", () => {
         setEvents={setEvents}
         onPointsChanged={onPointsChanged}
         onSelectEvent={onSelectEvent}
-        selectedEvent={mockEvents[0]}
       />,
     );
 
-    const scroll = getByTestId("event-scroll");
-
-    fireEvent.scroll(scroll, {
-      nativeEvent: {
-        contentOffset: { x: 500 },
-      },
-    });
-
-    fireEvent(scroll, "momentumScrollEnd", {
-      nativeEvent: {
-        contentOffset: { x: 500 },
-      },
-    });
-
-    await waitFor(() => {
-      expect(onSelectEvent).toHaveBeenCalled();
-    });
+    expect(getByText("Bob")).toBeTruthy();
+    expect(onSelectEvent).toHaveBeenCalled();
   });
 
   it("calls joinEvent successfully", async () => {
@@ -94,7 +77,6 @@ describe("EventOverlay", () => {
         setEvents={setEvents}
         onPointsChanged={onPointsChanged}
         onSelectEvent={onSelectEvent}
-        selectedEvent={selectedEvent}
       />,
     );
 
@@ -120,7 +102,6 @@ describe("EventOverlay", () => {
         setEvents={setEvents}
         onPointsChanged={onPointsChanged}
         onSelectEvent={onSelectEvent}
-        selectedEvent={selectedEvent}
       />,
     );
 
@@ -146,7 +127,6 @@ describe("EventOverlay", () => {
         setEvents={setEvents}
         onPointsChanged={onPointsChanged}
         onSelectEvent={onSelectEvent}
-        selectedEvent={selectedEvent}
       />,
     );
 
@@ -172,7 +152,6 @@ describe("EventOverlay", () => {
         setEvents={setEvents}
         onPointsChanged={onPointsChanged}
         onSelectEvent={onSelectEvent}
-        selectedEvent={selectedEvent}
       />,
     );
 
@@ -194,7 +173,6 @@ describe("EventOverlay", () => {
         setEvents={setEvents}
         onPointsChanged={onPointsChanged}
         onSelectEvent={onSelectEvent}
-        selectedEvent={selectedEvent}
       />,
     );
 

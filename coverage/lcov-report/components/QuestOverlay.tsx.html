@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">84.61% </span>
+                <span class="strong">85.71% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>33/39</span>
+                <span class='fraction'>30/35</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">63.63% </span>
+                <span class="strong">55.55% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>14/22</span>
+                <span class='fraction'>10/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">76.47% </span>
+                <span class="strong">75% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>13/17</span>
+                <span class='fraction'>12/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">86.48% </span>
+                <span class="strong">88.23% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>32/37</span>
+                <span class='fraction'>30/34</span>
             </div>
         
             
@@ -250,19 +250,7 @@
 <a name='L185'></a><a href='#L185'>185</a>
 <a name='L186'></a><a href='#L186'>186</a>
 <a name='L187'></a><a href='#L187'>187</a>
-<a name='L188'></a><a href='#L188'>188</a>
-<a name='L189'></a><a href='#L189'>189</a>
-<a name='L190'></a><a href='#L190'>190</a>
-<a name='L191'></a><a href='#L191'>191</a>
-<a name='L192'></a><a href='#L192'>192</a>
-<a name='L193'></a><a href='#L193'>193</a>
-<a name='L194'></a><a href='#L194'>194</a>
-<a name='L195'></a><a href='#L195'>195</a>
-<a name='L196'></a><a href='#L196'>196</a>
-<a name='L197'></a><a href='#L197'>197</a>
-<a name='L198'></a><a href='#L198'>198</a>
-<a name='L199'></a><a href='#L199'>199</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L188'></a><a href='#L188'>188</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -294,7 +282,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -321,16 +308,8 @@
 <span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">7x</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7x</span>
+<span class="cline-any cline-yes">7x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -384,7 +363,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -464,14 +442,14 @@ import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Appearance,
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Appearance,
+    Dimensions,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 &nbsp;
@@ -482,7 +460,6 @@ interface Props {
   setQuests: (comments: any) =&gt; void;
   onPointsChanged: () =&gt; void;
   onSelectQuest: (comment: any) =&gt; void;
-  selectedQuest: any;
 }
 &nbsp;
 const styles = overlayStyle.styles;
@@ -511,7 +488,6 @@ export default function QuestOverlay({
   setQuests,
   onPointsChanged,
   onSelectQuest,
-  selectedQuest,
   open,
 }: Props) {
   const scrollRef = useRef&lt;ScrollView&gt;(null);
@@ -519,17 +495,9 @@ export default function QuestOverlay({
   const { token } = useAuth();
 &nbsp;
   useEffect(() =&gt; {
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (!selectedQuest || !scrollRef.current) <span class="cstat-no" title="statement not covered" >return;</span>
-&nbsp;
-    const index = quests.findIndex((q: any) =&gt; q.id === selectedQuest.id);
-&nbsp;
-    <span class="missing-if-branch" title="if path not taken" >I</span>if (index !== -1 &amp;&amp; index !== active) {
-<span class="cstat-no" title="statement not covered" >      scrollRef.current.scrollTo({</span>
-        x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
-        animated: true,
-      });
-    }
-  }, [selectedQuest]);
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (!onSelectQuest) <span class="cstat-no" title="statement not covered" >return;</span>
+    onSelectQuest(quests[active] ?? <span class="branch-1 cbranch-no" title="branch not covered" >null)</span>;
+  }, [active, quests]);
 &nbsp;
   function handleJoin(eventId: any) {
     joinQuest(eventId, token)
@@ -581,12 +549,11 @@ export default function QuestOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onMomentumScrollEnd={(e) =&gt; {
+              onScroll={(e) =&gt; {
                 const x = e.nativeEvent.contentOffset.x;
-                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
 &nbsp;
+                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
                 setActive(index);
-                onSelectQuest(quests[index]);
               }}
               scrollEventThrottle={16}
             &gt;
@@ -664,7 +631,7 @@ export default function QuestOverlay({
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-05-21T05:16:44.081Z
+                at 2026-05-20T21:13:36.974Z
             </div>
         <script src="../prettify.js"></script>
         <script>

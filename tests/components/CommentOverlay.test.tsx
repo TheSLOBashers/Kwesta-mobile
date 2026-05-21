@@ -58,14 +58,13 @@ describe("CommentOverlay", () => {
   const close = jest.fn();
   const onPointsChanged = jest.fn();
   const onSelectComment = jest.fn();
-  const selectedComment = mockComments[0];
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("calls onSelectComment after scroll snap", async () => {
-    const { getByTestId } = render(
+  it("renders comments and triggers onSelectComment effect", () => {
+    const { getByText } = render(
       <CommentOverlay
         open={true}
         close={close}
@@ -73,27 +72,11 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={mockComments[0]}
       />,
     );
 
-    const scroll = getByTestId("comment-scroll");
-
-    fireEvent.scroll(scroll, {
-      nativeEvent: {
-        contentOffset: { x: 500 },
-      },
-    });
-
-    fireEvent(scroll, "momentumScrollEnd", {
-      nativeEvent: {
-        contentOffset: { x: 500 },
-      },
-    });
-
-    await waitFor(() => {
-      expect(onSelectComment).toHaveBeenCalled();
-    });
+    expect(getByText("Bob")).toBeTruthy();
+    expect(onSelectComment).toHaveBeenCalled();
   });
 
   it("calls likeComment successfully", async () => {
@@ -107,7 +90,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
@@ -132,7 +114,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
@@ -157,7 +138,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
@@ -184,7 +164,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
@@ -211,7 +190,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
@@ -239,7 +217,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
@@ -261,7 +238,6 @@ describe("CommentOverlay", () => {
         setComments={setComments}
         onPointsChanged={onPointsChanged}
         onSelectComment={onSelectComment}
-        selectedComment={selectedComment}
       />,
     );
 
