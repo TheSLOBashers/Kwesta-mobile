@@ -3,6 +3,10 @@ import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
 import getEventsCall from "@/scripts/getEventsCall";
 import getQuestsByAreaCall from "@/scripts/getQuestsByAreaCall";
 import getUserProfileCall from "@/scripts/getUserProfileCall";
+import {
+  buildEmptyNotificationSnapshot,
+  calculateNotificationDelta,
+} from "@/scripts/notificationTracker";
 import * as Location from "expo-location";
 import * as Notifications from "expo-notifications";
 import { useEffect, useRef } from "react";
@@ -30,20 +34,10 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const emptySet = () => new Set<string>();
-
-const toKeySet = (items: { id?: string | number }[]) => {
-  return new Set(
-    items.map((item) => String(item.id ?? "")).filter((id) => id.length > 0),
-  );
-};
-
 function NotificationTracker() {
   const { token, user } = useAuth();
   const locationRef = useRef<Coordinates | null>(null);
-  const previousNearbyCommentsRef = useRef<Set<string>>(emptySet());
-  const previousNearbyQuestsRef = useRef<Set<string>>(emptySet());
-  const previousFollowedEventsRef = useRef<Set<string>>(emptySet());
+  const previousSnapshotRef = useRef(buildEmptyNotificationSnapshot());
   const hasPrimedRef = useRef(false);
   const pollingRef = useRef(false);
   const notificationsEnabledRef = useRef(false);
@@ -55,9 +49,7 @@ function NotificationTracker() {
 
     const resetState = () => {
       locationRef.current = null;
-      previousNearbyCommentsRef.current = emptySet();
-      previousNearbyQuestsRef.current = emptySet();
-      previousFollowedEventsRef.current = emptySet();
+      previousSnapshotRef.current = buildEmptyNotificationSnapshot();
       hasPrimedRef.current = false;
       pollingRef.current = false;
       notificationsEnabledRef.current = false;
@@ -144,82 +136,58 @@ function NotificationTracker() {
         );
         const currentUserId = String(user ?? "");
 
-        const currentNearbyComments = toKeySet(nearbyComments);
-        const currentNearbyQuests = toKeySet(nearbyQuests);
-        const currentFollowedEvents = new Set<string>(
-          (allEvents as { id?: string | number; authorId?: string | number }[])
-            .filter(
-              (event: { id?: string | number; authorId?: string | number }) => {
-                const authorId = String(event.authorId ?? "");
-                return (
-                  authorId.length > 0 &&
-                  authorId !== currentUserId &&
-                  followingIds.has(authorId)
-                );
-              },
-            )
-            .map((event: { id?: string | number }) => String(event.id ?? ""))
-            .filter((id: string) => id.length > 0),
-        );
-
         if (!hasPrimedRef.current) {
-          previousNearbyCommentsRef.current = currentNearbyComments;
-          previousNearbyQuestsRef.current = currentNearbyQuests;
-          previousFollowedEventsRef.current = currentFollowedEvents;
+          previousSnapshotRef.current = calculateNotificationDelta({
+            nearbyComments,
+            allEvents,
+            nearbyQuests,
+            followingIds,
+            currentUserId,
+            previousSnapshot: buildEmptyNotificationSnapshot(),
+          }).nextSnapshot;
           hasPrimedRef.current = true;
           return;
         }
 
-        for (const comment of nearbyComments) {
-          const commentId = String(comment.id ?? "");
-          if (
-            commentId.length > 0 &&
-            !previousNearbyCommentsRef.current.has(commentId)
-          ) {
-            const author = comment.authorName || "Someone";
-            await notify(
-              "Nearby comment detected",
-              `${author} left a comment near you.`,
-            );
-          }
+        const {
+          nextSnapshot,
+          newNearbyComments,
+          newFollowedEvents,
+          newNearbyQuests,
+        } = calculateNotificationDelta({
+          nearbyComments,
+          allEvents,
+          nearbyQuests,
+          followingIds,
+          currentUserId,
+          previousSnapshot: previousSnapshotRef.current,
+        });
+
+        for (const comment of newNearbyComments) {
+          const author = comment.authorName || "Someone";
+          await notify(
+            "Nearby comment detected",
+            `${author} left a comment near you.`,
+          );
         }
 
-        for (const event of allEvents) {
-          const eventId = String(event.id ?? "");
-          const authorId = String(event.authorId ?? "");
-
-          if (
-            eventId.length > 0 &&
-            authorId.length > 0 &&
-            authorId !== currentUserId &&
-            followingIds.has(authorId) &&
-            !previousFollowedEventsRef.current.has(eventId)
-          ) {
-            const author = event.authorName || "Someone you follow";
-            await notify(
-              "Followed user posted an event",
-              `${author} shared a new event.`,
-            );
-          }
+        for (const event of newFollowedEvents) {
+          const author = event.authorName || "Someone you follow";
+          await notify(
+            "Followed user posted an event",
+            `${author} shared a new event.`,
+          );
         }
 
-        for (const quest of nearbyQuests) {
-          const questId = String(quest.id ?? "");
-          if (
-            questId.length > 0 &&
-            !previousNearbyQuestsRef.current.has(questId)
-          ) {
-            const author = quest.authorName || "Someone";
-            await notify(
-              "Nearby quest available",
-              `${author} added a quest close to you.`,
-            );
-          }
+        for (const quest of newNearbyQuests) {
+          const author = quest.authorName || "Someone";
+          await notify(
+            "Nearby quest available",
+            `${author} added a quest close to you.`,
+          );
         }
 
-        previousNearbyCommentsRef.current = currentNearbyComments;
-        previousNearbyQuestsRef.current = currentNearbyQuests;
-        previousFollowedEventsRef.current = currentFollowedEvents;
+        previousSnapshotRef.current = nextSnapshot;
       } catch (error) {
         console.error("Error refreshing notification tracker:", error);
       } finally {
