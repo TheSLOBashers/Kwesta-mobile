@@ -141,7 +141,7 @@ function NotificationTracker() {
         const followingIds = new Set(
           profile?.following.map((followedUser) => followedUser.id) ?? [],
         );
-        const currentUserId = String(user ?? "");
+        const currentUserId = String(profile?.id ?? user ?? "");
 
         if (!hasPrimedRef.current) {
           previousSnapshotRef.current = calculateNotificationDelta({
