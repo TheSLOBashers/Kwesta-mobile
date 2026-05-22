@@ -95,6 +95,9 @@ function NotificationTracker() {
           body,
           sound: true,
           priority: Notifications.AndroidNotificationPriority.HIGH,
+          ...(Platform.OS === "android"
+            ? { channelId: NOTIFICATION_CHANNEL_ID }
+            : {}),
         },
         trigger: null,
       });
