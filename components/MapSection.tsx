@@ -135,6 +135,10 @@ function MapSection({
     }
   }, [selectedCommentId, selectedQuestId, selectedEventId]);
 
+  // console.log("comments", comments);
+  // console.log("quests", quests);
+  // console.log("events", events);
+
   return (
     <View style={styles.container}>
       <MapView
@@ -154,11 +158,11 @@ function MapSection({
           return (
             <Marker
               coordinate={{ latitude: lat, longitude: lng }}
-              key={c.id ?? `${lat}-${lng}-${c.comment}`}
+              key={`comment-${c.id}`}
               onSelect={() => selectComment(c.id)}
               onCalloutPress={() => selectComment(c.id)}
               tracksViewChanges={false}
-              pinColor={selectedCommentId === c.id ? "blue" : "red"}
+              pinColor={selectedCommentId === c.id ? "blue" : "white"}
             />
           );
         })}
@@ -172,11 +176,11 @@ function MapSection({
           return (
             <Marker
               coordinate={{ latitude: lat, longitude: lng }}
-              key={q.id ?? `${lat}-${lng}-${q.description}`}
+              key={`quest-${q.id}`}
               onSelect={() => selectQuest(q.id)}
               onCalloutPress={() => selectQuest(q.id)}
               tracksViewChanges={false}
-              pinColor={selectedQuestId === q.id ? "blue" : "red"}
+              pinColor={selectedQuestId === q.id ? "blue" : "white"}
             />
           );
         })}
@@ -190,11 +194,11 @@ function MapSection({
           return (
             <Marker
               coordinate={{ latitude: lat, longitude: lng }}
-              key={e.id ?? `${lat}-${lng}-${e.description}`}
+              key={`event-${e.id}`}
               onSelect={() => selectEvent(e.id)}
               onCalloutPress={() => selectEvent(e.id)}
               tracksViewChanges={false}
-              pinColor={selectedEventId === e.id ? "blue" : "red"}
+              pinColor={selectedEventId === e.id ? "blue" : "white"}
             />
           );
         })}

@@ -1,6 +1,6 @@
 import backend from "@/constants/backend";
 
-const getCommentsByAreaCall = async (
+const getCommentsByAreaUpdates = async (
   token: string | null,
   lat: number,
   lng: number,
@@ -9,27 +9,26 @@ const getCommentsByAreaCall = async (
 ) => {
   try {
     const url = since
-      ? `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}&since=${encodeURIComponent(since)}`
-      : `${backend}comments/area?lat=${lat}&lng=${lng}&radius=${radius}`;
+      ? `${backend}comments/area/updates?lat=${lat}&lng=${lng}&radius=${radius}&since=${encodeURIComponent(since)}`
+      : `${backend}comments/area/updates?lat=${lat}&lng=${lng}&radius=${radius}`;
 
     const response = await fetch(url, {
-      method: "GET", // Specify the method
+      method: "GET",
       headers: {
-        "Content-Type": "application/json", // Indicate the content type
+        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch comments");
+      throw new Error("Failed to fetch comment updates");
     }
 
     const data = await response.json();
-
     const commentsArray = data.comments || [];
 
     return commentsArray.map((c: any) => ({
-      id: c._id,
+      id: c._id ?? c.id,
       authorId: c.authorId,
       authorName: c.authorName,
       date: c.date,
@@ -42,9 +41,9 @@ const getCommentsByAreaCall = async (
       createdAt: c.createdAt,
     }));
   } catch (err) {
-    console.error("Error fetching comments:", err);
+    console.error("Error fetching comment updates:", err);
     return [];
   }
 };
 
-export default getCommentsByAreaCall;
+export default getCommentsByAreaUpdates;

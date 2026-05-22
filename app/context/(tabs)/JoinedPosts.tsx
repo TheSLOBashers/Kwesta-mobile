@@ -1,33 +1,41 @@
 import PostFeed from "@/components/PostFeed";
 import { useAuth } from "@/components/auth-context";
-import getJoinedPostsCall from "@/scripts/getJoinedPostsCall";
 import unjoinEvent from "@/scripts/unjoinEvent";
 import unjoinQuest from "@/scripts/unjoinQuest";
-import { useFocusEffect } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 
+import { useEventStore } from "@/stores/eventStore";
+import { useQuestStore } from "@/stores/questStore";
 
 
 export default function JoinedPosts() {
     const { token } = useAuth();
-    const [posts, setPosts] = useState<any[]>([]);
+    const events = useEventStore((s) => s.events);
+    const quests = useQuestStore((s) => s.quests);
+    const posts = [
+        ...events.filter(e => e.joined).map(e => ({ ...e, type: "event" })),
+        ...quests.filter(q => q.joined).map(q => ({ ...q, type: "quest" })),
+    ];
+
+    const updateEvent = useEventStore((s) => s.updateEvent);
+    const updateQuest = useQuestStore((s) => s.updateQuest);
 
 
-    const fetch = async () => {
-        const data = await getJoinedPostsCall(token);
-        setPosts(data);
-    };
+    // const fetch = async () => {
+    //     const data = await getJoinedPostsCall(token);
+    //     setPosts(data);
+    // };
 
-    useEffect(() => {
-        if (token) fetch();
-    }, [token]);
+    // useEffect(() => {
+    //     if (token) fetch();
+    // }, [token]);
 
-    useFocusEffect(
-        React.useCallback(() => {
-            if (token) fetch();
-        }, [token])
-    );
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         if (token) fetch();
+    //     }, [token])
+    // );
 
     const handleUnjoin = (item: any) => {
         Alert.alert(
@@ -42,11 +50,11 @@ export default function JoinedPosts() {
                         try {
                             if (item.type === "event") {
                                 await unjoinEvent(item.id, token);
+                                updateEvent(item.id, { joined: false });
                             } else if (item.type === "quest") {
                                 await unjoinQuest(item.id, token);
+                                updateQuest(item.id, { joined: false });
                             }
-
-                            setPosts(prev => prev.filter(p => p.id !== item.id));
                         } catch (e) {
                             console.log("Unjoin failed:", e);
                         }

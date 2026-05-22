@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import AddButtonOverlay from "@/components/AddButtonOverlay";
 import CommentOverlay from "@/components/CommentOverlay";
@@ -27,37 +27,41 @@ import {
   View,
 } from "react-native";
 
+import { useCommentStore } from "@/stores/commentStore";
+import { useEventStore } from "@/stores/eventStore";
+import { useQuestStore } from "@/stores/questStore";
+
+import getCommentsByAreaSnapshot from "@/scripts/getCommentsByAreaSnapshot";
+import getCommentsByAreaUpdates from "@/scripts/getCommentsByAreaUpdates";
+import { CommentItem } from "@/types/comment";
+
 function UserFeed() {
   type MapItem = {
     id: string;
     createdAt: string;
   };
-  type CommentItem = MapItem & {
-    authorId: string;
-    authorName: string;
-    comment: string;
-    location: { lat: number; lng: number };
-    likes: number;
-    likedByUser: boolean;
-    flaggedByUser: boolean;
-  };
-  type EventItem = MapItem & {
-    description: string;
-    location: any;
-    joined: boolean;
-  };
-  type QuestItem = MapItem & {
-    description: string;
-    points: number;
-    location: any;
-    joined: boolean;
-  };
 
   const { user, username, token } = useAuth();
   const { refreshUserPoints, points } = usePoints();
-  const [comments, setComments] = useState<CommentItem[]>([]);
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [quests, setQuests] = useState<QuestItem[]>([]);
+
+  const comments = useCommentStore((s) => s.comments);
+  const setComments = useCommentStore((s) => s.setComments);
+  const addComment = useCommentStore((s) => s.addComment);
+  const mergeComments = useCommentStore((s) => s.mergeComments);
+  const updateComment = useCommentStore((s) => s.updateComment);
+
+  const events = useEventStore((s) => s.events);
+  const setEvents = useEventStore((s) => s.setEvents);
+  const addEvent = useEventStore((s) => s.addEvent);
+  const mergeEvents = useEventStore((s) => s.mergeEvents);
+  const updateEvent = useEventStore((s) => s.updateEvent);
+  
+  const quests = useQuestStore((s) => s.quests);
+  const setQuests = useQuestStore((s) => s.setQuests);
+  const addQuest = useQuestStore((s) => s.addQuest);
+  const mergeQuests = useQuestStore((s) => s.mergeQuests);
+  const updateQuest = useQuestStore((s) => s.updateQuest);
+
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState<any>(null);
   const [locationAllowed, setLocationAllowed] = useState(false);
@@ -70,6 +74,28 @@ function UserFeed() {
     "comments" | "events" | "quests" | "leaderboard" | null
   >(null);
   const [lastSync, setLastSync] = useState<string | null>(null);
+
+  const tokenRef = useRef(token);
+  const lastSyncRef = useRef(lastSync);
+
+  const [commentLastSync, setCommentLastSync] = useState<string | null>(null);
+  const commentLastSyncRef = useRef(commentLastSync);
+
+  const lastSnapshotLocRef = useRef<any>(null);
+
+  const commentDistance = 0.005;
+  const refreshDistance = 5;
+
+  useEffect(() => {
+    tokenRef.current = token;
+  }, [token]);
+
+  useEffect(() => {
+    lastSyncRef.current = lastSync;
+  }, [lastSync]);
+  useEffect(() => {
+    commentLastSyncRef.current = commentLastSync;
+  }, [commentLastSync]);
 
   const selectedComment = useMemo(
     () => comments.find((c: any) => c.id === selectedCommentId) || null,
@@ -92,14 +118,68 @@ function UserFeed() {
     setLoading(true);
 
     const [commentData, eventData, questData] = await Promise.all([
-      getCommentsByAreaCall(token, location.latitude, location.longitude, 1),
+      getCommentsByAreaCall(token, location.latitude, location.longitude, commentDistance),
       getEventsByAreaCall(token, location.latitude, location.longitude, 10),
       getQuestsByAreaCall(token, location.latitude, location.longitude, 10),
     ]);
 
-    setComments(commentData);
-    setEvents(eventData);
-    setQuests(questData);
+
+    setComments(
+      commentData.map((c: any) => ({
+        id: c.id,
+        createdAt: c.createdAt ?? c.date,
+        authorId: c.author,
+        authorName: c.authorName ?? "Unknown",
+
+        comment: c.comment,
+
+        location: c.location,
+
+        likes: c.likes ?? 0,
+        likedByUser: c.likedByUser ?? false,
+        flaggedByUser: c.flaggedByUser ?? false,
+
+        date: c.date,
+      }))
+    );
+    setEvents(
+      eventData.map((e: any) => ({
+        id: e.id,
+        createdAt: e.createdAt ?? e.date,
+
+        description: e.description,
+        location: e.location,
+
+        joined: e.joined ?? false,
+
+        authorId: e.author,
+        authorName: e.authorName ?? "Unknown",
+
+        date: e.date,
+        time: e.time,
+        image: e.image,
+        flag: e.flag,
+      }))
+    );
+    setQuests(
+      questData.map((q: any) => ({
+        id: q.id,
+        createdAt: q.createdAt ?? q.date,
+
+        description: q.description,
+        location: q.location,
+
+        joined: q.joined ?? false,
+
+        authorId: q.author,
+        authorName: q.authorName ?? "Unknown",
+
+        date: q.date,
+        time: q.time,
+        image: q.image,
+        flag: q.flag,
+      }))
+    );
 
     const all = [...commentData, ...eventData, ...questData];
 
@@ -110,58 +190,139 @@ function UserFeed() {
       )[all.length - 1];
 
       setLastSync(newest.createdAt);
+      setCommentLastSync(newest.createdAt);
     }
 
     setLoading(false);
   };
 
+  const fetchCommentSnapshot = async (loc: any) => {
+    if (!loc) return;
+
+    const commentData = await getCommentsByAreaSnapshot(
+      token,
+      loc.latitude,
+      loc.longitude,
+      commentDistance
+    );
+
+    if (!loc) return;
+
+    setComments(
+      commentData.map((c: any) => ({
+        id: c.id,
+        createdAt: c.createdAt ?? c.date,
+        authorId: c.author,
+        authorName: c.authorName ?? "Unknown",
+
+        comment: c.comment,
+
+        location: c.location,
+
+        likes: c.likes ?? 0,
+        likedByUser: c.likedByUser ?? false,
+        flaggedByUser: c.flaggedByUser ?? false,
+
+        date: c.date,
+      }))
+    );
+
+    // initialize lastSync for comments only
+    if (commentData.length > 0) {
+      const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
+        new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+      );
+
+      setCommentLastSync(newest.createdAt);
+    }
+  };
+  
+  const commentSyncLock = useRef(false);
+
+  const fetchCommentUpdates = async () => {
+    if (commentSyncLock.current) return;
+    commentSyncLock.current = true;
+
+    try {
+      const loc = location;
+      if (!loc) return;
+
+      const since = commentLastSyncRef.current;
+
+      const commentData = await getCommentsByAreaUpdates(
+        tokenRef.current,
+        loc.latitude,
+        loc.longitude,
+        commentDistance,
+        since
+      );
+
+      mergeComments(
+        commentData.map((c: any) => ({
+          id: c.id,
+          createdAt: c.createdAt ?? c.date,
+          authorId: c.author,
+          authorName: c.authorName ?? "Unknown",
+
+          comment: c.comment,
+
+          location: c.location,
+
+          likes: c.likes ?? 0,
+          likedByUser: c.likedByUser ?? false,
+          flaggedByUser: c.flaggedByUser ?? false,
+
+          date: c.date,
+        }))
+      );
+
+      if (commentData.length > 0) {
+        const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+        );
+
+        setCommentLastSync(newest.createdAt);
+      }
+    } finally {
+      commentSyncLock.current = false;
+    }
+  };
+
+
+
+  //quest and event interval
   useEffect(() => {
-    if (!location || !lastSync) return;
+    const loc = location;
+    if (!loc) return;
 
     const interval = setInterval(async () => {
-      const [commentData, eventData, questData] = await Promise.all([
-        getCommentsByAreaCall(
-          token,
-          location.latitude,
-          location.longitude,
-          1,
-          lastSync,
-        ),
+      const since = lastSyncRef.current;
+      const [eventData, questData] = await Promise.all([
         getEventsByAreaCall(
-          token,
-          location.latitude,
-          location.longitude,
+          tokenRef.current,
+          loc.latitude,
+          loc.longitude,
           10,
-          lastSync,
+          since,
         ),
         getQuestsByAreaCall(
-          token,
-          location.latitude,
-          location.longitude,
+          tokenRef.current,
+          loc.latitude,
+          loc.longitude,
           10,
-          lastSync,
+          since,
         ),
       ]);
 
-      if (commentData.length) {
-        setComments((prev) => [...prev, ...commentData]);
-      }
+      mergeEvents(eventData);
+      mergeQuests(questData);
 
-      if (eventData.length) {
-        setEvents((prev) => [...prev, ...eventData]);
-      }
-
-      if (questData.length) {
-        setQuests((prev) => [...prev, ...questData]);
-      }
-
-      const allNew = [...commentData, ...eventData, ...questData];
+      const allNew = [...eventData, ...questData];
 
       if (allNew.length > 0) {
-        const newest = allNew.sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        )[allNew.length - 1];
+        const newest = allNew.reduce((max, c) =>
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+      );
 
         setLastSync(newest.createdAt);
       }
@@ -170,22 +331,74 @@ function UserFeed() {
     return () => clearInterval(interval);
   }, [location]);
 
+  //comment interval
   useEffect(() => {
+    if (!location) return;
+
+    const interval = setInterval(() => {
+      fetchCommentUpdates();
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [location]);
+
+
+
+
+  const didInit = useRef(false);
+
+  useEffect(() => {
+    if (!location || didInit.current) return;
+    didInit.current = true;
     fetchInitial();
   }, [location]);
 
   useEffect(() => {
+    if (!location) return;
+
+    const last = lastSnapshotLocRef.current;
+
+    if (last) {
+      const dx = location.latitude - last.latitude;
+      const dy = location.longitude - last.longitude;
+
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 0.01) return; // ignore tiny movement
+    }
+
+    lastSnapshotLocRef.current = location;
+
+    fetchCommentSnapshot(location);
+  }, [location]);
+
+  //updates location when moving certain distance
+  useEffect(() => {
+    let subscription: Location.LocationSubscription;
+
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setLocationAllowed(false);
         return;
       }
+
       setLocationAllowed(true);
 
-      const loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc.coords);
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: refreshDistance,
+        },
+        (loc) => {
+          setLocation(loc.coords);
+        }
+      );
     })();
+
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   const handleAddComment = async (data: any) => {
@@ -194,19 +407,23 @@ function UserFeed() {
       return;
     }
 
-    const commentWithUsername = {
-      comment: newComment.comment,
+    addComment({
       id: newComment._id,
+      createdAt: newComment.createdAt ?? newComment.date,
+
       authorId: newComment.author,
-      authorName: username,
+      authorName: username ?? "Unknown",
+
+      comment: newComment.comment,
+
       likes: newComment.likes || 0,
       likedByUser: newComment.likedByUser ?? false,
       flaggedByUser: newComment.flaggedByUser ?? false,
-      location: newComment.location || { lat: 0, lng: 0 },
-      date: newComment.date,
-    };
 
-    setComments((prev: any) => [commentWithUsername, ...prev]);
+      location: newComment.location || { lat: 0, lng: 0 },
+
+      date: newComment.date,
+    });
   };
 
   const handleAddEvent = async (data: any) => {
@@ -215,21 +432,19 @@ function UserFeed() {
       return;
     }
 
-    setEvents((prev: any) => [
-      {
-        id: newEvent._id,
-        authorId: newEvent.author,
-        authorName: username,
-        date: newEvent.date,
-        time: newEvent.time,
-        description: newEvent.description,
-        location: newEvent.location,
-        joined: false,
-        image: newEvent.image,
-        flag: newEvent.flag,
-      },
-      ...prev,
-    ]);
+    addEvent({
+      id: newEvent._id,
+      authorId: newEvent.author,
+      authorName: username ?? "Unknown",
+      date: newEvent.date,
+      time: newEvent.time,
+      description: newEvent.description,
+      location: newEvent.location,
+      joined: false,
+      image: newEvent.image,
+      flag: newEvent.flag,
+      createdAt: newEvent.createdAt ?? new Date().toISOString(),
+    });
   };
 
   const handleAddQuest = async (data: any) => {
@@ -245,21 +460,24 @@ function UserFeed() {
       return;
     }
 
-    setQuests((prev: any) => [
-      {
-        id: newQuest._id,
-        authorId: newQuest.author,
-        authorName: username,
-        date: newQuest.date,
-        time: newQuest.time,
-        description: newQuest.description,
-        location: newQuest.location,
-        joined: false,
-        image: newQuest.image,
-        flag: newQuest.flag,
-      },
-      ...prev,
-    ]);
+    addQuest({
+      id: newQuest._id,
+      createdAt: newQuest.createdAt ?? newQuest.date,
+
+      authorId: newQuest.author,
+      authorName: username ?? "Unknown",
+
+      date: newQuest.date,
+      time: newQuest.time,
+
+      description: newQuest.description,
+      location: newQuest.location,
+
+      joined: false,
+
+      image: newQuest.image,
+      flag: newQuest.flag,
+    });
   };
 
   if (loading)
