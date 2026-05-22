@@ -15,6 +15,7 @@ import { usePoints } from "@/components/points-context";
 import addCommentCall from "@/scripts/addCommentCall";
 import addEventCall from "@/scripts/addEventCall";
 import addQuestCall from "@/scripts/addQuestCall";
+import getCommentsByAreaCall from "@/scripts/getCommentsByAreaCall";
 import getEventsByAreaCall from "@/scripts/getEventsByAreaCall";
 import getQuestsByAreaCall from "@/scripts/getQuestsByAreaCall";
 import * as Location from "expo-location";
@@ -80,6 +81,11 @@ function UserFeed() {
   const [commentLastSync, setCommentLastSync] = useState<string | null>(null);
   const commentLastSyncRef = useRef(commentLastSync);
 
+  const lastSnapshotLocRef = useRef<any>(null);
+
+  const commentDistance = 0.005;
+  const refreshDistance = 5;
+
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
@@ -111,11 +117,31 @@ function UserFeed() {
 
     setLoading(true);
 
-    const [eventData, questData] = await Promise.all([
+    const [commentData, eventData, questData] = await Promise.all([
+      getCommentsByAreaCall(token, location.latitude, location.longitude, commentDistance),
       getEventsByAreaCall(token, location.latitude, location.longitude, 10),
       getQuestsByAreaCall(token, location.latitude, location.longitude, 10),
     ]);
 
+
+    setComments(
+      commentData.map((c: any) => ({
+        id: c.id,
+        createdAt: c.createdAt ?? c.date,
+        authorId: c.author,
+        authorName: c.authorName ?? "Unknown",
+
+        comment: c.comment,
+
+        location: c.location,
+
+        likes: c.likes ?? 0,
+        likedByUser: c.likedByUser ?? false,
+        flaggedByUser: c.flaggedByUser ?? false,
+
+        date: c.date,
+      }))
+    );
     setEvents(
       eventData.map((e: any) => ({
         id: e.id,
@@ -155,7 +181,7 @@ function UserFeed() {
       }))
     );
 
-    const all = [...eventData, ...questData];
+    const all = [...commentData, ...eventData, ...questData];
 
     if (all.length > 0) {
       const newest = all.sort(
@@ -164,20 +190,23 @@ function UserFeed() {
       )[all.length - 1];
 
       setLastSync(newest.createdAt);
+      setCommentLastSync(newest.createdAt);
     }
 
     setLoading(false);
   };
 
-  const fetchCommentSnapshot = async () => {
-    if (!location) return;
+  const fetchCommentSnapshot = async (loc: any) => {
+    if (!loc) return;
 
     const commentData = await getCommentsByAreaSnapshot(
       token,
-      location.latitude,
-      location.longitude,
-      0.5
+      loc.latitude,
+      loc.longitude,
+      commentDistance
     );
+
+    if (!loc) return;
 
     setComments(
       commentData.map((c: any) => ({
@@ -208,48 +237,78 @@ function UserFeed() {
     }
   };
   
+  const commentSyncLock = useRef(false);
+
   const fetchCommentUpdates = async () => {
-    if (!location) return;
+    if (commentSyncLock.current) return;
+    commentSyncLock.current = true;
 
-    const since = commentLastSyncRef.current;
+    try {
+      const loc = location;
+      if (!loc) return;
 
-    const commentData = await getCommentsByAreaUpdates(
-      tokenRef.current,
-      location.latitude,
-      location.longitude,
-      0.5,
-      since
-    );
+      const since = commentLastSyncRef.current;
 
-    mergeComments(commentData);
-
-    if (commentData.length > 0) {
-      const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
-        new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+      const commentData = await getCommentsByAreaUpdates(
+        tokenRef.current,
+        loc.latitude,
+        loc.longitude,
+        commentDistance,
+        since
       );
 
-      setCommentLastSync(newest.createdAt);
+      mergeComments(
+        commentData.map((c: any) => ({
+          id: c.id,
+          createdAt: c.createdAt ?? c.date,
+          authorId: c.author,
+          authorName: c.authorName ?? "Unknown",
+
+          comment: c.comment,
+
+          location: c.location,
+
+          likes: c.likes ?? 0,
+          likedByUser: c.likedByUser ?? false,
+          flaggedByUser: c.flaggedByUser ?? false,
+
+          date: c.date,
+        }))
+      );
+
+      if (commentData.length > 0) {
+        const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+        );
+
+        setCommentLastSync(newest.createdAt);
+      }
+    } finally {
+      commentSyncLock.current = false;
     }
   };
 
+
+
   //quest and event interval
   useEffect(() => {
-    if (!location) return;
+    const loc = location;
+    if (!loc) return;
 
     const interval = setInterval(async () => {
       const since = lastSyncRef.current;
       const [eventData, questData] = await Promise.all([
         getEventsByAreaCall(
           tokenRef.current,
-          location.latitude,
-          location.longitude,
+          loc.latitude,
+          loc.longitude,
           10,
           since,
         ),
         getQuestsByAreaCall(
           tokenRef.current,
-          location.latitude,
-          location.longitude,
+          loc.latitude,
+          loc.longitude,
           10,
           since,
         ),
@@ -284,27 +343,62 @@ function UserFeed() {
   }, [location]);
 
 
+
+
+  const didInit = useRef(false);
+
   useEffect(() => {
+    if (!location || didInit.current) return;
+    didInit.current = true;
     fetchInitial();
   }, [location]);
 
   useEffect(() => {
     if (!location) return;
-    fetchCommentSnapshot();
+
+    const last = lastSnapshotLocRef.current;
+
+    if (last) {
+      const dx = location.latitude - last.latitude;
+      const dy = location.longitude - last.longitude;
+
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < 0.01) return; // ignore tiny movement
+    }
+
+    lastSnapshotLocRef.current = location;
+
+    fetchCommentSnapshot(location);
   }, [location]);
 
+  //updates location when moving certain distance
   useEffect(() => {
+    let subscription: Location.LocationSubscription;
+
     (async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setLocationAllowed(false);
         return;
       }
+
       setLocationAllowed(true);
 
-      const loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc.coords);
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          distanceInterval: refreshDistance,
+        },
+        (loc) => {
+          setLocation(loc.coords);
+        }
+      );
     })();
+
+    return () => {
+      subscription?.remove();
+    };
   }, []);
 
   const handleAddComment = async (data: any) => {

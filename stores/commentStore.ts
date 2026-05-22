@@ -4,7 +4,10 @@ import { create } from "zustand";
 type Store = {
     comments: CommentItem[];
 
-    setComments: (comments: CommentItem[]) => void;
+    setComments: (
+        updater: CommentItem[] | ((prev: CommentItem[]) => CommentItem[])
+    ) => void;
+
     addComment: (comment: CommentItem) => void;
     mergeComments: (comments: CommentItem[]) => void;
     updateComment: (id: string, updates: Partial<CommentItem>) => void;
