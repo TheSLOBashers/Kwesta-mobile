@@ -1,16 +1,18 @@
 import * as DEVICE from 'expo-device';
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ColorSchemeName, Pressable, StyleSheet, Text, View } from "react-native";
 import { IconSymbol } from "./ui/icon-symbol";
 
 interface Props {
     devices: any
     handleBlock: (device: any) => void
+    colorScheme: ColorSchemeName
 }
 
 interface Props2 {
     device: any
     handleBlock: (device: any) => void
+    colorScheme: ColorSchemeName
 }
 
 interface Props3 {
@@ -31,13 +33,14 @@ function DeviceIcon({ device_type }: Props3) {
 
 }
 
-function Device({ device, handleBlock }: Props2) {
+function Device({ device, handleBlock, colorScheme }: Props2) {
 
     let device_type = Number(device.device_deviceType);
     const [pressed, setPressed] = useState(false);
 
     return (
-        <View style={styles.device}>
+        <View style={[styles.device, { backgroundColor:
+          colorScheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "#ecf3f5f3", }]}>
             <Text style={styles.title3}>{device.device}</Text>
             <View style={styles.splitBox}>
                 <DeviceIcon device_type={device_type}></DeviceIcon>
@@ -46,10 +49,10 @@ function Device({ device, handleBlock }: Props2) {
                     {device.allowed ?
                         (pressed ?
                             <>
-                            <Pressable style={styles.dButton} onPress={() => { handleBlock(device.device); }}><Text style={styles.dButtonText}>Confirm</Text></Pressable>
-                            <Pressable style={styles.dButtonWhite} onPress={() => { setPressed(false); }}><Text style={styles.dButtonTextWhite}>Undo</Text></Pressable>
+                            <Pressable style={[styles.dButton, { backgroundColor: colorScheme === "dark" ? "rgba(255, 255, 255, 0.50)" : "rgba(255, 255, 255, 0.90)" }]} onPress={() => { handleBlock(device.device); }}><Text style={colorScheme === "dark" ? styles.dButtonText : styles.dButtonTextLight}>Confirm</Text></Pressable>
+                            <Pressable style={[styles.dButtonWhite, { backgroundColor: colorScheme === "dark" ? "rgba(255, 255, 255, 0.10)" : "rgba(157, 173, 177, 0.9)" }]} onPress={() => { setPressed(false); }}><Text style={colorScheme === "dark" ? styles.dButtonText : styles.dButtonText}>Undo</Text></Pressable>
                             </>
-                            : <Pressable style={styles.dButton} onPress={() => { setPressed(true); alert("Blocking this device cannot be undone.") }}><Text style={styles.dButtonText}>Block</Text></Pressable>
+                            : <Pressable style={[styles.dButton, { backgroundColor: colorScheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(255, 255, 255, 0.90)" }]} onPress={() => { setPressed(true); alert("Blocking this device cannot be undone.") }}><Text style={colorScheme === "dark" ? styles.dButtonText : styles.dButtonTextLight}>Block</Text></Pressable>
                         )
                         : null}
                 </View>
@@ -59,15 +62,14 @@ function Device({ device, handleBlock }: Props2) {
 }
 
 
-export default function Devices({ devices, handleBlock }: Props) {
+export default function Devices({ devices, handleBlock, colorScheme }: Props) {
 
-    const [open, setOpen] = useState(true);
+    const [open, setOpen] = useState(false);
 
     try {
         return (
             <View style={styles.devices}>
                 <View style={styles.splitBox}>
-                    <Text style={styles.title2}>Devices</Text>
                     {open ? <Pressable onPress={() => setOpen(false)}><IconSymbol size={35} name="arrow.up" color={"#ccc"} /></Pressable>
                         : <Pressable onPress={() => setOpen(true)}><IconSymbol size={35} name="arrow.down" color={"#ccc"} /></Pressable>}
 
@@ -76,7 +78,7 @@ export default function Devices({ devices, handleBlock }: Props) {
                 {open ?
                     (devices.map((d: any, i: any) => (
                         <View key={`${d._id}:${i}`}>
-                            <Device device={d} handleBlock={handleBlock}></Device>
+                            <Device device={d} handleBlock={handleBlock} colorScheme={colorScheme}></Device>
                         </View>
                     )))
                     : null}
@@ -130,6 +132,10 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold'
     },
+    dButtonTextLight: {
+        color: '#ccc',
+        fontWeight: 'bold'
+    },
     dButtonWhite: {
         backgroundColor: 'white',
         padding: 10,
@@ -148,18 +154,12 @@ const styles = StyleSheet.create({
     },
     devices: {
         padding: "2%",
-        margin: "1%",
-        borderColor: "#ccc",
-        borderWidth: 1,
-        borderRadius: 8,
+        margin: "0%",
     },
     device: {
         padding: "2%",
         paddingLeft: "4%",
-        margin: "1%",
-        borderColor: "#ccc",
-        borderWidth: 1,
-        borderRadius: 8,
+        margin: "1%"
     },
     splitBox: {
         flexDirection: 'row',

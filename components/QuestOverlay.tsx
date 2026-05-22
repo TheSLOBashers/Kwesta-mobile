@@ -8,12 +8,13 @@ import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
-    open: boolean;
-    close: () => void;
-    quests: any;
-    setQuests: (comments: any) => void;
-    onPointsChanged: () => void;
-    onSelectQuest: (comment: any) => void
+  open: boolean;
+  close: () => void;
+  quests: any;
+  setQuests: (comments: any) => void;
+  onPointsChanged: () => void;
+  onSelectQuest: (comment: any) => void;
+  selectedQuest: any;
 }
 
 const styles = overlayStyle.styles;
@@ -41,10 +42,18 @@ const imageStyle = StyleSheet.create({
     },
 });
 
-export default function QuestOverlay({ close, quests, setQuests, onPointsChanged, onSelectQuest, open }: Props) {
-    const scrollRef = useRef<ScrollView>(null);
-    const [active, setActive] = useState(0);
-    const { token } = useAuth();
+export default function QuestOverlay({
+  close,
+  quests,
+  setQuests,
+  onPointsChanged,
+  onSelectQuest,
+  selectedQuest,
+  open,
+}: Props) {
+  const scrollRef = useRef<ScrollView>(null);
+  const [active, setActive] = useState(0);
+  const { token } = useAuth();
 
     const [selectedUser, setSelectedUser] = useState<any | null>(null);
     const [showProfile, setShowProfile] = useState(false);
@@ -54,63 +63,71 @@ export default function QuestOverlay({ close, quests, setQuests, onPointsChanged
     const textColor = colorScheme === 'light' ? "black" : "white";
 
     useEffect(() => {
-        if (!onSelectQuest) return;
-        onSelectQuest(quests[active] ?? null);
-    }, [active, quests]);
+        if (!selectedQuest || !scrollRef.current) return;
 
-    function handleJoin(eventId: any) {
-        joinQuest(eventId, token)
-            .then(async () => {
-                // Update the local state to reflect the change
-                setQuests((prevEvents : any) =>
-                prevEvents.map((e: any) =>
-                    e.id === eventId ? { ...e, joined: true } : e
-                )
-                );
-                if (onPointsChanged) {
-                await onPointsChanged();
-                }
-                alert("Successfully joined quest!");
-            })
-            .catch(error => {
-                alert("Error joining quest: " + error.message);
-            });
+    const index = quests.findIndex((q: any) => q.id === selectedQuest.id);
+
+    if (index !== -1 && index !== active) {
+      scrollRef.current.scrollTo({
+        x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
+        animated: true,
+      });
     }
+  }, [selectedQuest]);
 
-    function handleUnjoin(eventId : any) {
-        unjoinQuest(eventId, token)
-        .then(() => {
-            setQuests((prevEvents: any) =>
-            prevEvents.map((e: any) =>
-                e.id === eventId ? { ...e, joined: false } : e
-            )
-            );
-            alert("Successfully unjoined quest!");
-        })
-        .catch(error => {
-            alert("Error joining quest: " + error.message);
-        });
-    }
+  function handleJoin(eventId: any) {
+    joinQuest(eventId, token)
+      .then(async () => {
+        // Update the local state to reflect the change
+        setQuests((prevEvents: any) =>
+          prevEvents.map((e: any) =>
+            e.id === eventId ? { ...e, joined: true } : e,
+          ),
+        );
+        if (onPointsChanged) {
+          await onPointsChanged();
+        }
+        alert("Successfully joined quest!");
+      })
+      .catch((error) => {
+        alert("Error joining quest: " + error.message);
+      });
+  }
 
-    return (
-        <View style={styles.backdrop}>
-            {open && (
-                <>
-                <Pressable style={styles.backdrop} onPress={close} />
-            
-                    <View style={styles.overlay} pointerEvents="box-none">
-                        <ScrollView
-                            testID="quest-scroll"
-                            ref={scrollRef}
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.Slider}
-                            snapToInterval={CARD_WIDTH + CARD_MARGIN}
-                            snapToAlignment="center"
-                            decelerationRate="fast"
+  function handleUnjoin(eventId: any) {
+    unjoinQuest(eventId, token)
+      .then(() => {
+        setQuests((prevEvents: any) =>
+          prevEvents.map((e: any) =>
+            e.id === eventId ? { ...e, joined: false } : e,
+          ),
+        );
+        alert("Successfully unjoined quest!");
+      })
+      .catch((error) => {
+        alert("Error joining quest: " + error.message);
+      });
+  }
 
-                            onScroll={(e) => {
-                                const x = e.nativeEvent.contentOffset.x;
+  return (
+    <View style={styles.backdrop}>
+      {open && (
+        <>
+          <Pressable style={styles.backdrop} onPress={close} />
+
+          <View style={styles.overlay} pointerEvents="box-none">
+            <ScrollView
+              testID="quest-scroll"
+              ref={scrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.Slider}
+              snapToInterval={CARD_WIDTH + CARD_MARGIN}
+              snapToAlignment="center"
+              decelerationRate="fast"
+              onMomentumScrollEnd={(e) => {
+                const x = e.nativeEvent.contentOffset.x;
+                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
 
                                 const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
                                 setActive(index);

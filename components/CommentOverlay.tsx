@@ -24,6 +24,7 @@ interface Props {
   setComments: (comments: any) => void;
   onPointsChanged: () => void;
   onSelectComment: (comment: any) => void;
+  selectedComment: any;
 }
 
 const styles = overlayStyle.styles;
@@ -57,6 +58,7 @@ export default function CommentOverlay({
   setComments,
   onPointsChanged,
   onSelectComment,
+  selectedComment,
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
@@ -70,9 +72,17 @@ export default function CommentOverlay({
   const textColor = colorScheme === 'light' ? "black" : "white";
 
   useEffect(() => {
-    if (!onSelectComment) return;
-    onSelectComment(comments[active] ?? null);
-  }, [active, comments]);
+    if (!selectedComment || !scrollRef.current) return;
+
+    const index = comments.findIndex((c: any) => c.id === selectedComment.id);
+
+    if (index !== -1 && index !== active) {
+      scrollRef.current.scrollTo({
+        x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
+        animated: true,
+      });
+    }
+  }, [selectedComment]);
 
   function handleLike(commentId: any) {
     likeComment(commentId, token)
@@ -144,10 +154,12 @@ export default function CommentOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onScroll={(e) => {
+              onMomentumScrollEnd={(e) => {
                 const x = e.nativeEvent.contentOffset.x;
                 const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
                 setActive(index);
+                onSelectComment(comments[index]);
               }}
               scrollEventThrottle={16}
             >
@@ -185,12 +197,23 @@ export default function CommentOverlay({
                       <Text style={[styles.author, {color: textColor}]}>{c.authorName}</Text>
                     </Pressable>
 
-                    <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
-                    <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{c.comment}</Text>
+                    <Text style={{ color: midTextColor, marginBottom: 7 }}>
+                      {formattedDate}
+                    </Text>
+                    <Text
+                      style={{
+                        color: textColor,
+                        fontSize: 17,
+                        marginBottom: 30,
+                      }}
+                    >
+                      {c.comment}
+                    </Text>
 
                     <Pressable
                       onPress={() => handleLike(c.id)}
                       disabled={c.likedByUser}
+                      testID="likeButton"
                     >
                       <View style={imageStyle.inline}>
                         <Image style={imageStyle.image}
@@ -200,14 +223,23 @@ export default function CommentOverlay({
                     </Pressable>
 
                     {c.flaggedByUser ? (
-                      <Pressable onPress={() => handleUnflag(c.id)}>
+                      <Pressable
+                        onPress={() => handleUnflag(c.id)}
+                        testID="unflagButton"
+                      >
                         <View style={imageStyle.inline}>
-                          <Image style={imageStyle.image} source={require("../assets/images/flag_filled.png")}/>
-                          <Text style={{color: textColor}}>Unflag</Text>
+                          <Image
+                            style={imageStyle.image}
+                            source={require("../assets/images/flag_filled.png")}
+                          />
+                          <Text style={{ color: textColor }}>Unflag</Text>
                         </View>
                       </Pressable>
                     ) : (
-                      <Pressable onPress={() => handleFlag(c.id)}>
+                      <Pressable
+                        onPress={() => handleFlag(c.id)}
+                        testID="flagButton"
+                      >
                         <View style={imageStyle.inline}>
                           <Image style={imageStyle.image} source={colorScheme === 'light' ? require("../assets/images/flag_empty_black.png") : require("../assets/images/flag_empty_white.png")}/>
                           <Text style={{color: textColor}}>Flag</Text>
