@@ -134,6 +134,10 @@ function NotificationTracker() {
             ),
           ]);
 
+        if (cancelled) {
+          return;
+        }
+
         const followingIds = new Set(
           profile?.following.map((followedUser) => followedUser.id) ?? [],
         );
