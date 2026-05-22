@@ -128,8 +128,6 @@ export default function QuestOverlay({
               onMomentumScrollEnd={(e) => {
                 const x = e.nativeEvent.contentOffset.x;
                 const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-
-                                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
                                 setActive(index);
                             }}
                             scrollEventThrottle={16}

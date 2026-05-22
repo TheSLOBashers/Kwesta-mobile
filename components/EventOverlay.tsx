@@ -109,9 +109,30 @@ export default function EventOverlay({
       });
   }
 
-                                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-                                setActive(index);
-                            }}
+  return (
+    <View style={styles.backdrop}>
+      {open && (
+        <>
+          <Pressable style={styles.backdrop} onPress={close} />
+
+          <View style={styles.overlay} pointerEvents="box-none">
+            <ScrollView
+              testID="event-scroll"
+              ref={scrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.Slider}
+              snapToInterval={CARD_WIDTH + CARD_MARGIN}
+              snapToAlignment="center"
+              decelerationRate="fast"
+              onMomentumScrollEnd={(e) => {
+                const x = e.nativeEvent.contentOffset.x;
+
+                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
+                setActive(index);
+                onSelectEvent(events[index]);
+              }}
                             scrollEventThrottle={16}
                         >
                             {events.map((e: any, i: any) => {
