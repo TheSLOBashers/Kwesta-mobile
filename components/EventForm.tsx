@@ -73,7 +73,7 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
                 <Text style={[styles.label,{color:textColor}]}>{isEditing ? "Edit event" : "Add an event"}</Text>
 
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, {color:textColor}]}
                     placeholder="Description"
                     value={text}
                     onChangeText={setText}

@@ -53,7 +53,7 @@ function CommentForm({ onSubmit, onClose, username, location, initialText }: Pro
                 <Text style={[styles.label, {color: textColor}]}>{isEditing ? "Edit comment" : "Add a comment"}</Text>
 
                 <TextInput
-                    style={styles.input}
+                    style={[styles.input, {color:textColor}]}
                     placeholder="Comment"
                     value={text}
                     onChangeText={setText}
