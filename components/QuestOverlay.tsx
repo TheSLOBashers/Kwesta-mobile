@@ -1,6 +1,7 @@
 import { useAuth } from "@/components/auth-context";
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Appearance,
@@ -54,6 +55,7 @@ export default function QuestOverlay({
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
+  const isAutoScrolling = useRef(false);
   const [active, setActive] = useState(0);
   const { token } = useAuth();
 
@@ -63,10 +65,19 @@ export default function QuestOverlay({
     const index = quests.findIndex((q: any) => q.id === selectedQuest.id);
 
     if (index !== -1 && index !== active) {
+      isAutoScrolling.current = true;
+
+      setActive(index);
+      onSelectQuest(quests[index]);
+
       scrollRef.current.scrollTo({
         x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
         animated: true,
       });
+
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+      }, 300);
     }
   }, [selectedQuest]);
 
@@ -76,7 +87,11 @@ export default function QuestOverlay({
         // Update the local state to reflect the change
         setQuests((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: true } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: true,
+              rsvpList: [...(e.rsvpList || []), "me"],
+            } : e,
           ),
         );
         if (onPointsChanged) {
@@ -94,7 +109,11 @@ export default function QuestOverlay({
       .then(() => {
         setQuests((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: false } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: false,
+              rsvpList: (e.rsvpList || []).slice(0, -1),
+            } : e,
           ),
         );
         alert("Successfully unjoined quest!");
@@ -120,12 +139,16 @@ export default function QuestOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onMomentumScrollEnd={(e) => {
+              onScroll={(e) => {
+                if (isAutoScrolling.current) return;
+                
                 const x = e.nativeEvent.contentOffset.x;
-                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+                const newIndex = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
 
-                setActive(index);
-                onSelectQuest(quests[index]);
+                if (newIndex !== active) {
+                  setActive(newIndex);
+                  onSelectQuest(quests[newIndex]);
+                }
               }}
               scrollEventThrottle={16}
             >
@@ -175,6 +198,12 @@ export default function QuestOverlay({
                       </View>
                     </Pressable>
                   )}
+                  <View style={imageStyle.inline}>
+                      <Ionicons name="people-outline" size={18} color={midTextColor} />
+                      <Text style={{ color: midTextColor, marginLeft: 6 }}>
+                        {q.rsvpList?.length || 0}
+                      </Text>
+                    </View>
                 </View>
               ))}
             </ScrollView>

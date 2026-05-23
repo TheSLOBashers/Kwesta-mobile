@@ -1,6 +1,7 @@
 import { useAuth } from "@/components/auth-context";
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Appearance,
@@ -54,6 +55,7 @@ export default function EventOverlay({
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
+  const isAutoScrolling = useRef(false);
   const [active, setActive] = useState(0);
   const { token } = useAuth();
 
@@ -63,10 +65,19 @@ export default function EventOverlay({
     const index = events.findIndex((e: any) => e.id === selectedEvent.id);
 
     if (index !== -1 && index !== active) {
+      isAutoScrolling.current = true;
+
+      setActive(index);
+      onSelectEvent(events[index]);
+
       scrollRef.current.scrollTo({
         x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
         animated: true,
       });
+
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+      }, 300);
     }
   }, [selectedEvent]);
 
@@ -76,7 +87,11 @@ export default function EventOverlay({
         // Update the local state to reflect the change
         setEvents((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: true } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: true,
+              rsvpList: [...(e.rsvpList || []), "me"],
+            } : e,
           ),
         );
         if (onPointsChanged) {
@@ -94,7 +109,11 @@ export default function EventOverlay({
       .then(() => {
         setEvents((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: false } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: false,
+              rsvpList: (e.rsvpList || []).slice(0, -1),
+            } : e,
           ),
         );
         alert("Successfully unjoined event!");
@@ -120,12 +139,16 @@ export default function EventOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onMomentumScrollEnd={(e) => {
-                const x = e.nativeEvent.contentOffset.x;
-                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+              onScroll={(e) => {
+                if (isAutoScrolling.current) return;
 
-                setActive(index);
-                onSelectEvent(events[index]);
+                const x = e.nativeEvent.contentOffset.x;
+                const newIndex = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
+                if (newIndex !== active) {
+                  setActive(newIndex);
+                  onSelectEvent(events[newIndex]);
+                }
               }}
               scrollEventThrottle={16}
             >
@@ -190,6 +213,12 @@ export default function EventOverlay({
                         </View>
                       </Pressable>
                     )}
+                    <View style={imageStyle.inline}>
+                      <Ionicons name="people-outline" size={18} color={midTextColor} />
+                      <Text style={{ color: midTextColor, marginLeft: 6 }}>
+                        {e.rsvpList?.length || 0}
+                      </Text>
+                    </View>
                   </View>
                 );
               })}

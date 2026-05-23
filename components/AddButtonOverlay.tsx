@@ -67,19 +67,19 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
             opacity: open ? 1 : 0,
         },
         commentButton: {
-            backgroundColor: "#4CAF50",
+            backgroundColor: "#2a69f1",
             transform: open
                 ? "translate(250%, 400%) scale(1.0)"
                 : "translate(0, 0) scale(0)",
         },
         eventButton: {
-            backgroundColor: "#4CAF50",
+            backgroundColor: "#2a69f1",
             transform: open
-                ? "translate(0%, 500%) scale(1.0)"
+                ? "translate(75%, 500%) scale(1.0)"
                 : "translate(0, 0) scale(0)",
         },
         questButton: {
-            backgroundColor: "#f3c221",
+            backgroundColor: "#2a69f1",
         },
         buttonImage: {
             height: "70%",

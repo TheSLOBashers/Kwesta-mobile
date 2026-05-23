@@ -40,6 +40,7 @@ const getQuestsByAreaCall = async (
       time: q.time,
       joined: q.joined || false,
       createdAt: q.createdAt,
+      rsvpList: q.rsvpList
     }));
   } catch (err) {
     console.error("Error fetching quests:", err);

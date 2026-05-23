@@ -40,6 +40,7 @@ const getEventsByAreaCall = async (
       image: e.image,
       flag: e.flag,
       createdAt: e.createdAt,
+      rsvpList: e.rsvpList
     }));
   } catch (err) {
     console.error("Error fetching events:", err);
