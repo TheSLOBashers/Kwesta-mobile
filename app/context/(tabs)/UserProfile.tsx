@@ -96,6 +96,20 @@ export default function UserProfile({ userName }: Props) {
         </Text>
       </View>
 
+      <View style={styles.row}>
+        <View style={[styles.followCountContainer]}>
+          <Text style={[styles.text, { color: colors.text }]}>
+            Followers {profile?.followersCount ?? 0}
+          </Text>
+        </View>
+
+        <View style={[styles.followCountContainer]}>
+          <Text style={[styles.text, { color: colors.text }]}>
+            Following {profile?.followingCount ?? 0}
+          </Text>
+        </View>
+      </View>
+
       <Text style={[styles.text, { color: colors.text }]}>
         Points: {profile?.points ?? 0}
       </Text>
@@ -171,5 +185,12 @@ const styles = StyleSheet.create({
   },
   badgesSection: {
     marginTop: 20,
+  },
+  followCountContainer: {
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: "center",
+    color: "rgba(0,0,0,0.5)",
   },
 });

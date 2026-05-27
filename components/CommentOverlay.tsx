@@ -280,6 +280,7 @@ export default function CommentOverlay({
         animationType="fade"
         transparent
         onRequestClose={() => setShowProfile(false)}
+        style={styles.popupOverlay}
       >
         <View style={styles.popupOverlay}>
           <View style={styles.popup}>
