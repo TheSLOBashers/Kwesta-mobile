@@ -13,12 +13,9 @@ const getProfilePhotoCall = async (
       return null;
     }
 
-    const blob = await response.blob();
-
-    return URL.createObjectURL(blob);
+    return `${backend}profile-photos/${encodeURIComponent(username)}`;
   } catch (error) {
     console.error("Error getting profile photo:", error);
-
     return null;
   }
 };

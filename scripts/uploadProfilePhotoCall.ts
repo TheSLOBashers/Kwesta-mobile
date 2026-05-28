@@ -1,11 +1,23 @@
 import backend from "@/constants/backend";
 
-const uploadProfilePhotoCall = async (username: string, image: File) => {
+const uploadProfilePhotoCall = async (
+  username: string,
+  image: {
+    uri: string;
+    name: string;
+    type: string;
+  },
+) => {
+  if (username === "") {
+    console.error("Invalid empty username for uploading photo.");
+    return;
+  }
+
   try {
     const formData = new FormData();
 
     formData.append("username", username);
-    formData.append("image", image);
+    formData.append("image", image as any);
 
     const response = await fetch(`${backend}profile-photos`, {
       method: "POST",

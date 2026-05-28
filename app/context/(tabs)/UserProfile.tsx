@@ -1,12 +1,15 @@
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { useAuth } from "@/components/auth-context";
 import { usePoints } from "@/components/points-context";
 import getUserBadgesCall from "@/scripts/getUserBadges";
 import getUserProfileCall from "@/scripts/getUserProfileCall";
 import { useCallback, useEffect, useState } from "react";
+
+import ProfilePhoto from "@/components/ProfilePhoto";
+
 interface Props {
   userName?: string | null;
 }
@@ -88,16 +91,13 @@ export default function UserProfile({ userName }: Props) {
       ]}
     >
       <View style={[styles.row]}>
-        <Image
-          source={require("@/assets/images/profile-placeholder.png")}
-          style={styles.image}
-        ></Image>
+        <ProfilePhoto username={userName ?? ""} size={55} />
         <Text style={[styles.title, { color: colors.text }]}>
           {profile?.username ?? "Unknown User"}
         </Text>
       </View>
 
-      <View style={[styles.row, {marginBottom: 8}]}>
+      <View style={[styles.row, { marginBottom: 8 }]}>
         <View style={[styles.followCountContainer]}>
           <Text style={[styles.text, { color: colors.text }]}>
             Followers {profile?.followersCount ?? 0}
