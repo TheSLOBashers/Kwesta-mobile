@@ -1,18 +1,11 @@
-import { useAuth } from "@/components/auth-context";
+import UserProfile from "@/app/context/(tabs)/UserProfile";
+import { useAuth } from '@/components/auth-context';
+import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
 import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
-import {
-  Appearance,
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
 interface Props {
@@ -29,20 +22,25 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === "light" ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
-  image: {
-    height: 20,
-    width: 20,
-    resizeMode: "stretch",
-    marginRight: 10,
-  },
-  inline: {
-    display: "flex",
-    flexDirection: "row",
-    marginBottom: 10,
-  },
+    image: {
+        height: 20,
+        width: 20,
+        resizeMode: 'stretch',
+        marginRight: 10
+    },
+    inline: {
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: 10
+    },
+    crossExit: {
+        height: 12,
+        width: 12,
+        resizeMode: 'stretch',
+        marginBottom: 10,
+    },
 });
 
 export default function QuestOverlay({
@@ -59,8 +57,15 @@ export default function QuestOverlay({
   const [active, setActive] = useState(0);
   const { token } = useAuth();
 
-  useEffect(() => {
-    if (!selectedQuest || !scrollRef.current) return;
+    const [selectedUser, setSelectedUser] = useState<any | null>(null);
+    const [showProfile, setShowProfile] = useState(false);
+
+    const colorScheme = useColorScheme();
+    const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+    const textColor = colorScheme === 'light' ? "black" : "white";
+
+    useEffect(() => {
+        if (!selectedQuest || !scrollRef.current) return;
 
     const index = quests.findIndex((q: any) => q.id === selectedQuest.id);
 

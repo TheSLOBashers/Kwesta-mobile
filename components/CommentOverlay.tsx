@@ -1,11 +1,11 @@
 import UserProfile from "@/app/context/(tabs)/UserProfile";
 import { useAuth } from "@/components/auth-context";
+import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import flagComment from "@/scripts/flagComment";
 import likeComment from "@/scripts/likeComment";
 import unflagComment from "@/scripts/unflagComment";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Appearance,
   Dimensions,
   Image,
   Modal,
@@ -13,7 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
 
@@ -31,20 +31,25 @@ const styles = overlayStyle.styles;
 const screen_width = Dimensions.get("window").width;
 const CARD_WIDTH = screen_width * 0.8;
 const CARD_MARGIN = 16;
-const textColor = Appearance.getColorScheme() === "light" ? "black" : "white";
 const midTextColor = "grey";
 const imageStyle = StyleSheet.create({
-  image: {
-    height: 20,
-    width: 20,
-    resizeMode: "stretch",
-    marginRight: 10,
-  },
-  inline: {
-    display: "flex",
-    flexDirection: "row",
-    marginBottom: 10,
-  },
+    image: {
+        height: 20,
+        width: 20,
+        resizeMode: 'stretch',
+        marginRight: 10
+    },
+    inline: {
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: 10,
+    },
+    crossExit: {
+        height: 12,
+        width: 12,
+        resizeMode: 'stretch',
+        marginBottom: 10,
+    },
 });
 
 export default function CommentOverlay({
@@ -64,6 +69,9 @@ export default function CommentOverlay({
 
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [showProfile, setShowProfile] = useState(false);
+  const colorScheme = useColorScheme();
+  const bgColor = colorScheme === 'dark' ? "#0F0F0F" : "white";
+  const textColor = colorScheme === 'light' ? "black" : "white";
 
   useEffect(() => {
     if (!selectedComment || !scrollRef.current) return;
@@ -190,6 +198,7 @@ export default function CommentOverlay({
                     key={`${c.id}-${i}`}
                     style={[
                       styles.Card,
+                      { backgroundColor: bgColor },
                       { transform: [{ scale: i === active ? 1 : 0.92 }] },
                     ]}
                   >
@@ -200,7 +209,7 @@ export default function CommentOverlay({
                         setShowProfile(true);
                       }}
                     >
-                      <Text style={styles.author}>{c.authorName}</Text>
+                      <Text style={[styles.author, {color: textColor}]}>{c.authorName}</Text>
                     </Pressable>
 
                     <Text style={{ color: midTextColor, marginBottom: 7 }}>
@@ -222,17 +231,9 @@ export default function CommentOverlay({
                       testID="likeButton"
                     >
                       <View style={imageStyle.inline}>
-                        <Image
-                          style={imageStyle.image}
-                          source={
-                            c.likedByUser
-                              ? require("../assets/images/heart_filled.png")
-                              : Appearance.getColorScheme() === "light"
-                                ? require("../assets/images/heart_empty_black.png")
-                                : require("../assets/images/heart_empty_white.png")
-                          }
-                        />
-                        <Text style={{ color: textColor }}>{c.likes || 0}</Text>
+                        <Image style={imageStyle.image}
+                          source={c.likedByUser ? require("../assets/images/heart_filled.png") : (colorScheme === 'light' ? require("../assets/images/heart_empty_black.png") : require("../assets/images/heart_empty_white.png"))}/>
+                        <Text style={{color: textColor}}>{c.likes || 0}</Text>
                       </View>
                     </Pressable>
 
@@ -255,15 +256,8 @@ export default function CommentOverlay({
                         testID="flagButton"
                       >
                         <View style={imageStyle.inline}>
-                          <Image
-                            style={imageStyle.image}
-                            source={
-                              Appearance.getColorScheme() === "light"
-                                ? require("../assets/images/flag_empty_black.png")
-                                : require("../assets/images/flag_empty_white.png")
-                            }
-                          />
-                          <Text style={{ color: textColor }}>Flag</Text>
+                          <Image style={imageStyle.image} source={colorScheme === 'light' ? require("../assets/images/flag_empty_black.png") : require("../assets/images/flag_empty_white.png")}/>
+                          <Text style={{color: textColor}}>Flag</Text>
                         </View>
                       </Pressable>
                     )}
@@ -283,9 +277,13 @@ export default function CommentOverlay({
         style={styles.popupOverlay}
       >
         <View style={styles.popupOverlay}>
-          <View style={styles.popup}>
-            <Pressable onPress={() => setShowProfile(false)}>
-              <Text style={{ color: textColor, marginBottom: 5 }}>Close</Text>
+          <View style={[styles.popup, {backgroundColor: bgColor}]}>
+            <Pressable style={{ margin: 2, alignItems: 'flex-end'}}
+            onPress={() => setShowProfile(false)}>
+              <Image style={imageStyle.crossExit}
+              source={colorScheme === 'dark' ? require("../assets/images/close_white.png") : 
+                require("../assets/images/close_black.png")}
+              />
             </Pressable>
 
             <UserProfile userName={selectedUser} />
@@ -295,3 +293,5 @@ export default function CommentOverlay({
     </View>
   );
 }
+
+// want to replace these X's with svgs
