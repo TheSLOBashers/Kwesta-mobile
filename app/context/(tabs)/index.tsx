@@ -55,7 +55,7 @@ function UserFeed() {
   const addEvent = useEventStore((s) => s.addEvent);
   const mergeEvents = useEventStore((s) => s.mergeEvents);
   const updateEvent = useEventStore((s) => s.updateEvent);
-  
+
   const quests = useQuestStore((s) => s.quests);
   const setQuests = useQuestStore((s) => s.setQuests);
   const addQuest = useQuestStore((s) => s.addQuest);
@@ -83,8 +83,8 @@ function UserFeed() {
 
   const lastSnapshotLocRef = useRef<any>(null);
 
-  const commentDistance = 0.005;
-  const refreshDistance = 5;
+  const commentDistance = 0.01;
+  const refreshDistance = 1;
 
   useEffect(() => {
     tokenRef.current = token;
@@ -118,11 +118,15 @@ function UserFeed() {
     setLoading(true);
 
     const [commentData, eventData, questData] = await Promise.all([
-      getCommentsByAreaCall(token, location.latitude, location.longitude, commentDistance),
+      getCommentsByAreaCall(
+        token,
+        location.latitude,
+        location.longitude,
+        commentDistance,
+      ),
       getEventsByAreaCall(token, location.latitude, location.longitude, 10),
       getQuestsByAreaCall(token, location.latitude, location.longitude, 10),
     ]);
-
 
     setComments(
       commentData.map((c: any) => ({
@@ -138,10 +142,10 @@ function UserFeed() {
         likes: c.likes ?? 0,
         likedByUser: c.likedByUser ?? false,
         flaggedByUser: c.flaggedByUser ?? false,
-        
+
         flag: c.flag,
         date: c.date,
-      }))
+      })),
     );
     setEvents(
       eventData.map((e: any) => ({
@@ -160,8 +164,8 @@ function UserFeed() {
         time: e.time,
         image: e.image,
         flag: e.flag,
-        rsvpList: e.rsvpList
-      }))
+        rsvpList: e.rsvpList,
+      })),
     );
     setQuests(
       questData.map((q: any) => ({
@@ -180,8 +184,8 @@ function UserFeed() {
         time: q.time,
         image: q.image,
         flag: q.flag,
-        rsvpList: q.rsvpList
-      }))
+        rsvpList: q.rsvpList,
+      })),
     );
 
     const all = [...commentData, ...eventData, ...questData];
@@ -199,48 +203,56 @@ function UserFeed() {
     setLoading(false);
   };
 
+  const snapshotLock = useRef(false);
+
   const fetchCommentSnapshot = async (loc: any) => {
+    if (snapshotLock.current) return;
+    snapshotLock.current = true;
     if (!loc) return;
 
-    const commentData = await getCommentsByAreaSnapshot(
-      token,
-      loc.latitude,
-      loc.longitude,
-      commentDistance
-    );
-
-    if (!loc) return;
-
-    setComments(
-      commentData.map((c: any) => ({
-        id: c.id,
-        createdAt: c.createdAt ?? c.date,
-        authorId: c.author,
-        authorName: c.authorName ?? "Unknown",
-
-        comment: c.comment,
-
-        location: c.location,
-
-        likes: c.likes ?? 0,
-        likedByUser: c.likedByUser ?? false,
-        flaggedByUser: c.flaggedByUser ?? false,
-
-        flag: c.flag,
-        date: c.date,
-      }))
-    );
-
-    // initialize lastSync for comments only
-    if (commentData.length > 0) {
-      const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
-        new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+    try {
+      const commentData = await getCommentsByAreaSnapshot(
+        token,
+        loc.latitude,
+        loc.longitude,
+        commentDistance,
       );
 
-      setCommentLastSync(newest.createdAt);
+      if (!loc) return;
+
+      setComments(
+        commentData.map((c: any) => ({
+          id: c.id,
+          createdAt: c.createdAt ?? c.date,
+          authorId: c.author,
+          authorName: c.authorName ?? "Unknown",
+
+          comment: c.comment,
+
+          location: c.location,
+
+          likes: c.likes ?? 0,
+          likedByUser: c.likedByUser ?? false,
+          flaggedByUser: c.flaggedByUser ?? false,
+
+          flag: c.flag,
+          date: c.date,
+        })),
+      );
+
+      // initialize lastSync for comments only
+      if (commentData.length > 0) {
+        const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max,
+        );
+
+        setCommentLastSync(newest.createdAt);
+      }
+    } finally {
+      snapshotLock.current = false;
     }
   };
-  
+
   const commentSyncLock = useRef(false);
 
   const fetchCommentUpdates = async () => {
@@ -258,7 +270,7 @@ function UserFeed() {
         loc.latitude,
         loc.longitude,
         commentDistance,
-        since
+        since,
       );
 
       mergeComments(
@@ -277,12 +289,12 @@ function UserFeed() {
           flaggedByUser: c.flaggedByUser ?? false,
 
           date: c.date,
-        }))
+        })),
       );
 
       if (commentData.length > 0) {
         const newest = commentData.reduce((max: CommentItem, c: CommentItem) =>
-          new Date(c.createdAt) > new Date(max.createdAt) ? c : max
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max,
         );
 
         setCommentLastSync(newest.createdAt);
@@ -291,8 +303,6 @@ function UserFeed() {
       commentSyncLock.current = false;
     }
   };
-
-
 
   //quest and event interval
   useEffect(() => {
@@ -325,8 +335,8 @@ function UserFeed() {
 
       if (allNew.length > 0) {
         const newest = allNew.reduce((max, c) =>
-          new Date(c.createdAt) > new Date(max.createdAt) ? c : max
-      );
+          new Date(c.createdAt) > new Date(max.createdAt) ? c : max,
+        );
 
         setLastSync(newest.createdAt);
       }
@@ -345,9 +355,6 @@ function UserFeed() {
 
     return () => clearInterval(interval);
   }, [location]);
-
-
-
 
   const didInit = useRef(false);
 
@@ -368,7 +375,7 @@ function UserFeed() {
 
       const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist < 0.01) return; // ignore tiny movement
+      if (dist < 0.0002) return; // ignore tiny movement
     }
 
     lastSnapshotLocRef.current = location;
@@ -391,12 +398,12 @@ function UserFeed() {
 
       subscription = await Location.watchPositionAsync(
         {
-          accuracy: Location.Accuracy.High,
+          accuracy: Location.Accuracy.BestForNavigation,
           distanceInterval: refreshDistance,
         },
         (loc) => {
           setLocation(loc.coords);
-        }
+        },
       );
     })();
 
