@@ -97,7 +97,7 @@ export default function UserProfile({ userName }: Props) {
         </Text>
       </View>
 
-      <View style={styles.row}>
+      <View style={[styles.row, {marginBottom: 8}]}>
         <View style={[styles.followCountContainer]}>
           <Text style={[styles.text, { color: colors.text }]}>
             Followers {profile?.followersCount ?? 0}

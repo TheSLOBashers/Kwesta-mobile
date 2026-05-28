@@ -201,60 +201,7 @@ export default function EventOverlay({
                                                 </View>
                                             </Pressable>
                                         )}
-                                    </View>
-                                );
-                            })}
-                        </ScrollView>
-                    </View>
-                </>
-            )}
-            <Modal
-                    visible={showProfile}
-                    animationType="fade"
-                    transparent
-                    onRequestClose={() => setShowProfile(false)}
-                  >
-                    <Text style={styles.author}>{e.authorName}</Text>
-                    <Text style={{ color: midTextColor, marginBottom: 7 }}>
-                      {formattedDate}
-                    </Text>
-                    <Text
-                      style={{
-                        color: textColor,
-                        fontSize: 17,
-                        marginBottom: 30,
-                      }}
-                    >
-                      {e.description}
-                    </Text>
-                    {e.joined ? (
-                      <Pressable
-                        onPress={() => handleUnjoin(e.id)}
-                        testID="unjoinEventButton"
-                      >
-                        <View style={imageStyle.inline}>
-                          <Image
-                            style={imageStyle.image}
-                            source={require("../assets/images/exit_sign.png")}
-                          />
-                          <Text style={{ color: textColor }}>Unjoin event</Text>
-                        </View>
-                      </Pressable>
-                    ) : (
-                      <Pressable
-                        onPress={() => handleJoin(e.id)}
-                        testID="joinEventButton"
-                      >
-                        <View style={imageStyle.inline}>
-                          <Image
-                            style={imageStyle.image}
-                            source={require("../assets/images/enter_sign.png")}
-                          />
-                          <Text style={{ color: textColor }}>Join event</Text>
-                        </View>
-                      </Pressable>
-                    )}
-                    <View style={imageStyle.inline}>
+                                        <View style={imageStyle.inline}>
                       <Ionicons name="people-outline" size={18} color={midTextColor} />
                       <Text style={{ color: midTextColor, marginLeft: 6 }}>
                         {e.rsvpList?.length || 0}
@@ -267,6 +214,25 @@ export default function EventOverlay({
           </View>
         </>
       )}
+      <Modal
+        visible={showProfile}
+        animationType="fade"
+        transparent
+        onRequestClose={()=> setShowProfile(false)}>
+          <View style={styles.popupOverlay}>
+            <View style={[styles.popup, {backgroundColor: bgColor}]}>
+              <Pressable style={{margin:2, alignItems: 'flex-end'}}
+              onPress={()=>setShowProfile(false)}>
+                <Image style={imageStyle.crossExit}
+                source={colorScheme === 'dark' ? require("../assets/images/close_white.png") :
+                  require("../assets/images/close_black.png")}
+                  />
+              </Pressable>
+
+              <UserProfile userName={selectedUser} />
+            </View>
+          </View>
+      </Modal>
     </View>
   );
 }
