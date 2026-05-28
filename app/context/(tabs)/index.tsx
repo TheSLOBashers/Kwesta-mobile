@@ -138,7 +138,8 @@ function UserFeed() {
         likes: c.likes ?? 0,
         likedByUser: c.likedByUser ?? false,
         flaggedByUser: c.flaggedByUser ?? false,
-
+        
+        flag: c.flag,
         date: c.date,
       }))
     );
@@ -159,6 +160,7 @@ function UserFeed() {
         time: e.time,
         image: e.image,
         flag: e.flag,
+        rsvpList: e.rsvpList
       }))
     );
     setQuests(
@@ -178,6 +180,7 @@ function UserFeed() {
         time: q.time,
         image: q.image,
         flag: q.flag,
+        rsvpList: q.rsvpList
       }))
     );
 
@@ -223,6 +226,7 @@ function UserFeed() {
         likedByUser: c.likedByUser ?? false,
         flaggedByUser: c.flaggedByUser ?? false,
 
+        flag: c.flag,
         date: c.date,
       }))
     );
@@ -647,7 +651,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 100,
     left: 20,
-    backgroundColor: "#FF6C00",
+    backgroundColor: "blue",
     width: 50,
     height: 50,
     borderRadius: 25,

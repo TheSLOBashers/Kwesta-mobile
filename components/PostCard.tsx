@@ -17,6 +17,8 @@ export default function PostCard({ item, onEdit, mode, onUnjoin, onDelete }: Pro
         minute: "2-digit",
     });
     const author = item.authorName;
+    const participantCount = item.rsvpList?.length ?? item.participantCount ?? 0;
+    const flags = item.flag;
 
     const label =
       item.type === "event"
@@ -70,6 +72,7 @@ export default function PostCard({ item, onEdit, mode, onUnjoin, onDelete }: Pro
 
           {/* Footer (optional extra info) */}
           <View style={styles.footer}>
+            <View style={{ flexDirection: "row", gap: 10 }}>
               {item.likes !== undefined && (
                 <Text style={styles.small}>❤️ {item.likes}</Text>
               )}
@@ -77,6 +80,13 @@ export default function PostCard({ item, onEdit, mode, onUnjoin, onDelete }: Pro
               {item.flag !== undefined && (
                 <Text style={styles.small}>🚩 {item.flag}</Text>
               )}
+            </View>
+
+            {(item.type === "event" || item.type === "quest") && (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.small}>👥 {participantCount}</Text>
+              </View>
+            )}
           </View>
         </View>
     );

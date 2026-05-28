@@ -62,6 +62,8 @@ export default function CommentOverlay({
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
+  const isAutoScrolling = useRef(false);
+
   const [active, setActive] = useState(0);
   const { token } = useAuth();
 
@@ -77,10 +79,19 @@ export default function CommentOverlay({
     const index = comments.findIndex((c: any) => c.id === selectedComment.id);
 
     if (index !== -1 && index !== active) {
+      isAutoScrolling.current = true;
+
+      setActive(index);
+      onSelectComment(comments[index]);
+
       scrollRef.current.scrollTo({
         x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
         animated: true,
       });
+
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+      }, 300);
     }
   }, [selectedComment]);
 
@@ -154,12 +165,16 @@ export default function CommentOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onMomentumScrollEnd={(e) => {
+              onScroll={(e) => {
+                if (isAutoScrolling.current) return;
                 const x = e.nativeEvent.contentOffset.x;
-                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
 
-                setActive(index);
-                onSelectComment(comments[index]);
+                const newIndex = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
+                if (newIndex !== active) {
+                  setActive(newIndex);
+                  onSelectComment(comments[newIndex]);
+                }
               }}
               scrollEventThrottle={16}
             >
@@ -259,6 +274,7 @@ export default function CommentOverlay({
         animationType="fade"
         transparent
         onRequestClose={() => setShowProfile(false)}
+        style={styles.popupOverlay}
       >
         <View style={styles.popupOverlay}>
           <View style={[styles.popup, {backgroundColor: bgColor}]}>

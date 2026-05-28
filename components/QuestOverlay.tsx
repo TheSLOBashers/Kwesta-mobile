@@ -3,6 +3,7 @@ import { useAuth } from '@/components/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinQuest from "@/scripts/joinQuest";
 import unjoinQuest from "@/scripts/unjoinQuest";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
@@ -52,6 +53,7 @@ export default function QuestOverlay({
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
+  const isAutoScrolling = useRef(false);
   const [active, setActive] = useState(0);
   const { token } = useAuth();
 
@@ -68,10 +70,19 @@ export default function QuestOverlay({
     const index = quests.findIndex((q: any) => q.id === selectedQuest.id);
 
     if (index !== -1 && index !== active) {
+      isAutoScrolling.current = true;
+
+      setActive(index);
+      onSelectQuest(quests[index]);
+
       scrollRef.current.scrollTo({
         x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
         animated: true,
       });
+
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+      }, 300);
     }
   }, [selectedQuest]);
 
@@ -81,7 +92,11 @@ export default function QuestOverlay({
         // Update the local state to reflect the change
         setQuests((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: true } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: true,
+              rsvpList: [...(e.rsvpList || []), "me"],
+            } : e,
           ),
         );
         if (onPointsChanged) {
@@ -99,7 +114,11 @@ export default function QuestOverlay({
       .then(() => {
         setQuests((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: false } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: false,
+              rsvpList: (e.rsvpList || []).slice(0, -1),
+            } : e,
           ),
         );
         alert("Successfully unjoined quest!");
@@ -125,70 +144,79 @@ export default function QuestOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onMomentumScrollEnd={(e) => {
+              onScroll={(e) => {
+                if (isAutoScrolling.current) return;
+                
                 const x = e.nativeEvent.contentOffset.x;
-                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-                                setActive(index);
-                            }}
-                            scrollEventThrottle={16}
-                        >
-                            {quests.map((q: any, i: any) => (
-                                    <View key={`${q.id}-${i}`} style={[styles.Card, { backgroundColor: bgColor, transform: [{ scale: i === active ? 1 : 0.92 }] }]}>
-                                        <Pressable
-                                            onPress={() => {
-                                            console.log("Passing user " + q.authorName);
-                                            setSelectedUser(q.authorName);
-                                            setShowProfile(true);
-                                            }}
-                                        >
-                                            <Text style={[styles.author, {color: textColor}]}>{q.authorName}</Text>
-                                        </Pressable>
-                                        <Text style={{color: textColor, fontSize: 17, marginTop: 7, marginBottom: 30}}>{q.description}</Text>
-                                        {q.joined ? (
-                                            <Pressable onPress={() => handleUnjoin(q.id)}>
-                                                <View style={imageStyle.inline}>
-                                                    <Image style={imageStyle.image}
-                                                    source={require("../assets/images/exit_sign.png")}/>
-                                                    <Text style={{color: textColor}}>Unjoin Quest</Text>
-                                                </View>
-                                            </Pressable>
-                                        ) : (
-                                            <Pressable onPress={() => handleJoin(q.id)}>
-                                                <View style={imageStyle.inline}>
-                                                    <Image style={imageStyle.image}
-                                                      source={require("../assets/images/enter_sign.png")}/>
-                                                    <Text style={{color: textColor}}>Join Quest</Text>
-                                                </View>
-                                            </Pressable>
-                                        )}
-                                        <Modal
-                                                visible={showProfile}
-                                                animationType="fade"
-                                                transparent
-                                                onRequestClose={() => setShowProfile(false)}
-                                              >
-                                                <View style={styles.popupOverlay}>
-                                                  <View style={[styles.popup, {backgroundColor: bgColor}]}>
-                                                    <Pressable style={{ margin: 2, alignItems: 'flex-end'}}
-                                                    onPress={() => setShowProfile(false)}>
-                                                      <Image style={imageStyle.crossExit}
-                                                                    source={colorScheme === 'dark' ? require("../assets/images/close_white.png") : 
-                                                                      require("../assets/images/close_black.png")}
-                                                                    />
-                                                    </Pressable>
-                                        
-                                                    <UserProfile userName={selectedUser} />
-                                                  </View>
-                                                </View>
-                                              </Modal>
-                                    </View>
-                            ))}
-                        </ScrollView>
+                const newIndex = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
+
+                if (newIndex !== active) {
+                  setActive(newIndex);
+                  onSelectQuest(quests[newIndex]);
+                }
+              }}
+              scrollEventThrottle={16}
+            >
+              {quests.map((q: any, i: any) => (
+                <View
+                  key={`${q.id}-${i}`}
+                  style={[
+                    styles.Card,
+                    { transform: [{ scale: i === active ? 1 : 0.92 }] },
+                  ]}
+                >
+                  <Text style={styles.author}>{q.authorName}</Text>
+                  <Text
+                    style={{
+                      color: textColor,
+                      fontSize: 17,
+                      marginTop: 7,
+                      marginBottom: 30,
+                    }}
+                  >
+                    {q.description}
+                  </Text>
+                  {q.joined ? (
+                    <Pressable
+                      onPress={() => handleUnjoin(q.id)}
+                      testID="unjoinButton"
+                    >
+                      <View style={imageStyle.inline}>
+                        <Image
+                          style={imageStyle.image}
+                          source={require("../assets/images/exit_sign.png")}
+                        />
+                        <Text style={{ color: textColor }}>Unjoin Quest</Text>
+                      </View>
+                    </Pressable>
+                  ) : (
+                    <Pressable
+                      onPress={() => handleJoin(q.id)}
+                      testID="joinButton"
+                    >
+                      <View style={imageStyle.inline}>
+                        <Image
+                          style={imageStyle.image}
+                          source={require("../assets/images/enter_sign.png")}
+                        />
+                        <Text style={{ color: textColor }}>Join Quest</Text>
+                      </View>
+                    </Pressable>
+                  )}
+                  <View style={imageStyle.inline}>
+                      <Ionicons name="people-outline" size={18} color={midTextColor} />
+                      <Text style={{ color: midTextColor, marginLeft: 6 }}>
+                        {q.rsvpList?.length || 0}
+                      </Text>
                     </View>
-                </>
-            )}
-        </View>
-    );
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </>
+      )}
+    </View>
+  );
 }
 
 /*

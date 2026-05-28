@@ -3,6 +3,7 @@ import { useAuth } from '@/components/auth-context';
 import { useColorScheme } from '@/hooks/use-color-scheme.web';
 import joinEvent from "@/scripts/joinEvent";
 import unjoinEvent from "@/scripts/unjoinEvent";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useRef, useState } from "react";
 import { Dimensions, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import overlayStyle from "../styles/overlayStyle";
@@ -52,6 +53,7 @@ export default function EventOverlay({
   open,
 }: Props) {
   const scrollRef = useRef<ScrollView>(null);
+  const isAutoScrolling = useRef(false);
   const [active, setActive] = useState(0);
   const { token } = useAuth();
 
@@ -68,10 +70,19 @@ export default function EventOverlay({
     const index = events.findIndex((e: any) => e.id === selectedEvent.id);
 
     if (index !== -1 && index !== active) {
+      isAutoScrolling.current = true;
+
+      setActive(index);
+      onSelectEvent(events[index]);
+
       scrollRef.current.scrollTo({
         x: index * (CARD_WIDTH + CARD_MARGIN) - CARD_MARGIN * 2,
         animated: true,
       });
+
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+      }, 300);
     }
   }, [selectedEvent]);
 
@@ -81,7 +92,11 @@ export default function EventOverlay({
         // Update the local state to reflect the change
         setEvents((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: true } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: true,
+              rsvpList: [...(e.rsvpList || []), "me"],
+            } : e,
           ),
         );
         if (onPointsChanged) {
@@ -99,7 +114,11 @@ export default function EventOverlay({
       .then(() => {
         setEvents((prevEvents: any) =>
           prevEvents.map((e: any) =>
-            e.id === eventId ? { ...e, joined: false } : e,
+            e.id === eventId ? { 
+              ...e, 
+              joined: false,
+              rsvpList: (e.rsvpList || []).slice(0, -1),
+            } : e,
           ),
         );
         alert("Successfully unjoined event!");
@@ -125,13 +144,16 @@ export default function EventOverlay({
               snapToInterval={CARD_WIDTH + CARD_MARGIN}
               snapToAlignment="center"
               decelerationRate="fast"
-              onMomentumScrollEnd={(e) => {
+              onScroll={(e) => {
+                if (isAutoScrolling.current) return;
+
                 const x = e.nativeEvent.contentOffset.x;
+                const newIndex = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
 
-                const index = Math.round(x / (CARD_WIDTH + CARD_MARGIN));
-
-                setActive(index);
-                onSelectEvent(events[index]);
+                if (newIndex !== active) {
+                  setActive(newIndex);
+                  onSelectEvent(events[newIndex]);
+                }
               }}
                             scrollEventThrottle={16}
                         >
@@ -192,22 +214,61 @@ export default function EventOverlay({
                     transparent
                     onRequestClose={() => setShowProfile(false)}
                   >
-                    <View style={styles.popupOverlay}>
-                      <View style={[styles.popup, {backgroundColor: bgColor}]}>
-                        <Pressable style={{ margin: 2, alignItems: 'flex-end'}}
-                        onPress={() => setShowProfile(false)}>
-                          <Image style={imageStyle.crossExit}
-                                        source={colorScheme === 'dark' ? require("../assets/images/close_white.png") : 
-                                          require("../assets/images/close_black.png")}
-                                        />
-                        </Pressable>
-            
-                        <UserProfile userName={selectedUser} />
-                      </View>
+                    <Text style={styles.author}>{e.authorName}</Text>
+                    <Text style={{ color: midTextColor, marginBottom: 7 }}>
+                      {formattedDate}
+                    </Text>
+                    <Text
+                      style={{
+                        color: textColor,
+                        fontSize: 17,
+                        marginBottom: 30,
+                      }}
+                    >
+                      {e.description}
+                    </Text>
+                    {e.joined ? (
+                      <Pressable
+                        onPress={() => handleUnjoin(e.id)}
+                        testID="unjoinEventButton"
+                      >
+                        <View style={imageStyle.inline}>
+                          <Image
+                            style={imageStyle.image}
+                            source={require("../assets/images/exit_sign.png")}
+                          />
+                          <Text style={{ color: textColor }}>Unjoin event</Text>
+                        </View>
+                      </Pressable>
+                    ) : (
+                      <Pressable
+                        onPress={() => handleJoin(e.id)}
+                        testID="joinEventButton"
+                      >
+                        <View style={imageStyle.inline}>
+                          <Image
+                            style={imageStyle.image}
+                            source={require("../assets/images/enter_sign.png")}
+                          />
+                          <Text style={{ color: textColor }}>Join event</Text>
+                        </View>
+                      </Pressable>
+                    )}
+                    <View style={imageStyle.inline}>
+                      <Ionicons name="people-outline" size={18} color={midTextColor} />
+                      <Text style={{ color: midTextColor, marginLeft: 6 }}>
+                        {e.rsvpList?.length || 0}
+                      </Text>
                     </View>
-                  </Modal>
-        </View>
-    );
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </>
+      )}
+    </View>
+  );
 }
 
 /*
