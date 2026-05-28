@@ -14,9 +14,15 @@ type ProfilePhotoProps = {
   username: string;
   size?: number;
   style?: StyleProp<ImageStyle>;
+  onPhotoStatusChange?: (hasPhoto: boolean) => void;
 };
 
-const ProfilePhoto = ({ username, size = 72, style }: ProfilePhotoProps) => {
+const ProfilePhoto = ({
+  username,
+  size = 72,
+  style,
+  onPhotoStatusChange,
+}: ProfilePhotoProps) => {
   const [photoSource, setPhotoSource] = useState<ImageSourcePropType>(
     placeholderProfilePhoto,
   );
@@ -36,10 +42,12 @@ const ProfilePhoto = ({ username, size = 72, style }: ProfilePhotoProps) => {
 
       if (!imageUrl) {
         setPhotoSource(placeholderProfilePhoto);
+        onPhotoStatusChange?.(false);
         return;
       }
 
       setPhotoSource({ uri: imageUrl });
+      onPhotoStatusChange?.(true);
     };
 
     loadProfilePhoto();
@@ -47,7 +55,7 @@ const ProfilePhoto = ({ username, size = 72, style }: ProfilePhotoProps) => {
     return () => {
       active = false;
     };
-  }, [username]);
+  }, [username, onPhotoStatusChange]);
 
   return (
     <Image

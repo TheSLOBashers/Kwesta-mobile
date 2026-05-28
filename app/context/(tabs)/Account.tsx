@@ -34,7 +34,9 @@ import switchUITheme from "@/scripts/switchTheme";
 import unfollowUserCall from "@/scripts/unfollowUserCall";
 
 import ProfilePhoto from "@/components/ProfilePhoto";
+import deleteProfilePhotoCall from "@/scripts/deleteProfilePhotoCall";
 import uploadProfilePhotoCall from "@/scripts/uploadProfilePhotoCall";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 
 type AccountItem = {
@@ -272,6 +274,9 @@ export default function Account() {
     });
   };
 
+  const [hasProfilePhoto, setHasProfilePhoto] = useState(false);
+  const [profilePhotoRefreshKey, setProfilePhotoRefreshKey] = useState(0);
+
   const handleUploadProfilePhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -286,8 +291,25 @@ export default function Account() {
 
     const asset = result.assets[0];
 
+    // Always scale the image to 500x500 to conserve space on teh backend
+    const resized = await ImageManipulator.manipulateAsync(
+      asset.uri,
+      [
+        {
+          resize: {
+            width: 500,
+            height: 500,
+          },
+        },
+      ],
+      {
+        compress: 0.7,
+        format: ImageManipulator.SaveFormat.JPEG,
+      },
+    );
+
     const imageFile = {
-      uri: asset.uri,
+      uri: resized.uri,
       name: "profile-photo.jpg",
       type: asset.mimeType ?? "image/jpeg",
     } as any;
@@ -301,7 +323,18 @@ export default function Account() {
     // refresh profile photo component if needed
     setProfilePhotoRefreshKey((prev) => prev + 1);
   };
-  const [profilePhotoRefreshKey, setProfilePhotoRefreshKey] = useState(0);
+
+  const handleRemoveProfilePhoto = async () => {
+    const deleted = await deleteProfilePhotoCall(username ?? "");
+
+    if (!deleted) {
+      console.error("Failed to delete profile photo");
+      return;
+    }
+
+    setHasProfilePhoto(false);
+    setProfilePhotoRefreshKey((prev) => prev + 1);
+  };
 
   const followerCount = toCount(
     profileData?.followersCount ?? profileData?.followers,
@@ -463,9 +496,25 @@ export default function Account() {
         ]}
       >
         <View style={styles.heroTopRow}>
-          <Pressable onPress={handleUploadProfilePhoto}>
-            <ProfilePhoto username={username ?? ""} size={82} />
-          </Pressable>
+          <View style={styles.profilePhotoSection}>
+            <Pressable onPress={handleUploadProfilePhoto}>
+              <ProfilePhoto
+                key={profilePhotoRefreshKey}
+                onPhotoStatusChange={setHasProfilePhoto}
+                username={username ?? ""}
+                size={82}
+              />
+            </Pressable>
+
+            {hasProfilePhoto && (
+              <Pressable
+                onPress={handleRemoveProfilePhoto}
+                style={styles.removePhotoButton}
+              >
+                <Text style={styles.removePhotoButtonText}>Remove Photo</Text>
+              </Pressable>
+            )}
+          </View>
 
           <View style={{ flex: 1 }}>
             <Text style={[styles.kicker, { color: colors.tint }]}>
@@ -1227,5 +1276,26 @@ const styles = StyleSheet.create({
   cardMeta: {
     marginTop: 6,
     fontSize: 13,
+  },
+  removePhotoButton: {
+    marginTop: 10,
+    alignSelf: "flex-start",
+
+    backgroundColor: "#ff3b30",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+
+    borderRadius: 999,
+  },
+
+  removePhotoButtonText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
+  },
+  profilePhotoSection: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 10,
   },
 });

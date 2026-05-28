@@ -25,6 +25,7 @@ const uploadProfilePhotoCall = async (
     });
 
     if (!response.ok) {
+      console.error("Upload failed:", response.status, await response.text());
       return null;
     }
 
