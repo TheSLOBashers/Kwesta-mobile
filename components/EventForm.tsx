@@ -54,7 +54,14 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
 
     const onChangeTime = (event: any, selectedTime: any) => {
         const currentDate = selectedTime || uDate;
-        setDate(currentDate);
+
+        const now = new Date();
+
+        const isToday = uDate.toDateString() === now.toDateString();
+
+        const safeTime = isToday && currentDate < now ? now : currentDate;
+
+        setDate(safeTime);
         setShowTime(false);
     };
 
@@ -84,6 +91,7 @@ function EventForm({ onSubmit, onClose, username, location, initialText, initial
                         mode="date"
                         display="default"
                         onChange={onChangeDate}
+                        minimumDate={new Date()}
                     />
                 ) : (
                     <Pressable onPress={() => setShowDate(true)}>
