@@ -184,7 +184,10 @@ export default function EventOverlay({
                                         <Text style={{color: midTextColor, marginBottom: 7}}>{formattedDate}</Text>
                                         <Text style={{color: textColor, fontSize: 17, marginBottom: 30}}>{e.description}</Text>
                                         {e.joined ? (
-                                            <Pressable onPress={() => handleUnjoin(e.id)}>
+                                            <Pressable 
+                                              onPress={() => handleUnjoin(e.id)}
+                                              testID="unjoinEventButton"
+                                            >
                                                 <View style={imageStyle.inline}>
                                                     <Image style={imageStyle.image}
                                                     source={require("../assets/images/exit_sign.png")}/>
@@ -193,7 +196,10 @@ export default function EventOverlay({
                                                 
                                             </Pressable>
                                         ) : (
-                                            <Pressable onPress={() => handleJoin(e.id)}>
+                                            <Pressable 
+                                              onPress={() => handleJoin(e.id)}
+                                              testID="joinEventButton"
+                                            >
                                                 <View style={imageStyle.inline}>
                                                     <Image style={imageStyle.image}
                                                     source={require("../assets/images/enter_sign.png")}/>
