@@ -83,8 +83,8 @@ function UserFeed() {
 
   const lastSnapshotLocRef = useRef<any>(null);
 
-  const commentDistance = 0.01;
-  const refreshDistance = 1;
+  const commentDistance = 0.015;
+  const refreshDistance = 3;
 
   useEffect(() => {
     tokenRef.current = token;
@@ -340,7 +340,7 @@ function UserFeed() {
 
         setLastSync(newest.createdAt);
       }
-    }, 15000); // 15s
+    }, 30000); // 30s
 
     return () => clearInterval(interval);
   }, [location]);
@@ -351,7 +351,7 @@ function UserFeed() {
 
     const interval = setInterval(() => {
       fetchCommentUpdates();
-    }, 15000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [location]);
