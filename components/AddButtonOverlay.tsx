@@ -1,6 +1,7 @@
 import { useColorScheme } from "@/hooks/use-color-scheme.web";
 import React, { useEffect, useRef, useState } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
+import { createAnimatedComponent, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import AddButton from "./AddButton";
 
 import CommentForm from "./CommentForm";
@@ -32,6 +33,8 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
     const containerRef = useRef(null);
     const colorScheme = useColorScheme();
 
+    const AnimatedPressable = createAnimatedComponent(Pressable);
+
     useEffect(() => {
         if(!(formType===null)) {
             setActiveOverlay(null);
@@ -57,11 +60,11 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
         },
         menuButton: {
             position: "absolute",
-            top: "50%",
+            bottom: "15%",
             left: "50%",
             borderRadius: "100%",
-            width: "10%",
-            height: "5%",
+            width: "12%",
+            height: "6%",
             padding: "2%",
             alignItems: "center",
             justifyContent: "center",
@@ -70,12 +73,14 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
         },
         commentButton: {
             backgroundColor: "#2a69f1",
+            left: "74%",
             transform: open
                 ? "translate(250%, 400%) scale(1.0)"
                 : "translate(0, 0) scale(0)",
         },
         eventButton: {
             backgroundColor: "#2a69f1",
+            left: "74%",
             transform: open
                 ? "translate(75%, 500%) scale(1.0)"
                 : "translate(0, 0) scale(0)",
@@ -90,6 +95,59 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
         },
     });
 
+    const [isOpen, setIsOpen] = useState(false);
+    const animation = useSharedValue(0);
+
+    const commentStyleAnim = useAnimatedStyle(() => {
+        const translateYAnim = interpolate(
+            animation.value,
+            [0,1],
+            [0,-60],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            transform: [
+                { scale: withSpring(animation.value) },
+                { translateY: withSpring(translateYAnim) },
+            ]
+        }
+    });
+
+    const eventStyleAnim = useAnimatedStyle(() => {
+        const translateYAnim = interpolate(
+            animation.value,
+            [0,1],
+            [0,-120],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            transform: [
+                { scale: withSpring(animation.value) },
+                { translateY: withSpring(translateYAnim) },
+            ]
+        }
+    });
+
+    const opacityStyleAnim = useAnimatedStyle(() => {
+        const opacityAnim = interpolate(
+            animation.value,
+            [0, 0.5, 1],
+            [0,0,1],
+            Extrapolation.CLAMP
+        );
+
+        return { opacity: withSpring(opacityAnim) }
+    });
+
+    function buttonPress() {
+        setIsOpen((current) => {
+            animation.value  = current ? 0 : 1;
+            return !current;
+        })
+    }
+
     return (
         <View
             ref={containerRef}
@@ -102,12 +160,17 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
                     onPress={() => setOpen(false)}
                 />
             )}
-            <AddButton onClick={() => setOpen(!open)} />
-            <Pressable
+            <AddButton onClick={() => {
+                setOpen(!open);
+                buttonPress();
+                }} />
+            <AnimatedPressable
                 aria-label="add comment"
                 style={[
                     styles.menuButton,
-                    styles.commentButton
+                    styles.commentButton,
+                    commentStyleAnim,
+                    opacityStyleAnim
                 ]}
                 onPress={() => {
                     setFormType("comment");
@@ -117,12 +180,14 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
             >
                 <Image style={styles.buttonImage}
                 source={colorScheme === 'light' ? require('../assets/images/speech_white.png'): require('../assets/images/speech_black.png')}/>
-            </Pressable>
-            <Pressable
+            </AnimatedPressable>
+            <AnimatedPressable
                 aria-label="add event"
                 style={[
                     styles.menuButton,
-                    styles.eventButton
+                    styles.eventButton,
+                    eventStyleAnim,
+                    opacityStyleAnim
                 ]}
                 onPress={() => {
                     setFormType("event");
@@ -132,7 +197,7 @@ function AddButtonOverlay({ username = "Anonymous", onAddComment, onAddEvent, on
             >
                 <Image style={styles.buttonImage}
                 source={colorScheme === 'light' ? require('../assets/images/event_white.png'): require('../assets/images/event_black.png')}/>
-            </Pressable>
+            </AnimatedPressable>
 
             {formType === "comment" ? (
                 <CommentForm
