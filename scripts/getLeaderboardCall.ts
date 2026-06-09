@@ -64,7 +64,10 @@ const getLeaderboardCall = async (
       const undername = username
         ? `@${username.replace(/^@/, "")}`
         : (u.undername ?? "");
-      const points = Number(u.points ?? u.score ?? u.totalPoints ?? 0) || 0;
+
+      const points =
+        Number(u.rankedPoints ?? u.points ?? u.score ?? u.totalPoints ?? 0) ||
+        0;
 
       return {
         id: String(id),

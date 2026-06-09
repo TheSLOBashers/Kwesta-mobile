@@ -103,7 +103,7 @@ export default function LeaderboardOverlay({ open, close }: Props) {
                 { color: colorScheme === "dark" ? "#98a2b3" : "#5f6b7a" },
               ]}
             >
-              Sorted by points
+              Sorted by ranked points
             </Text>
           </View>
 
